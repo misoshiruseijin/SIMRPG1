@@ -595,6 +595,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1522577636}
     m_Modifications:
+    - target: {fileID: 422044686097073000, guid: ce3c509a35976fa4bb91c0edde5f2c13,
+        type: 3}
+      propertyPath: particle
+      value: 
+      objectReference: {fileID: 2870083403099806340, guid: 74e67e055b38b54419028283122ecf19,
+        type: 3}
+    - target: {fileID: 422044686097073000, guid: ce3c509a35976fa4bb91c0edde5f2c13,
+        type: 3}
+      propertyPath: explosionPrefab
+      value: 
+      objectReference: {fileID: 2870083403099806362, guid: 74e67e055b38b54419028283122ecf19,
+        type: 3}
     - target: {fileID: 422044686097073001, guid: ce3c509a35976fa4bb91c0edde5f2c13,
         type: 3}
       propertyPath: m_Name
@@ -771,6 +783,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1522577636}
     m_Modifications:
+    - target: {fileID: 422044686097073000, guid: ce3c509a35976fa4bb91c0edde5f2c13,
+        type: 3}
+      propertyPath: explosionPrefab
+      value: 
+      objectReference: {fileID: 2870083403099806362, guid: 74e67e055b38b54419028283122ecf19,
+        type: 3}
     - target: {fileID: 422044686097073001, guid: ce3c509a35976fa4bb91c0edde5f2c13,
         type: 3}
       propertyPath: m_Name
@@ -834,12 +852,12 @@ PrefabInstance:
     - target: {fileID: 422044686097073046, guid: ce3c509a35976fa4bb91c0edde5f2c13,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 291
+      value: 319
       objectReference: {fileID: 0}
     - target: {fileID: 422044686097073046, guid: ce3c509a35976fa4bb91c0edde5f2c13,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 103
+      value: -134
       objectReference: {fileID: 0}
     - target: {fileID: 422044686097073046, guid: ce3c509a35976fa4bb91c0edde5f2c13,
         type: 3}
@@ -1097,8 +1115,8 @@ Canvas:
   m_GameObject: {fileID: 1522577632}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 519420031}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
