@@ -25,19 +25,6 @@ public class Character : MonoBehaviour
         hpSlider.value = Maxhp;
     }
 
-    public void ReceiveDamage(int _damage)
-    {
-        //GameObject tempParticle = Instantiate(explosionPrefab, this.transform.position, Quaternion.identity) as GameObject;
-
-        //hp -= _damage;
-        hpText.GetComponent<Text>().text = "HP: " + hp.ToString();
-        hpSlider.value = hp;
-        if (hp < 0)
-        {
-            hpSlider.value = 0;
-        }
-    }
-
     public void UpdateStatus()
     {
         hpText.GetComponent<Text>().text = "HP: " + hp.ToString();
