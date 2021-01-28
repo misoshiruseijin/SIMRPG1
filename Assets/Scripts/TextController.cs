@@ -6,23 +6,15 @@ using UnityEngine.UI;
 public class TextController : MonoBehaviour
 {
     // テキストオブジェクトにアタッチする
-    // テキストを更新。テキストstringはBattleControllerからもらう。
+    // テキストを更新。テキストstringはBattleControllerなどの別クラスからもらう
     [HideInInspector] public string textString = "";
 
     private int n_lines = 3; // 表示できる最大の行数
-    //private string[] logText;
     private List<string> logText = new List<string>();
 
     void Start()
     {
-        // initialize logText arary
-        //List<string> logText = new List<string>();
-        //for (int i = 0; i < n_lines; i++)
-        //{
-        //    logText[i] = "";
-        //}
-
-        //this.GetComponent<Text>().text = string.Join("\n", logText);
+        
     }
 
     public void UpdateLog()
@@ -43,14 +35,7 @@ public class TextController : MonoBehaviour
         }
 
         this.GetComponent<Text>().text = string.Join("\n", logText.ToArray());
-        //for (int i = 0; i < n_lines-1; i++)
-        //{
-        //    logText[i] = logText[i + 1];
-        //}
-
-        //logText[n_lines] = textString;
-
-        //this.GetComponent<Text>().text = string.Join("\n", logText);
+        
     }
 
 }
