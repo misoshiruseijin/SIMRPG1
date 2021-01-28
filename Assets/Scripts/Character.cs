@@ -17,17 +17,33 @@ public class Character : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        hp = Maxhp;
-        hpText.GetComponent<Text>().text = "HP: " + hp.ToString();
         atk = 10;
-
+        hp = Maxhp;
+        if (hpText != null)
+        {
+            hpText.GetComponent<Text>().text = "HP: " + hp.ToString();
+        }
+        
         hpSlider.maxValue = Maxhp;
         hpSlider.value = Maxhp;
     }
 
     public void UpdateStatus()
     {
-        hpText.GetComponent<Text>().text = "HP: " + hp.ToString();
+        if (hpText != null)
+        {
+            if (hp >= 0)
+            {
+                hpText.GetComponent<Text>().text = "HP: " + hp.ToString();
+            }
+
+            else
+            {
+                hpText.GetComponent<Text>().text = "HP: 0";
+            }
+            
+        }
+        
         hpSlider.value = hp;
 
         if (hp <= 0)

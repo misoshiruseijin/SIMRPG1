@@ -10,30 +10,47 @@ public class TextController : MonoBehaviour
     [HideInInspector] public string textString = "";
 
     private int n_lines = 3; // 表示できる最大の行数
-    private string[] logText;
+    //private string[] logText;
+    private List<string> logText = new List<string>();
 
     void Start()
     {
         // initialize logText arary
-        logText = new string[n_lines];
-        for (int i = 0; i < n_lines; i++)
-        {
-            logText[i] = "";
-        }
+        //List<string> logText = new List<string>();
+        //for (int i = 0; i < n_lines; i++)
+        //{
+        //    logText[i] = "";
+        //}
 
-        this.GetComponent<Text>().text = string.Join("\n", logText);
+        //this.GetComponent<Text>().text = string.Join("\n", logText);
     }
 
     public void UpdateLog()
     {
-        for (int i = n_lines-1; i > 0; i--)
+        if (logText.Count < n_lines)
         {
-            logText[i] = logText[i-1];
+            logText.Add(textString);
         }
 
-        logText[0] = textString;
+        else
+        {
+            for (int i = 0; i < n_lines-1; i++)
+            {
+                logText[i] = logText[i + 1];
+            }
 
-        this.GetComponent<Text>().text = string.Join("\n", logText);
+            logText[n_lines - 1] = textString;
+        }
+
+        this.GetComponent<Text>().text = string.Join("\n", logText.ToArray());
+        //for (int i = 0; i < n_lines-1; i++)
+        //{
+        //    logText[i] = logText[i + 1];
+        //}
+
+        //logText[n_lines] = textString;
+
+        //this.GetComponent<Text>().text = string.Join("\n", logText);
     }
 
 }
