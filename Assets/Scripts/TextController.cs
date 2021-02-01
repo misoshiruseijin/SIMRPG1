@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TextController : MonoBehaviour
+public static class TextController
 {
     // テキストオブジェクトにアタッチする
     // テキストを更新。テキストstringはBattleControllerなどの別クラスからもらう
-    [HideInInspector] public string textString = "";
+    //[HideInInspector] public string textString = "";
 
-    private int n_lines = 3; // 表示できる最大の行数
-    private List<string> logText = new List<string>();
+    private static int n_lines = 3; // 表示できる最大の行数
+    private static List<string> logText = new List<string>();
+    
+    public static bool updateFlg = false;
+    public static string outputString;
 
-    public void UpdateLog()
+    public static void UpdateLog(string textString)
     {
         if (logText.Count < n_lines)
         {
@@ -29,8 +32,18 @@ public class TextController : MonoBehaviour
             logText[n_lines - 1] = textString;
         }
 
-        this.GetComponent<Text>().text = string.Join("\n", logText.ToArray());
+        outputString = string.Join("\n", logText.ToArray());
+        updateFlg = true;
+
+
+        //this.GetComponent<Text>().text = string.Join("\n", logText.ToArray());
         
+    }
+
+    public static string UpdateLog2()
+    {
+        updateFlg = false;
+        return outputString;
     }
 
 }

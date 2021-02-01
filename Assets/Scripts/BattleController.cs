@@ -10,9 +10,6 @@ public class BattleController : MonoBehaviour
     public GameObject receiveUnit; // 攻撃されるユニット
     public GameObject attackEffect; // 攻撃エフェクト（詠唱）
     public GameObject damageEffect; // 被ダメージエフェクト（爆発）
-    public GameObject logTextObject; // バトルログを表示させるテキスト
-    public TextController txtCtrl;
-
 
     // Start is called before the first frame update
     void Start()
@@ -20,28 +17,28 @@ public class BattleController : MonoBehaviour
         CSVReader.ReadCSV("TestCSV");
 
         battleQueue = new Queue<Action>();
-        
+
         Action action1 = new Action()
         {
-            p = new Performance { character = attackUnit, effect = attackEffect},
-            log = new BattleLog { logString = "味方の攻撃！", textObject = logTextObject, controller = txtCtrl }
+            p = new Performance { character = attackUnit, effect = attackEffect },
+            log = new BattleLog { logString = "味方の攻撃！" }
         };
         battleQueue.Enqueue(action1);
 
         Action action2 = new Action()
         {
             p = new Performance { character = receiveUnit, effect = damageEffect },
-            log = new BattleLog { logString = "爆発が敵に襲いかかる！", textObject = logTextObject, controller = txtCtrl }
+            log = new BattleLog { logString = "爆発が敵に襲いかかる！"}
         };
         battleQueue.Enqueue(action2);
 
         Action action3 = new Action()
         {
             d = new Damage { attackCharacter = attackUnit, receiveCharacter = receiveUnit, damage = 30 },
-            log = new BattleLog { logString = "敵に30のダメージ！", textObject = logTextObject, controller = txtCtrl }
+            log = new BattleLog { logString = "敵に30のダメージ！"}
         };
         battleQueue.Enqueue(action3);
-        
+
     }
 
     IEnumerator ActionCoroutine()
@@ -109,14 +106,10 @@ public class BattleController : MonoBehaviour
     {
         // バトルログテキスト制御
         public string logString;
-        public GameObject textObject;
-        public TextController controller;
 
         public void BattleLogMethod()
         {
-            textObject.GetComponent<TextController>().textString = logString;
-            //textObject.GetComponent<Text>().text = logString;
-            controller.UpdateLog();
+            TextController.UpdateLog(logString);
         }
     }
 
