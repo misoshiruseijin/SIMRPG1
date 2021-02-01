@@ -12,11 +12,6 @@ public class TextController : MonoBehaviour
     private int n_lines = 3; // 表示できる最大の行数
     private List<string> logText = new List<string>();
 
-    void Start()
-    {
-        
-    }
-
     public void UpdateLog()
     {
         if (logText.Count < n_lines)

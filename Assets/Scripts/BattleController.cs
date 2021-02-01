@@ -13,9 +13,12 @@ public class BattleController : MonoBehaviour
     public GameObject logTextObject; // バトルログを表示させるテキスト
     public TextController txtCtrl;
 
+
     // Start is called before the first frame update
     void Start()
     {
+        CSVReader.ReadCSV("TestCSV");
+
         battleQueue = new Queue<Action>();
         
         Action action1 = new Action()

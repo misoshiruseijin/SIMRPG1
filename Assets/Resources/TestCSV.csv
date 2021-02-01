@@ -1,0 +1,3 @@
+id,name,jname,hp,atk,def,spd,skill1,skill2,skill3,skill4
+int,string,string,int,int,int,int,int,int,int,int
+U_00,nezumi,ƒlƒYƒ~,50,10,10,15,S_00,S_00,S_00,S_00
