@@ -14,7 +14,7 @@ public class BattleController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        CSVReader.ReadCSV("TestCSV");
+        //CSVReader.ReadCSV("TestCSV");
 
         battleQueue = new Queue<Action>();
 
@@ -47,7 +47,7 @@ public class BattleController : MonoBehaviour
         while (battleQueue.Count > 0)
         {
             Action action = battleQueue.Dequeue();
-            Debug.Log(action);
+            //Debug.Log(action);
             if (action.log != null)
             {
                 action.log.BattleLogMethod();

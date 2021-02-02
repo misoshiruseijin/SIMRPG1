@@ -7,7 +7,6 @@ public static class TextController
 {
     // テキストオブジェクトにアタッチする
     // テキストを更新。テキストstringはBattleControllerなどの別クラスからもらう
-    //[HideInInspector] public string textString = "";
 
     private static int n_lines = 3; // 表示できる最大の行数
     private static List<string> logText = new List<string>();
@@ -34,9 +33,6 @@ public static class TextController
 
         outputString = string.Join("\n", logText.ToArray());
         updateFlg = true;
-
-
-        //this.GetComponent<Text>().text = string.Join("\n", logText.ToArray());
         
     }
 

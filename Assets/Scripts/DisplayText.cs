@@ -19,5 +19,11 @@ public class DisplayText : MonoBehaviour
             string logText = TextController.UpdateLog2();
             this.GetComponent<Text>().text = logText;
         }
+
+        if (CSVReader.returnLineFlg == true)
+        {
+            string csvText = CSVReader.ReturnLine();
+            this.GetComponent<Text>().text = csvText;
+        }
     }
 }
