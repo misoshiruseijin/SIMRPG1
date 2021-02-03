@@ -1,3 +1,4 @@
-﻿id,name,jname,hp,atk,def,spd,skill1,skill2,skill3,skill4
-int,string,string,int,int,int,int,int,int,int,int
-E_00,Mnezumi,変異ネズミ,50,10,10,10,S_01,S_01,S_01,S_01
+,id,name,jname,hp,atk,def,spd,skill1,skill2,skill3,skill4
+0,int,string,string,int,int,int,int,int,int,int,int
+1,E_00,nezumiM,ネズミ変異種,50,10,10,10,S_01,S_01,S_01,S_01
+2,E_01,kaM,蚊変異種,15,5,5,20,S_02,S_02,S_02,S_02
