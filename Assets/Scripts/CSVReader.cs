@@ -10,13 +10,16 @@ public static class CSVReader
     public static List<string[]> csvData = new List<string[]>();
     private static string csvLine;
 
+
     public static bool returnLineFlg = false;
 
-    public static void ReadCSV(string filename)
+    public static List<string[]> ReadCSV(string filename)
     {
         // read csv file in Assets/Resources/ and store content in csvData
         TextAsset csvFile = Resources.Load(filename) as TextAsset;
         StringReader reader = new StringReader(csvFile.text);
+
+        List<string> typesList = new List<string>();
 
         while (reader.Peek() != -1)
         {
@@ -31,7 +34,9 @@ public static class CSVReader
             csvData.Add(csvLine.Split(','));
         }
 
-        returnLineFlg = true;
+        return csvData;
+        
+        //returnLineFlg = true;
 
     }
 

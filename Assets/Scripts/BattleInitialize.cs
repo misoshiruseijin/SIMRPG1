@@ -9,12 +9,16 @@ public static class BattleInitialize
     ///CSVReaderから受け取ったデータから必要なデータだけをまとめてBattleControllerに渡す
     ///</summary>
     
-    public static void GetPlayerUnitData()
-    {
+    public static List<string[]> playerData = new List<string[]>();
+    public static List<string[]> enemyData = new List<string[]>();
 
+    public static void GetPlayerData(List<int> playersInBattle)
+    {
+        playerData = CSVReader.ReadCSV("PlayerUnit");
+        //Debug.Log(playerData[0][0]);
     }
 
-    public static void GetEnemyData()
+    public static void GetEnemyData(List<string> enemiesInBattle)
     {
 
     }

@@ -1,4 +1,4 @@
 id,name,jname,hp,atk,def,spd,skill1,skill2,skill3,skill4
-int,string,string,int,int,int,int,int,int,int,int
-U_00,nezumi,ネズミ,50,10,10,15,S_00,S_00,S_00,S_00
-U_01,ka,蚊,20,5,5,25,S_02,S_02,S_02,S_02
+string,string,string,int,int,int,int,int,int,int,int
+P_00,nezumi,ネズミ,50,10,10,15,S_00,S_00,S_00,S_00
+P_01,ka,蚊,20,5,5,25,S_02,S_02,S_02,S_02
