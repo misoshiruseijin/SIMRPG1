@@ -1,5 +1,4 @@
 id,name,jname,multiplier
-string,string,string,int
 S_00,kamituki,噛みつき,1
 S_01,hikkaki,ひっかき,1
 S_02,kyuuketu,吸血,2

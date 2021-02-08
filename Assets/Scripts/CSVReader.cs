@@ -21,6 +21,9 @@ public static class CSVReader
 
         List<string> typesList = new List<string>();
 
+        // skip header
+        reader.ReadLine();
+
         while (reader.Peek() != -1)
         {
             // read csv line by line

@@ -9,12 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32720792afd3ad44ba14205d44402cf1, type: 3}
-  m_Name: PlayerStatusData
+  m_Script: {fileID: 11500000, guid: 33a9b13848670ef4d8560aed39e017a4, type: 3}
+  m_Name: ka
   m_EditorClassIdentifier: 
-  PlayerStatusList:
-  - name: "\u30EA\u30AA\u30EC\u30A6\u30B9"
-    HP: 100
-    atk: 10
-    def: 10
-    spd: 10
+  id: P_01
+  engName: ka
+  jpName: "\u868A"
+  hp: 20
+  atk: 5
+  def: 5
+  spd: 25
+  skill1: S_02
+  skill2: S_02
+  skill3: S_02
+  skill4: S_02
