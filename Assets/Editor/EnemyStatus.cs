@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewPlayerData", menuName = "Assets/NewPlayerData")]
-public class PlayerStatus : ScriptableObject
+public class EnemyStatus : ScriptableObject
 {
     public string id, engName, jpName;
     public int hp, atk, def, spd;
