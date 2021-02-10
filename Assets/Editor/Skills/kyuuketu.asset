@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feb8e6ff9ee500e42acf4d0b86bf0276, type: 3}
+  m_Name: kyuuketu
+  m_EditorClassIdentifier: 
+  id: S_02
+  engName: kyuuketu
+  jpName: "\u5438\u8840"
+  desc: "\u6575\u5358\u4F53\u306B\u653B\u6483\u529B\u5206\u306E\u30C0\u30E1\u30FC\u30B8\u3000\u4E0E\u3048\u305F\u30C0\u30E1\u30FC\u30B8\u306E\u534A\u5206\u3060\u3051\u81EA\u8EAB\u306EHP\u3092\u56DE\u5FA9"
+  message1: "\u306E\u5438\u8840\uFF01"
+  message2: "\u306E\u30C0\u30E1\u30FC\u30B8\uFF01"
+  message3: "\u56DE\u5FA9"
+  dmgTarget: enemy
+  healTarget: self
+  buffTarget: none
+  dmgMult: 1
+  healMult: 0.5
+  buffMult: 0
+  effect1: {fileID: 2952683513468376559, guid: d578cb85cfa25f94ebb6d0b7407f06b1, type: 3}
+  effect2: {fileID: 2870083403099806362, guid: 74e67e055b38b54419028283122ecf19, type: 3}

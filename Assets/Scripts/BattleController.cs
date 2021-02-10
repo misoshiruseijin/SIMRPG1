@@ -11,14 +11,8 @@ public class BattleController : MonoBehaviour
     public GameObject attackEffect; // 攻撃エフェクト（詠唱）
     public GameObject damageEffect; // 被ダメージエフェクト（爆発）
 
-    //public List<int> playersInBattle = new List<int> { 0};
-
-    // Start is called before the first frame update
     void Start()
     {
-        //CSVReader.ReadCSV("TestCSV");
-        //BattleInitialize.GetPlayerData(playersInBattle);
-
         battleQueue = new Queue<Action>();
 
         Action action1 = new Action()
