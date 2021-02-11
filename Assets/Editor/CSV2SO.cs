@@ -16,6 +16,8 @@ public class CSV2SO : MonoBehaviour
     [MenuItem("Utilities/Generate PlayerData")]
     public static void GeneratePlayerData()
     {
+        csvData.Clear();
+        csvLine = string.Empty;
         StreamReader reader = new StreamReader(Application.dataPath + PlayerCSVPath);
 
         // skip header
@@ -48,7 +50,7 @@ public class CSV2SO : MonoBehaviour
             p.skill3 = splitData[9];
             p.skill4 = splitData[10];
 
-            AssetDatabase.CreateAsset(p, $"Assets/Editor/PlayerUnits/{p.engName}.asset");
+            AssetDatabase.CreateAsset(p, $"Assets/SO/PlayerUnits/{p.engName}.asset");
         }
 
         AssetDatabase.SaveAssets();
@@ -58,6 +60,8 @@ public class CSV2SO : MonoBehaviour
     [MenuItem("Utilities/Generate EnemyData")]
     public static void GenerateEnemyData()
     {
+        csvData.Clear();
+        csvLine = string.Empty;
         StreamReader reader = new StreamReader(Application.dataPath + EnemyCSVPath);
 
         // skip header
@@ -90,7 +94,7 @@ public class CSV2SO : MonoBehaviour
             e.skill3 = splitData[9];
             e.skill4 = splitData[10];
 
-            AssetDatabase.CreateAsset(e, $"Assets/Editor/EnemyUnits/{e.engName}.asset");
+            AssetDatabase.CreateAsset(e, $"Assets/SO/EnemyUnits/{e.engName}.asset");
         }
 
         AssetDatabase.SaveAssets();
@@ -100,6 +104,8 @@ public class CSV2SO : MonoBehaviour
     [MenuItem("Utilities/Generate SkillData")]
     public static void GenerateSkillData()
     {
+        csvData.Clear();
+        csvLine = string.Empty;
         StreamReader reader = new StreamReader(Application.dataPath + SkillsCSVPath);
 
         // skip header
@@ -138,7 +144,7 @@ public class CSV2SO : MonoBehaviour
             GameObject effectPrefab2 = Resources.Load<GameObject>("Effects/" + splitData[14]);
             s.effect2 = effectPrefab2;
 
-            AssetDatabase.CreateAsset(s, $"Assets/Editor/Skills/{s.engName}.asset");
+            AssetDatabase.CreateAsset(s, $"Assets/SO/Skills/{s.engName}.asset");
         }
 
         AssetDatabase.SaveAssets();
