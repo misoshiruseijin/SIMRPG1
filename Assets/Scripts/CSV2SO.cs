@@ -9,10 +9,19 @@ public class CSV2SO : MonoBehaviour
     public static List<string> csvData = new List<string>();
     private static string csvLine;
 
-    private static string PlayerCSVPath = "/Editor/CSVs/PlayerUnit.csv";
-    private static string EnemyCSVPath = "/Editor/CSVs/EnemyUnit.csv";
-    private static string SkillsCSVPath = "/Editor/CSVs/Skills.csv";
+    private static string PlayerCSVPath = "/SO/CSVs/PlayerUnit.csv";
+    private static string EnemyCSVPath = "/SO/CSVs/EnemyUnit.csv";
+    private static string SkillsCSVPath = "/SO/CSVs/Skills.csv";
     
+
+    [MenuItem("Utilities/Generate AllData")]
+    public static void GenerateAllData()
+    {
+        GeneratePlayerData();
+        GenerateEnemyData();
+        GenerateSkillData();
+    }
+
     [MenuItem("Utilities/Generate PlayerData")]
     public static void GeneratePlayerData()
     {

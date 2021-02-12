@@ -3,27 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Character : MonoBehaviour
+public class Character: MonoBehaviour
 {
     public Slider hpSlider;
+    public Text nameText;
     public GameObject explosionPrefab;
     public GameObject hpText;
 
-    public int hp;
-    public int Maxhp = 100;
-    public int atk;
+    [HideInInspector] public string jpName;
+    [HideInInspector] public int hp;
+    [HideInInspector] public int Maxhp = 100;
 
-
-    // Start is called before the first frame update
-    void Start()
+    public void SetStatus()
     {
-        atk = 10;
+        nameText.GetComponent<Text>().text = jpName;
+
         hp = Maxhp;
         if (hpText != null)
         {
             hpText.GetComponent<Text>().text = "HP: " + hp.ToString();
         }
-        
+
         hpSlider.maxValue = Maxhp;
         hpSlider.value = Maxhp;
     }
