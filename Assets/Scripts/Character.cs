@@ -14,6 +14,8 @@ public class Character: MonoBehaviour
     [HideInInspector] public int hp;
     [HideInInspector] public int Maxhp = 100;
 
+    public List<ScriptableObject> skillList;
+
     public void SetStatus()
     {
         nameText.GetComponent<Text>().text = jpName;

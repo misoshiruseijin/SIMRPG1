@@ -19,7 +19,4 @@ MonoBehaviour:
   atk: 10
   def: 10
   spd: 10
-  skill1: S_01
-  skill2: S_01
-  skill3: S_01
-  skill4: S_01
+  skills: 01000000

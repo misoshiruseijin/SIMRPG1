@@ -9,12 +9,6 @@ public class BattleController : MonoBehaviour
     Queue<Action> battleQueue;
     public List<GameObject> playerObjList; // 味方ユニット（最大数3）
     public List<GameObject> enemyObjList; // 敵ユニット（最大数3）
-    //public GameObject playerUnit1; // 味方ユニット
-    //public GameObject playerUnit2;
-    //public GameObject playerUnit3;
-    //public GameObject enemyUnit1; // 敵ユニット
-    //public GameObject enemyUnit2;
-    //public GameObject enemyUnit3;
     public GameObject attackEffect; // 攻撃エフェクト（詠唱）
     public GameObject damageEffect; // 被ダメージエフェクト（爆発）
 
@@ -77,18 +71,19 @@ public class BattleController : MonoBehaviour
             Character character = unitObjList[i].GetComponent<Character>();
             string unitName = unitsInBattle[i];
             
-            // ScriptableObjectを読み込む
+            // ScriptableObjectを読み込み、対応するGameObjectにHPと名前を設定
             if (unitType.Equals("Player"))
             {
+                // プレイヤーユニットの場合
                 PlayerStatus SO = AssetDatabase.LoadAssetAtPath<PlayerStatus>(playerSOpath + unitName + ".asset");
                 character.Maxhp = SO.hp;
                 character.jpName = SO.jpName;
                 character.SetStatus();
-
             }
             
             if (unitType.Equals("Enemy"))
             {
+                // 敵ユニットの場合
                 EnemyStatus SO = AssetDatabase.LoadAssetAtPath<EnemyStatus>(enemySOpath + unitName + ".asset");
                 character.Maxhp = SO.hp;
                 character.jpName = SO.jpName;
@@ -97,7 +92,7 @@ public class BattleController : MonoBehaviour
 
             Sprite sp = AssetDatabase.LoadAssetAtPath<Sprite>(imgPath + unitName + ".png"); // キャラ画像を取得
             unitObjList[i].transform.Find("CharacterImage").GetComponent<Image>().sprite = sp; // キャラ画像を設定
-            unitObjList[i].SetActive(true);                      
+            unitObjList[i].SetActive(true); // 画像が設定されたら非表示を解除                  
         }
       
     }

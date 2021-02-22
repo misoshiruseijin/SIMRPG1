@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
@@ -47,6 +48,8 @@ public class CSV2SO : MonoBehaviour
         {
             string[] splitData = csvLine.Split(',');
             PlayerStatus p = ScriptableObject.CreateInstance<PlayerStatus>();
+
+            // 名前とステータスを獲得
             p.id = splitData[0];
             p.engName = splitData[1];
             p.jpName = splitData[2];
@@ -54,10 +57,35 @@ public class CSV2SO : MonoBehaviour
             p.atk = int.Parse(splitData[4]);
             p.def = int.Parse(splitData[5]);
             p.spd = int.Parse(splitData[6]);
-            p.skill1 = splitData[7];
-            p.skill2 = splitData[8];
-            p.skill3 = splitData[9];
-            p.skill4 = splitData[10];
+
+            // スキルIDを獲得
+            List<string> skillData = new List<string>{ splitData[7], splitData[8], splitData[9], splitData[10]};
+            p.skills = new List<int>();
+
+            foreach(string s in skillData)
+            {
+                if (String.IsNullOrEmpty(s))
+                {
+                    break;
+                }
+
+                else
+                {
+                    int skillID = 10;
+
+                    if (s[s.IndexOf("_")+1].ToString().Equals("0"))
+                    {
+                        skillID = int.Parse(s[s.Length-1].ToString());
+                    }
+
+                    else
+                    {
+                        skillID = int.Parse(s.Substring(s.IndexOf("_")));
+                    }
+
+                    p.skills.Add(skillID);
+                }
+            }
 
             AssetDatabase.CreateAsset(p, $"Assets/SO/PlayerUnits/{p.engName}.asset");
         }
@@ -91,6 +119,8 @@ public class CSV2SO : MonoBehaviour
         {
             string[] splitData = csvLine.Split(',');
             EnemyStatus e = ScriptableObject.CreateInstance<EnemyStatus>();
+
+            // 名前とステータスを獲得
             e.id = splitData[0];
             e.engName = splitData[1];
             e.jpName = splitData[2];
@@ -98,10 +128,35 @@ public class CSV2SO : MonoBehaviour
             e.atk = int.Parse(splitData[4]);
             e.def = int.Parse(splitData[5]);
             e.spd = int.Parse(splitData[6]);
-            e.skill1 = splitData[7];
-            e.skill2 = splitData[8];
-            e.skill3 = splitData[9];
-            e.skill4 = splitData[10];
+
+            // スキルIDを獲得
+            List<string> skillData = new List<string> { splitData[7], splitData[8], splitData[9], splitData[10] };
+            e.skills = new List<int>();
+
+            foreach (string s in skillData)
+            {
+                if (String.IsNullOrEmpty(s))
+                {
+                    break;
+                }
+
+                else
+                {
+                    int skillID = 10;
+
+                    if (s[s.IndexOf("_") + 1].ToString().Equals("0"))
+                    {
+                        skillID = int.Parse(s[s.Length - 1].ToString());
+                    }
+
+                    else
+                    {
+                        skillID = int.Parse(s.Substring(s.IndexOf("_")));
+                    }
+
+                    e.skills.Add(skillID);
+                }
+            }
 
             AssetDatabase.CreateAsset(e, $"Assets/SO/EnemyUnits/{e.engName}.asset");
         }

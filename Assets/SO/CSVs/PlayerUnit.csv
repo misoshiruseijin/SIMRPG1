@@ -1,3 +1,3 @@
 id,engName,jpName,hp,atk,def,spd,skill1,skill2,skill3,skill4
-P_00,nezumi,ネズミ,50,10,10,15,S_00,S_00,S_00,S_00
-P_01,ka,蚊,20,5,5,25,S_02,S_02,S_02,S_02
+P_00,nezumi,ネズミ,50,10,10,15,S_00,S_00,,
+P_01,ka,蚊,20,5,5,25,S_02,,,
