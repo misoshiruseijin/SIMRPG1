@@ -9,10 +9,11 @@ public class Character: MonoBehaviour
     public Text nameText;
     public GameObject explosionPrefab;
     public GameObject hpText;
+    public int hp;
 
+    public int Maxhp, atk, def, spd;
     [HideInInspector] public string jpName;
-    [HideInInspector] public int hp;
-    [HideInInspector] public int Maxhp = 100;
+    //[HideInInspector] public int Maxhp = 100;
 
     public List<ScriptableObject> skillList;
 

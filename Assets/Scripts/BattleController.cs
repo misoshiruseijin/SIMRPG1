@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
@@ -12,11 +14,12 @@ public class BattleController : MonoBehaviour
     public GameObject attackEffect; // 攻撃エフェクト（詠唱）
     public GameObject damageEffect; // 被ダメージエフェクト（爆発）
 
-    private List<string> players = new List<string> { "nezumi", "nezumi" }; // 戦闘に参加する味方ユニット
+    private List<string> players = new List<string> { "nezumi" }; // 戦闘に参加する味方ユニット
     private List<string> enemies = new List<string> { "nezumiM" }; // 戦闘に参加する敵ユニット
 
     private string playerSOpath = "Assets/SO/PlayerUnits/";
     private string enemySOpath = "Assets/SO/EnemyUnits/";
+    private string skillSOpath = "Assets/SO/Skills/";
     private string imgPath = "Assets/Textures/UnitImages/";
 
     void Start()
@@ -70,7 +73,7 @@ public class BattleController : MonoBehaviour
         {
             Character character = unitObjList[i].GetComponent<Character>();
             string unitName = unitsInBattle[i];
-            
+
             // ScriptableObjectを読み込み、対応するGameObjectにHPと名前を設定
             if (unitType.Equals("Player"))
             {
@@ -78,7 +81,33 @@ public class BattleController : MonoBehaviour
                 PlayerStatus SO = AssetDatabase.LoadAssetAtPath<PlayerStatus>(playerSOpath + unitName + ".asset");
                 character.Maxhp = SO.hp;
                 character.jpName = SO.jpName;
+                character.atk = SO.atk;
+                character.def = SO.def;
+                character.spd = SO.spd;
                 character.SetStatus();
+
+                string stringID;
+                
+                foreach(int skillID in SO.skills)
+                {
+                    // foreach skill a character has
+                    if (skillID < 10)
+                    {
+                        stringID = "0" + skillID.ToString();
+                    }
+                    else
+                    {
+                        stringID = skillID.ToString();
+                    }
+
+                    // skillIDに対応したスキルアッセットをCharacterに設定
+                    IEnumerable<string> assetfiles = Directory.GetFiles(skillSOpath, "*.asset").Where(name => name.Contains(stringID));
+                    foreach(string ast in assetfiles)
+                    {
+                        SkillStatus skillStatus = AssetDatabase.LoadAssetAtPath<SkillStatus>(ast);
+                        character.skillList.Add(skillStatus);
+                    }
+                }                
             }
             
             if (unitType.Equals("Enemy"))
@@ -87,6 +116,9 @@ public class BattleController : MonoBehaviour
                 EnemyStatus SO = AssetDatabase.LoadAssetAtPath<EnemyStatus>(enemySOpath + unitName + ".asset");
                 character.Maxhp = SO.hp;
                 character.jpName = SO.jpName;
+                character.atk = SO.atk;
+                character.def = SO.def;
+                character.spd = SO.spd;
                 character.SetStatus();
             }
 

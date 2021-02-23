@@ -142,7 +142,7 @@ public class CSV2SO : MonoBehaviour
 
                 else
                 {
-                    int skillID = 10;
+                    int skillID;
 
                     if (s[s.IndexOf("_") + 1].ToString().Equals("0"))
                     {
@@ -190,7 +190,18 @@ public class CSV2SO : MonoBehaviour
         {
             string[] splitData = csvLine.Split(',');
             SkillStatus s = ScriptableObject.CreateInstance<SkillStatus>();
-            s.id = splitData[0];
+
+            string id = splitData[0];
+            if (id[id.IndexOf("_") + 1].ToString().Equals("0"))
+            {
+                s.id = int.Parse(id[id.Length - 1].ToString());
+            }
+
+            else
+            {
+                s.id = int.Parse(id.Substring(id.IndexOf("_")));
+            }
+
             s.engName = splitData[1];
             s.jpName = splitData[2];
             s.desc = splitData[3];
