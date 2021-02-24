@@ -86,8 +86,8 @@ public class BattleController : MonoBehaviour
                 character.spd = SO.spd;
                 character.SetStatus();
 
+                // スキルを設定
                 string stringID;
-                
                 foreach(int skillID in SO.skills)
                 {
                     // foreach skill a character has
@@ -120,13 +120,35 @@ public class BattleController : MonoBehaviour
                 character.def = SO.def;
                 character.spd = SO.spd;
                 character.SetStatus();
+
+                // スキルを設定
+                string stringID;
+                foreach (int skillID in SO.skills)
+                {
+                    // foreach skill a character has
+                    if (skillID < 10)
+                    {
+                        stringID = "0" + skillID.ToString();
+                    }
+                    else
+                    {
+                        stringID = skillID.ToString();
+                    }
+
+                    // skillIDに対応したスキルアッセットをCharacterに設定
+                    IEnumerable<string> assetfiles = Directory.GetFiles(skillSOpath, "*.asset").Where(name => name.Contains(stringID));
+                    foreach (string ast in assetfiles)
+                    {
+                        SkillStatus skillStatus = AssetDatabase.LoadAssetAtPath<SkillStatus>(ast);
+                        character.skillList.Add(skillStatus);
+                    }
+                }
             }
 
             Sprite sp = AssetDatabase.LoadAssetAtPath<Sprite>(imgPath + unitName + ".png"); // キャラ画像を取得
             unitObjList[i].transform.Find("CharacterImage").GetComponent<Image>().sprite = sp; // キャラ画像を設定
             unitObjList[i].SetActive(true); // 画像が設定されたら非表示を解除                  
         }
-      
     }
 
     IEnumerator ActionCoroutine()
