@@ -15,7 +15,7 @@ public class Character: MonoBehaviour
     [HideInInspector] public string jpName;
     //[HideInInspector] public int Maxhp = 100;
 
-    public List<ScriptableObject> skillList;
+    public List<SkillStatus> skillList;
 
     public void SetStatus()
     {

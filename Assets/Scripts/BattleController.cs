@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
@@ -16,16 +17,22 @@ public class BattleController : MonoBehaviour
 
     private List<string> players = new List<string> { "nezumi" }; // 戦闘に参加する味方ユニット
     private List<string> enemies = new List<string> { "nezumiM" }; // 戦闘に参加する敵ユニット
+    private List<GameObject> unitObjList;
 
     private string playerSOpath = "Assets/SO/PlayerUnits/";
     private string enemySOpath = "Assets/SO/EnemyUnits/";
     private string skillSOpath = "Assets/SO/Skills/";
     private string imgPath = "Assets/Textures/UnitImages/";
 
+    private string allyTag = "Ally";
+    private string enemyTag = "Enemy";
+
     void Start()
     {
         InitializeBattleUnits(players, playerObjList, "Player");
         InitializeBattleUnits(enemies, enemyObjList, "Enemy");
+
+        unitObjList = playerObjList.Concat(enemyObjList).ToList(); // 戦闘に参加する全ユニット
 
         //battleQueue = new Queue<Action>();
 
@@ -49,7 +56,6 @@ public class BattleController : MonoBehaviour
         //    log = new BattleLog { logString = "敵に30のダメージ！" }
         //};
         //battleQueue.Enqueue(action3);
-
     }
 
 
@@ -148,6 +154,47 @@ public class BattleController : MonoBehaviour
             Sprite sp = AssetDatabase.LoadAssetAtPath<Sprite>(imgPath + unitName + ".png"); // キャラ画像を取得
             unitObjList[i].transform.Find("CharacterImage").GetComponent<Image>().sprite = sp; // キャラ画像を設定
             unitObjList[i].SetActive(true); // 画像が設定されたら非表示を解除                  
+        }
+    }
+
+    public void GenerateRandomQueue(List<GameObject> allUnits, List<GameObject> playerUnits, List<GameObject> enemyUnits)
+    {
+        // spdステータスから行動順を決定
+        allUnits = allUnits.OrderByDescending(unit => unit.GetComponent<Character>().spd).ToList(); // spdが高い順に並べる
+
+        foreach (GameObject unit in allUnits)
+        {
+            List<GameObject> receiveUnits = new List<GameObject>();
+            GameObject effect1, effect2;
+            int damage;
+            Character character = unit.GetComponent<Character>();
+
+            // スキルを選ぶ
+            List<SkillStatus> skillList = character.skillList;
+            SkillStatus skill = skillList[UnityEngine.Random.Range(0, skillList.Count)];
+
+            // エフェクトを取得
+            effect1 = skill.effect1;
+            effect2 = skill.effect2;
+
+            // 被攻撃ユニットを相手サイドのユニットの中から選ぶ
+            if (unit.tag == allyTag)
+            {
+                receiveUnits.Add(enemyUnits[UnityEngine.Random.Range(0, enemyUnits.Count)]);
+            }
+            if (unit.tag == enemyTag)
+            {
+                receiveUnits.Add(playerUnits[UnityEngine.Random.Range(0, playerUnits.Count)]);
+            }
+            else
+            {
+                Debug.Log("インスペクターでユニットオブジェクトに設定されたタグを確認してください");
+            }
+
+            // ダメージ計算
+            damage = (int)Math.Round(character.atk * skill.dmgMult);
+
+            //--->>> ここから！！！！// Queueを作成　
         }
     }
 
