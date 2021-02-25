@@ -17,7 +17,7 @@ public class BattleController : MonoBehaviour
 
     private List<string> players = new List<string> { "nezumi" }; // 戦闘に参加する味方ユニット
     private List<string> enemies = new List<string> { "nezumiM" }; // 戦闘に参加する敵ユニット
-    private List<GameObject> unitObjList;
+    private List<GameObject> unitObjList = new List<GameObject>(); // 戦闘に参加する全ユニットオブジェクト
 
     private string playerSOpath = "Assets/SO/PlayerUnits/";
     private string enemySOpath = "Assets/SO/EnemyUnits/";
@@ -32,30 +32,21 @@ public class BattleController : MonoBehaviour
         InitializeBattleUnits(players, playerObjList, "Player");
         InitializeBattleUnits(enemies, enemyObjList, "Enemy");
 
-        unitObjList = playerObjList.Concat(enemyObjList).ToList(); // 戦闘に参加する全ユニット
+        // initialize unit object lists to match number of units in battle
+        playerObjList = playerObjList.Take(players.Count).ToList();
+        enemyObjList = enemyObjList.Take(enemies.Count).ToList();
+        for (int i = 0; i < players.Count; i++)
+        {
+            unitObjList.Add(playerObjList[i]);
+        }
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            unitObjList.Add(enemyObjList[i]);
+        }
 
-        //battleQueue = new Queue<Action>();
+        //Debug.Log($"ユニット数は{unitObjList.Count}");
 
-        //Action action1 = new Action()
-        //{
-        //    p = new Performance { character = playerUnit1, effect = attackEffect },
-        //    log = new BattleLog { logString = "味方の攻撃！" }
-        //};
-        //battleQueue.Enqueue(action1);
-
-        //Action action2 = new Action()
-        //{
-        //    p = new Performance { character = enemyUnit1, effect = damageEffect },
-        //    log = new BattleLog { logString = "爆発が敵に襲いかかる！" }
-        //};
-        //battleQueue.Enqueue(action2);
-
-        //Action action3 = new Action()
-        //{
-        //    d = new Damage { attackCharacter = playerUnit1, receiveCharacter = enemyUnit1, damage = 30 },
-        //    log = new BattleLog { logString = "敵に30のダメージ！" }
-        //};
-        //battleQueue.Enqueue(action3);
+        GenerateRandomQueue(unitObjList, playerObjList, enemyObjList);
     }
 
 
@@ -161,30 +152,41 @@ public class BattleController : MonoBehaviour
     {
         // spdステータスから行動順を決定
         allUnits = allUnits.OrderByDescending(unit => unit.GetComponent<Character>().spd).ToList(); // spdが高い順に並べる
+                                                                                               // Queueを作成　
+        battleQueue = new Queue<Action>();
 
         foreach (GameObject unit in allUnits)
         {
-            List<GameObject> receiveUnits = new List<GameObject>();
+            List<GameObject> receiveUnits = new List<GameObject>(); // 行動を受けるユニットのリスト
+            List<GameObject> actionUnit = new List<GameObject> { unit }; // 行動するユニット
             GameObject effect1, effect2;
             int damage;
             Character character = unit.GetComponent<Character>();
 
-            // スキルを選ぶ
-            List<SkillStatus> skillList = character.skillList;
-            SkillStatus skill = skillList[UnityEngine.Random.Range(0, skillList.Count)];
+            List<SkillStatus> skillList = character.skillList; // ユニットのスキルリストを取得
+            // 使うスキルをランダムに選ぶ
+            SkillStatus skill = skillList[0];
+            if (skillList.Count > 1)
+            {
+                skill = skillList[UnityEngine.Random.Range(0, skillList.Count)];
+            }
 
             // エフェクトを取得
             effect1 = skill.effect1;
             effect2 = skill.effect2;
 
             // 被攻撃ユニットを相手サイドのユニットの中から選ぶ
-            if (unit.tag == allyTag)
+            if (unit.tag.Equals(allyTag))
             {
                 receiveUnits.Add(enemyUnits[UnityEngine.Random.Range(0, enemyUnits.Count)]);
+                //Debug.Log($"{character.jpName}はALLYタイプです");
+                //Debug.Log($"攻撃を受けるのは{receiveUnits[0].GetComponent<Character>().jpName}です");
             }
-            if (unit.tag == enemyTag)
+            else if (unit.tag == enemyTag)
             {
                 receiveUnits.Add(playerUnits[UnityEngine.Random.Range(0, playerUnits.Count)]);
+                //Debug.Log($"{character.jpName}はENEMYタイプです");
+                //Debug.Log($"攻撃を受けるのは{receiveUnits[0].GetComponent<Character>().jpName}です");
             }
             else
             {
@@ -194,15 +196,38 @@ public class BattleController : MonoBehaviour
             // ダメージ計算
             damage = (int)Math.Round(character.atk * skill.dmgMult);
 
-            //--->>> ここから！！！！// Queueを作成　
+            // キューに行動を追加
+            // スキル発動演出
+            Action action1 = new Action()
+            {
+                p = new Performance { unitList = actionUnit, effect = effect1 },
+                log = new BattleLog { logString = $"{character.jpName}の{skill.jpName}"}
+            };
+            battleQueue.Enqueue(action1);
+            
+            // スキルを受ける演出
+            Action action2 = new Action()
+            {
+                p = new Performance { unitList = receiveUnits, effect = effect2},
+                log = new BattleLog { logString = $"{receiveUnits[0].GetComponent<Character>().jpName}達にダメージ"}
+            };
+            battleQueue.Enqueue(action2);
+
+            // ダメージ反映
+            Action action3 = new Action()
+            {
+                d = new Damage { actionUnitList = actionUnit, receiveUnitList = receiveUnits, damage = damage},
+                log = new BattleLog { logString = $"{receiveUnits[0].GetComponent<Character>().jpName}に{damage.ToString()}のダメージ"}
+            };
+            battleQueue.Enqueue(action3);
         }
     }
 
     IEnumerator ActionCoroutine()
     {
-        //Debug.Log(battleQueue.Count);
         while (battleQueue.Count > 0)
         {
+            //Debug.Log(battleQueue.Count);
             Action action = battleQueue.Dequeue();
             //Debug.Log(action);
             if (action.log != null)
@@ -234,13 +259,18 @@ public class BattleController : MonoBehaviour
     public class Performance
     {
         // エフェクト、アニメーション制御
-        public GameObject character;
+        //public GameObject character;
+        public List<GameObject> unitList;
         public GameObject effect;
 
         public void PerformanceMethod()
         {
-            GameObject tempParticle = Instantiate(effect, character.transform.position, effect.transform.rotation) as GameObject;
-
+            //GameObject tempParticle = Instantiate(effect, character.transform.position, effect.transform.rotation) as GameObject;
+            foreach (GameObject unit in unitList)
+            {
+                GameObject tempParticle = Instantiate(effect, unit.transform.position, effect.transform.rotation) as GameObject;
+            }
+            
         }
 
     }
@@ -248,14 +278,22 @@ public class BattleController : MonoBehaviour
     public class Damage
     {
         // ダメージ制御
-        public GameObject attackCharacter;
-        public GameObject receiveCharacter;
+        //public GameObject actionCharacter;
+        //public GameObject receiveCharacter;
+        public List<GameObject> actionUnitList;
+        public List<GameObject> receiveUnitList;
+
         public int damage;
 
         public void DamageMethod()
         {
-            receiveCharacter.GetComponent<Character>().hp -= damage;
-            receiveCharacter.GetComponent<Character>().UpdateStatus();
+            //receiveCharacter.GetComponent<Character>().hp -= damage;
+            //receiveCharacter.GetComponent<Character>().UpdateStatus();
+            foreach (GameObject receiveUnit in receiveUnitList)
+            {
+                receiveUnit.GetComponent<Character>().hp -= damage;
+                receiveUnit.GetComponent<Character>().UpdateStatus();
+            }
         }
     }
 
