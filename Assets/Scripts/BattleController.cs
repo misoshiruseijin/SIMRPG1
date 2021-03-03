@@ -172,8 +172,8 @@ public class BattleController : MonoBehaviour
             }
 
             // エフェクトを取得
-            effect1 = skill.effect1;
-            effect2 = skill.effect2;
+            effect1 = skill.effectList[0];
+            effect2 = skill.effectList[2];
 
             // 被攻撃ユニットを相手サイドのユニットの中から選ぶ
             if (unit.tag.Equals(allyTag))
@@ -194,7 +194,8 @@ public class BattleController : MonoBehaviour
             }
 
             // ダメージ計算
-            damage = (int)Math.Round(character.atk * skill.dmgMult);
+            damage = 10;
+            //damage = (int)Math.Round(character.atk * skill.dmgMult);
 
             // キューに行動を追加
             // スキル発動演出
@@ -287,8 +288,6 @@ public class BattleController : MonoBehaviour
 
         public void DamageMethod()
         {
-            //receiveCharacter.GetComponent<Character>().hp -= damage;
-            //receiveCharacter.GetComponent<Character>().UpdateStatus();
             foreach (GameObject receiveUnit in receiveUnitList)
             {
                 receiveUnit.GetComponent<Character>().hp -= damage;

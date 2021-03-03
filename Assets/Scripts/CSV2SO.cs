@@ -71,7 +71,7 @@ public class CSV2SO : MonoBehaviour
 
                 else
                 {
-                    int skillID = 10;
+                    int skillID;
 
                     if (s[s.IndexOf("_")+1].ToString().Equals("0"))
                     {
@@ -191,6 +191,7 @@ public class CSV2SO : MonoBehaviour
             string[] splitData = csvLine.Split(',');
             SkillStatus s = ScriptableObject.CreateInstance<SkillStatus>();
 
+            // get integer ver of ID
             string id = splitData[0];
             if (id[id.IndexOf("_") + 1].ToString().Equals("0"))
             {
@@ -202,22 +203,50 @@ public class CSV2SO : MonoBehaviour
                 s.id = int.Parse(id.Substring(id.IndexOf("_")));
             }
 
+            // get name
             s.engName = splitData[1];
             s.jpName = splitData[2];
-            s.desc = splitData[3];
-            s.message1 = splitData[4];
-            s.message2 = splitData[5];
-            s.message3 = splitData[6];
-            s.dmgTarget = splitData[7];
-            s.healTarget = splitData[8];
-            s.buffTarget = splitData[9];
-            s.dmgMult = float.Parse(splitData[10]);
-            s.healMult = float.Parse(splitData[11]);
-            s.buffMult = float.Parse(splitData[12]);
-            GameObject effectPrefab1 = Resources.Load<GameObject>("Effects/" + splitData[13]);
-            s.effect1 = effectPrefab1;
-            GameObject effectPrefab2 = Resources.Load<GameObject>("Effects/" + splitData[14]);
-            s.effect2 = effectPrefab2;
+
+            // get skill content
+            s.targetList = new List<int>();
+            s.actionTypeList = new List<int>();
+            s.multList = new List<int>();
+            for (int i = 1; i < 4; i++)
+            {
+                if (!String.IsNullOrEmpty(splitData[3 * i]))
+                {
+                    s.targetList.Add(int.Parse(splitData[3 * i]));
+                    s.actionTypeList.Add(int.Parse(splitData[3 * i + 1]));
+                    s.multList.Add(int.Parse(splitData[3 * i + 2]));
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // get skill effects
+            s.effectList = new List<GameObject>();
+            for (int i = 0; i < 4; i++)
+            {
+                if (!String.IsNullOrEmpty(splitData[i+12]))
+                {
+                    GameObject effectPrefab = Resources.Load<GameObject>("Effects/" + splitData[i + 12]);
+                    s.effectList.Add(effectPrefab);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            //GameObject effectPrefab1 = Resources.Load<GameObject>("Effects/" + splitData[12]);
+            //s.effect1 = effectPrefab1;
+            //GameObject effectPrefab2 = Resources.Load<GameObject>("Effects/" + splitData[13]);
+            //s.effect2 = effectPrefab2;
+
+            // get battle message and skill description
+            s.message = splitData[16];
+            s.desc = splitData[17];
 
             AssetDatabase.CreateAsset(s, $"Assets/SO/Skills/{s.engName}.asset");
         }

@@ -1,4 +1,4 @@
-id,engName,jpName,target1,type1,mult1,target2,type2,mult2,target3,type3,mult3,effect1,effect2,message1,desc
-S_00,00_kamituki,噛みつき,0.0,0.0,1.0,,,,,,,spell,explosion,の噛みつき！,敵単体に攻撃力分のダメージ
-S_01,01_hikkaki,ひっかき,0.0,0.0,1.0,,,,,,,spell,explosion,は鋭い爪でひっかいた！,敵単体に攻撃力分のダメージ
-S_02,02_kyuuketu,吸血,0.0,0.0,1.0,4.0,1.0,0.5,,,,spell,explosion,の吸血攻撃！,敵単体に攻撃力分のダメージ　与えたダメージの半分だけ自身のHPを回復
+id,engName,jpName,target1,type1,mult1,target2,type2,mult2,target3,type3,mult3,effect0,effect1,effect2,effect3,message1,desc
+S_00,00_kamituki,噛みつき,0,0,1,,,,,,,spell,explosion,,,の噛みつき！,敵単体に攻撃力分のダメージ
+S_01,01_hikkaki,ひっかき,0,0,1,,,,,,,spell,explosion,,,は鋭い爪でひっかいた！,敵単体に攻撃力分のダメージ
+S_02,02_kyuuketu,吸血,0,0,1,4,1,5,,,,spell,explosion,explosion,,の吸血攻撃！,敵単体に攻撃力分のダメージ　与えたダメージの半分だけ自身のHPを回復
