@@ -152,16 +152,20 @@ public class BattleController : MonoBehaviour
     {
         // spdステータスから行動順を決定
         allUnits = allUnits.OrderByDescending(unit => unit.GetComponent<Character>().spd).ToList(); // spdが高い順に並べる
-                                                                                               // Queueを作成　
+        Debug.Log("行動順は" + String.Join(" ", allUnits));
+
+        // Queueを作成　
         battleQueue = new Queue<Action>();
 
         foreach (GameObject unit in allUnits)
         {
-            List<GameObject> receiveUnits = new List<GameObject>(); // 行動を受けるユニットのリスト
+            //List<GameObject> receiveUnits = new List<GameObject>(); // 行動を受けるユニットのリスト
+            List<List<GameObject>> receiveUnits = new List<List<GameObject>>();
             List<GameObject> actionUnit = new List<GameObject> { unit }; // 行動するユニット
-            GameObject effect1, effect2;
-            int damage;
+            //GameObject effect1, effect2;
+            List<List<int>> damages = new List<List<int>>();
             Character character = unit.GetComponent<Character>();
+            string unitTag = unit.tag;
 
             List<SkillStatus> skillList = character.skillList; // ユニットのスキルリストを取得
             // 使うスキルをランダムに選ぶ
@@ -171,57 +175,146 @@ public class BattleController : MonoBehaviour
                 skill = skillList[UnityEngine.Random.Range(0, skillList.Count)];
             }
 
-            // エフェクトを取得
-            effect1 = skill.effectList[0];
-            effect2 = skill.effectList[2];
+            Debug.Log($"{character.jpName}が使うスキルは{skill.jpName}");
 
-            // 被攻撃ユニットを相手サイドのユニットの中から選ぶ
-            if (unit.tag.Equals(allyTag))
+            foreach (int targetType in skill.targetList)
             {
-                receiveUnits.Add(enemyUnits[UnityEngine.Random.Range(0, enemyUnits.Count)]);
-                //Debug.Log($"{character.jpName}はALLYタイプです");
-                //Debug.Log($"攻撃を受けるのは{receiveUnits[0].GetComponent<Character>().jpName}です");
-            }
-            else if (unit.tag == enemyTag)
-            {
-                receiveUnits.Add(playerUnits[UnityEngine.Random.Range(0, playerUnits.Count)]);
-                //Debug.Log($"{character.jpName}はENEMYタイプです");
-                //Debug.Log($"攻撃を受けるのは{receiveUnits[0].GetComponent<Character>().jpName}です");
-            }
-            else
-            {
-                Debug.Log("インスペクターでユニットオブジェクトに設定されたタグを確認してください");
+                List<GameObject> tempList = ChooseTargetUnits(targetType, unit);
+                receiveUnits.Add(tempList);
+                Debug.Log("スキルを受けるのは" + String.Join(" ", tempList));
             }
 
-            // ダメージ計算
-            damage = 10;
-            //damage = (int)Math.Round(character.atk * skill.dmgMult);
+            damages = CalculateDamage(character, receiveUnits, skill.actionTypeList, skill.multList);
 
+            
             // キューに行動を追加
             // スキル発動演出
-            Action action1 = new Action()
-            {
-                p = new Performance { unitList = actionUnit, effect = effect1 },
-                log = new BattleLog { logString = $"{character.jpName}の{skill.jpName}"}
-            };
-            battleQueue.Enqueue(action1);
+            //Action action1 = new Action()
+            //{
+            //    p = new Performance { unitList = actionUnit, effect = effect1 },
+            //    log = new BattleLog { logString = $"{character.jpName}の{skill.jpName}"}
+            //};
+            //battleQueue.Enqueue(action1);
             
-            // スキルを受ける演出
-            Action action2 = new Action()
-            {
-                p = new Performance { unitList = receiveUnits, effect = effect2},
-                log = new BattleLog { logString = $"{receiveUnits[0].GetComponent<Character>().jpName}達にダメージ"}
-            };
-            battleQueue.Enqueue(action2);
+            //// スキルを受ける演出
+            //Action action2 = new Action()
+            //{
+            //    p = new Performance { unitList = receiveUnits, effect = effect2},
+            //    log = new BattleLog { logString = $"{receiveUnits[0].GetComponent<Character>().jpName}達にダメージ"}
+            //};
+            //battleQueue.Enqueue(action2);
 
-            // ダメージ反映
-            Action action3 = new Action()
-            {
-                d = new Damage { actionUnitList = actionUnit, receiveUnitList = receiveUnits, damage = damage},
-                log = new BattleLog { logString = $"{receiveUnits[0].GetComponent<Character>().jpName}に{damage.ToString()}のダメージ"}
-            };
-            battleQueue.Enqueue(action3);
+            //// ダメージ反映
+            //Action action3 = new Action()
+            //{
+            //    d = new Damage { actionUnitList = actionUnit, receiveUnitList = receiveUnits, damage = damage},
+            //    log = new BattleLog { logString = $"{receiveUnits[0].GetComponent<Character>().jpName}に{damage.ToString()}のダメージ"}
+            //};
+            //battleQueue.Enqueue(action3);
         }
+    }
+
+
+    public List<GameObject> ChooseTargetUnits(int targetCode, GameObject unit)
+    {
+        // unit = スキル使用者, targetCode = TargetListのintコード
+        List<GameObject> targetUnits = new List<GameObject>(); // アウトプット
+        List<GameObject> enemyTargets = new List<GameObject>(); // スキル使用者の敵ユニットリスト
+        List<GameObject> allyTargets = new List<GameObject>(); // スキル使用者の味方ユニットリスト
+        string unitTag = unit.tag; // ユニット判別用タグ
+
+        // 敵味方を判断
+        if (unitTag.Equals(allyTag))
+        {
+            allyTargets = playerObjList;
+            enemyTargets = enemyObjList;
+        }
+        else if (unitTag.Equals(enemyTag))
+        {
+            allyTargets = enemyObjList;
+            enemyTargets = playerObjList;
+        }
+        else
+        {
+            Debug.Log("インスペクターでユニットオブジェクトに設定されたタグを確認してください");
+        }
+
+        // TargetTypeからActionを受けるユニットのリストを作成
+        switch (targetCode)
+        {
+            case 0:
+                // 敵単体が対象。敵ユニットの中からランダムに1体選択
+                targetUnits.Add(enemyTargets[UnityEngine.Random.Range(0, enemyTargets.Count)]);
+                break;
+
+            case 1:
+                // 敵全体が対象
+                targetUnits = enemyTargets;
+                break;
+
+            case 2:
+                // 味方単体が対象。味方ユニットの中からランダムに1体選択
+                targetUnits.Add(allyTargets[UnityEngine.Random.Range(0, allyTargets.Count)]);
+                break;
+
+            case 3:
+                // 味方全体が対象
+                targetUnits = allyTargets;
+                break;
+
+            case 4:
+                // スキル発動者が対象
+                targetUnits.Add(unit);
+                break;
+
+            default:
+                Debug.Log("TargetTypeが存在しません");
+                break;
+        }
+
+        return targetUnits;
+    }
+
+    public List<List<int>> CalculateDamage(Character skillUser, List<List<GameObject>> receiveUnits, List<int> actionTypesList, List<int> multList)
+    {
+        // character = Character component of unit using the skill
+
+        List<List<int>> damageList = new List<List<int>>();
+
+        for (int i = 0; i < actionTypesList.Count; i++)
+        {
+            List<int> tempList = new List<int>();
+            int atk = skillUser.atk; // スキル使用者の攻撃力を取得
+
+            switch (actionTypesList[i])
+            {
+                case 0:
+                    // ダメージを与える効果
+                    foreach (GameObject targetUnit in receiveUnits[i])
+                    {
+                        Character targetCharacter = targetUnit.GetComponent<Character>();
+                        int def = targetCharacter.def;
+                        int damage = atk * multList[i] - def;
+                        tempList.Add(damage);
+                    }
+                    break;
+
+                case 1:
+                    // 回復効果
+                    foreach(GameObject targetUnit in receiveUnits[i])
+                    {
+                        Character targetCharacter = targetUnit.GetComponent<Character>();
+                        int damage = Mathf.RoundToInt((float)(-atk * multList[i] / 10));
+                        tempList.Add(damage);
+                    }
+                    break;
+            }
+
+            damageList.Add(tempList);
+            Debug.Log("ダメージは" + String.Join(" ", tempList));
+        }
+
+        return damageList;
     }
 
     IEnumerator ActionCoroutine()
