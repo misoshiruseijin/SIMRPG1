@@ -19,7 +19,7 @@ MonoBehaviour:
   message: "\u306F\u92ED\u3044\u722A\u3067\u3072\u3063\u304B\u3044\u305F\uFF01"
   targetList: 00000000
   actionTypeList: 00000000
-  multList: 01000000
+  multList: 02000000
   effectList:
   - {fileID: 2952683513468376559, guid: d578cb85cfa25f94ebb6d0b7407f06b1, type: 3}
   - {fileID: 2870083403099806362, guid: 74e67e055b38b54419028283122ecf19, type: 3}
