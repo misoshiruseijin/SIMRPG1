@@ -15,7 +15,7 @@ public class BattleController : MonoBehaviour
     public GameObject attackEffect; // 攻撃エフェクト（詠唱）
     public GameObject damageEffect; // 被ダメージエフェクト（爆発）
 
-    private List<string> players = new List<string> { "nezumi" }; // 戦闘に参加する味方ユニット
+    private List<string> players = new List<string> { "nezumi", "nezumi" }; // 戦闘に参加する味方ユニット
     private List<string> enemies = new List<string> { "nezumiM" }; // 戦闘に参加する敵ユニット
     private List<GameObject> unitObjList = new List<GameObject>(); // 戦闘に参加する全ユニットオブジェクト
 
@@ -46,7 +46,7 @@ public class BattleController : MonoBehaviour
 
         //Debug.Log($"ユニット数は{unitObjList.Count}");
 
-        StartBattleTurn(unitObjList, playerObjList, enemyObjList);
+        //StartBattleTurn(unitObjList, playerObjList, enemyObjList);
     }
 
 
@@ -161,7 +161,8 @@ public class BattleController : MonoBehaviour
         {
             List<List<GameObject>> receiveUnits = new List<List<GameObject>>(); // 行動を受けるユニットのリスト
             List<GameObject> actionUnit = new List<GameObject> { unit }; // 行動するユニット
-            List<List<int>> damages = new List<List<int>>();
+            List<List<int>> damages = new List<List<int>>(); 
+            List<List<string>> logStringList = new List<List<string>>();
             Character character = unit.GetComponent<Character>();
             string unitTag = unit.tag;
 
@@ -175,6 +176,7 @@ public class BattleController : MonoBehaviour
 
             Debug.Log($"{character.jpName}が使うスキルは{skill.jpName}");
 
+            // スキルを受けるユニットをリストに格納
             foreach (int targetType in skill.targetList)
             {
                 List<GameObject> tempList = ChooseTargetUnits(targetType, unit);
@@ -182,11 +184,15 @@ public class BattleController : MonoBehaviour
                 Debug.Log("スキルを受けるのは" + String.Join(" ", tempList));
             }
 
+            // ダメージリストを作成
             damages = CalculateDamage(character, receiveUnits, skill.actionTypeList, skill.multList);
+
+            // バトルログテキストのリストを作成
+            logStringList = GenerateLogStrings(receiveUnits, damages, skill);
 
             // バトルキューにアクションを追加
             List<Action> tempActionList = new List<Action>();
-            tempActionList = GenerateActions(receiveUnits, damages, skill.actionTypeList, skill.effectList, actionUnit);
+            tempActionList = GenerateActions(receiveUnits, damages, logStringList, skill.effectList, actionUnit, skill);
             foreach (Action action in tempActionList)
             {
                 battleQueue.Enqueue(action);
@@ -297,21 +303,73 @@ public class BattleController : MonoBehaviour
         return damageList;
     }
 
-    public List<Action> GenerateActions(List<List<GameObject>> receiveUnits, List<List<int>> damageList, List<int> actionTypesList, List<GameObject> effectsList, List<GameObject> actionUnit)
+    public List<List<string>> GenerateLogStrings(List<List<GameObject>> receiveUnitList, List<List<int>> damageList, SkillStatus skill)
+    {
+        List<List<string>> logList = new List<List<string>>();
+        for (int i = 0; i < receiveUnitList.Count; i++)
+        {
+            // for each action type
+            string msgString = "";
+            List<string> tempList = new List<string>();
+
+            for (int j = 0; j < receiveUnitList[i].Count; j++)
+            {
+                // for each unit 
+                string receiveCharaName = receiveUnitList[i][j].GetComponent<Character>().jpName;
+                int damage = damageList[i][j];
+
+                switch (skill.actionTypeList[i])
+                {
+                    // スキルタイプによって文章を変える
+                    case 0:
+                        // ダメージ
+                        msgString = receiveCharaName + "に" + damage.ToString() + "のダメージ！";
+                        break;
+
+                    case 1:
+                        // 回復
+                        int heal = -damageList[i][0];
+                        msgString = receiveCharaName + "の体力が" + heal.ToString() + "回復した！";
+                        break;
+
+                    case 2:
+                        // バフ
+                        msgString = "バフがかかった！";
+                        break;
+
+                    case 3:
+                        // 状態異常付与
+                        msgString = "状態異常効果！";
+                        break;
+                }
+
+                tempList.Add(msgString);
+            }
+
+            logList.Add(tempList);
+        }
+
+        return logList;
+    }
+    
+    public List<Action> GenerateActions(List<List<GameObject>> receiveUnits, List<List<int>> damageList, List<List<string>> logStringList, List<GameObject> effectsList, List<GameObject> actionUnit, SkillStatus skill)
     {
         // actionUnit = スキル使用者（リスト形式）
-        // スキル発動エフェクト
+        Character skillUser = actionUnit[0].GetComponent<Character>();
         List<Action> actionsList = new List<Action>();
 
+        // スキル発動エフェクト
+        string msgString0 = skillUser.jpName + skill.message;
         Action preAction = new Action()
         {
             p = new Performance { unitList = actionUnit, effect = effectsList[0]},
-            log = new BattleLog { logString = $"{actionUnit[0].GetComponent<Character>().jpName}のスキル名！"}
+            log = new BattleLog { logList = new List<string> { msgString0} }
         };
 
         actionsList.Add(preAction);
 
-        for (int i = 0; i < actionTypesList.Count; i++)
+        List<List<string>> msgList = new List<List<string>>();
+        for (int i = 0; i < receiveUnits.Count; i++)
         {
             // スキルを受けたエフェクト
             Action action1 = new Action()
@@ -324,7 +382,7 @@ public class BattleController : MonoBehaviour
             Action action2 = new Action()
             {
                 d = new Damage { receiveUnitList = receiveUnits[i], damageList = damageList[i]},
-                log = new BattleLog { logString = $"{receiveUnits[i][0].GetComponent<Character>().jpName}達に{damageList[i][0]}のダメージ！"}
+                log = new BattleLog { logList = logStringList[i]}
             };
             actionsList.Add(action2);
         }
@@ -404,16 +462,22 @@ public class BattleController : MonoBehaviour
     public class BattleLog
     {
         // バトルログテキスト制御
-        public string logString;
+        //public string logString;
+        public List<string> logList;
 
         public void BattleLogMethod()
         {
-            TextController.UpdateLog(logString);
+            //TextController.UpdateLog(logString);
+            foreach (string logString in logList)
+            {                
+                TextController.UpdateLog(logString);
+            }
         }
     }
 
     public void AttackButtonPressed()
     {
+        StartBattleTurn(unitObjList, playerObjList, enemyObjList);
         StartCoroutine("ActionCoroutine");
     }
 
