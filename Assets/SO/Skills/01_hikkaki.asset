@@ -22,4 +22,4 @@ MonoBehaviour:
   multList: 02000000
   effectList:
   - {fileID: 2952683513468376559, guid: d578cb85cfa25f94ebb6d0b7407f06b1, type: 3}
-  - {fileID: 2870083403099806362, guid: 74e67e055b38b54419028283122ecf19, type: 3}
+  - {fileID: 6152691228510257221, guid: b52d3b2d429572e4cb01579b7dec50c4, type: 3}
