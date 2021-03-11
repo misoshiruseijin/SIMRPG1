@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 2952683513468376546}
   - component: {fileID: 2952683513468376545}
   - component: {fileID: 2952683513468376544}
+  - component: {fileID: -5672912553720521301}
   m_Layer: 0
-  m_Name: EffectSpell
+  m_Name: spell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4754,3 +4755,15 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
+--- !u!114 &-5672912553720521301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2952683513468376559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82a4d523ed5a9e84b81f6d550a066152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

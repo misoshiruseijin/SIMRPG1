@@ -152,7 +152,7 @@ public class BattleController : MonoBehaviour
     {
         // spdステータスから行動順を決定
         allUnits = allUnits.OrderByDescending(unit => unit.GetComponent<Character>().spd).ToList(); // spdが高い順に並べる
-        Debug.Log("行動順は" + String.Join(" ", allUnits));
+        //Debug.Log("行動順は" + String.Join(" ", allUnits));
         
         // バトルキューを作成
         battleQueue = new Queue<Action>();
@@ -174,14 +174,14 @@ public class BattleController : MonoBehaviour
                 skill = skillList[UnityEngine.Random.Range(0, skillList.Count)];
             }
 
-            Debug.Log($"{character.jpName}が使うスキルは{skill.jpName}");
+            //Debug.Log($"{character.jpName}が使うスキルは{skill.jpName}");
 
             // スキルを受けるユニットをリストに格納
             foreach (int targetType in skill.targetList)
             {
                 List<GameObject> tempList = ChooseTargetUnits(targetType, unit);
                 receiveUnits.Add(tempList);
-                Debug.Log("スキルを受けるのは" + String.Join(" ", tempList));
+                //Debug.Log("スキルを受けるのは" + String.Join(" ", tempList));
             }
 
             // ダメージリストを作成
@@ -297,7 +297,7 @@ public class BattleController : MonoBehaviour
             }
 
             damageList.Add(tempList);
-            Debug.Log("ダメージは" + String.Join(" ", tempList));
+            //Debug.Log("ダメージは" + String.Join(" ", tempList));
         }
 
         return damageList;
@@ -362,7 +362,8 @@ public class BattleController : MonoBehaviour
         string msgString0 = skillUser.jpName + skill.message;
         Action preAction = new Action()
         {
-            p = new Performance { unitList = actionUnit, effect = effectsList[0]},
+            //p = new Performance { unitList = actionUnit, effect = effectsList[0]},
+            p = new Performance { unitList = actionUnit },
             log = new BattleLog { logList = new List<string> { msgString0} }
         };
 
@@ -432,11 +433,21 @@ public class BattleController : MonoBehaviour
 
         public void PerformanceMethod()
         {
-            //GameObject tempParticle = Instantiate(effect, character.transform.position, effect.transform.rotation) as GameObject;
-            foreach (GameObject unit in unitList)
+            if (effect == null)
             {
-                GameObject tempParticle = Instantiate(effect, unit.transform.position, effect.transform.rotation) as GameObject;
+                foreach (GameObject unit in unitList)
+                {
+                    // preAction effect
+                }
             }
+
+            else
+            {
+                foreach (GameObject unit in unitList)
+                {
+                    GameObject tempParticle = Instantiate(effect, unit.transform.position, effect.transform.rotation) as GameObject;
+                }
+            }           
             
         }
 

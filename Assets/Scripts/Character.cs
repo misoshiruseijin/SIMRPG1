@@ -55,4 +55,24 @@ public class Character: MonoBehaviour
         }
     }
 
+    public void hopUnit()
+    {
+        // 未完成
+        // ユニットををぴょんと跳ねさせる
+        RectTransform rt = this.GetComponent<RectTransform>(); // RectTransformコンポーネントを取得
+        float originalX = rt.anchoredPosition.x;
+        float originalY = rt.anchoredPosition.y;
+        float time = 0;
+
+        while (time <= 1)
+        {
+            rt.anchoredPosition = new Vector2(originalX, originalY + 10*time);
+            Debug.Log(this.name + ": " + time + ", " + rt.anchoredPosition.y);
+            time += Time.deltaTime;
+        }
+
+        rt.anchoredPosition = new Vector2(originalX, originalY);
+
+    }
+
 }
