@@ -13,9 +13,29 @@ public class Character: MonoBehaviour
 
     public int Maxhp, atk, def, spd;
     [HideInInspector] public string jpName;
-    //[HideInInspector] public int Maxhp = 100;
 
     public List<SkillStatus> skillList;
+
+    public bool animFlg = false;
+
+    private RectTransform rt;
+    private float originalX, originalY;
+    private float time;
+    private float posY;
+    public void Start()
+    {
+        rt = this.GetComponent<RectTransform>();
+        originalX = rt.anchoredPosition.x;
+        originalY = rt.anchoredPosition.y;
+        posY = originalY;
+        //time = 0;
+    }
+
+    //public void Update()
+    //{
+    //    rt.anchoredPosition = new Vector2(originalX, posY);
+    //    //Debug.Log(posY);
+    //}
 
     public void SetStatus()
     {
@@ -59,20 +79,19 @@ public class Character: MonoBehaviour
     {
         // 未完成
         // ユニットををぴょんと跳ねさせる
-        RectTransform rt = this.GetComponent<RectTransform>(); // RectTransformコンポーネントを取得
-        float originalX = rt.anchoredPosition.x;
-        float originalY = rt.anchoredPosition.y;
-        float time = 0;
+        time = 0;
 
-        while (time <= 1)
+        while (time <= 5)
         {
-            rt.anchoredPosition = new Vector2(originalX, originalY + 10*time);
-            Debug.Log(this.name + ": " + time + ", " + rt.anchoredPosition.y);
+            float sin = 10 * Mathf.Sin(2 * Mathf.PI * time);
+            //rt.anchoredPosition = new Vector2(originalX, originalY + sin);
+            posY = originalY + sin;
             time += Time.deltaTime;
+            Debug.Log(this.name + ": " + posY);
         }
 
-        rt.anchoredPosition = new Vector2(originalX, originalY);
-
+        posY = originalY;
+        
     }
 
 }

@@ -10,10 +10,9 @@ using UnityEditor;
 public class BattleController : MonoBehaviour
 {
     Queue<Action> battleQueue;
-    public List<GameObject> playerObjList; // 味方ユニット（最大数3）
-    public List<GameObject> enemyObjList; // 敵ユニット（最大数3）
-    public GameObject attackEffect; // 攻撃エフェクト（詠唱）
-    public GameObject damageEffect; // 被ダメージエフェクト（爆発）
+    public List<GameObject> playerObjList; // 味方ユニット
+    public List<GameObject> enemyObjList; // 敵ユニット
+    public List<GameObject> statusPanelList; // 味方のステータス表示用パネル
 
     private List<string> players = new List<string> { "nezumi", "nezumi" }; // 戦闘に参加する味方ユニット
     private List<string> enemies = new List<string> { "nezumiM" }; // 戦闘に参加する敵ユニット
@@ -65,6 +64,11 @@ public class BattleController : MonoBehaviour
         {
             unitObj.SetActive(false);
         }
+        // 全ステータスパネルを非表示
+        foreach(GameObject statusPanel in statusPanelList)
+        {
+            statusPanel.SetActive(false);
+        }
         
         for (int i = 0; i < n_units; i++)
         {
@@ -82,6 +86,10 @@ public class BattleController : MonoBehaviour
                 character.def = SO.def;
                 character.spd = SO.spd;
                 character.SetStatus();
+
+                // ステータスパネルを設定
+                statusPanelList[i].GetComponentInChildren<Text>().text = SO.jpName + "\n" + "HP " + SO.hp + "\n";
+                statusPanelList[i].SetActive(true);
 
                 // スキルを設定
                 string stringID;
@@ -438,6 +446,7 @@ public class BattleController : MonoBehaviour
                 foreach (GameObject unit in unitList)
                 {
                     // preAction effect
+                    
                 }
             }
 
