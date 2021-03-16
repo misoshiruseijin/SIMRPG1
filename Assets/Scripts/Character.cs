@@ -7,90 +7,77 @@ public class Character: MonoBehaviour
 {
     public Slider hpSlider;
     public Text nameText;
-    public GameObject explosionPrefab;
-    public GameObject hpText;
+    public Text statusText;
     public int hp;
 
     public int Maxhp, atk, def, spd;
+    public string badStatus;
     [HideInInspector] public string jpName;
 
     public List<SkillStatus> skillList;
 
-    public bool animFlg = false;
-
-    private RectTransform rt;
-    private float originalX, originalY;
-    private float time;
-    private float posY;
-    public void Start()
-    {
-        rt = this.GetComponent<RectTransform>();
-        originalX = rt.anchoredPosition.x;
-        originalY = rt.anchoredPosition.y;
-        posY = originalY;
-        //time = 0;
-    }
-
-    //public void Update()
-    //{
-    //    rt.anchoredPosition = new Vector2(originalX, posY);
-    //    //Debug.Log(posY);
-    //}
+    private Color statusTextColor;
 
     public void SetStatus()
     {
         nameText.GetComponent<Text>().text = jpName;
+        statusTextColor = Color.white;
 
         hp = Maxhp;
-        if (hpText != null)
+        if (statusText != null)
         {
-            hpText.GetComponent<Text>().text = "HP: " + hp.ToString();
+            statusText.GetComponent<Text>().text = jpName + "\n" + "HP " + hp.ToString() + "\n" + badStatus;
         }
 
-        hpSlider.maxValue = Maxhp;
-        hpSlider.value = Maxhp;
+        if (hpSlider != null)
+        {
+            hpSlider.maxValue = Maxhp;
+            hpSlider.value = Maxhp;
+        }
     }
 
     public void UpdateStatus()
     {
-        if (hpText != null)
+        if (statusText != null)
         {
-            if (hp >= 0)
+            if (hp > 0.3 * Maxhp)
             {
-                hpText.GetComponent<Text>().text = "HP: " + hp.ToString();
+                // 残りHPが30％以上ある
+                if (hp > Maxhp)
+                {
+                    // 最大HPを超えないようにする
+                    hp = Maxhp;
+                }
+
+                statusTextColor = Color.white;
             }
+            
 
             else
             {
-                hpText.GetComponent<Text>().text = "HP: 0";
+                if (hp <= 0)
+                {
+                    // HPがマイナスにならないようにする
+                    hp = 0;
+                    statusTextColor = Color.red;
+                }
+
+                else
+                {
+                    statusTextColor = Color.yellow;
+                }
+                
             }
-            
-        }
-        
-        hpSlider.value = hp;
 
-        if (hp <= 0)
+            statusText.GetComponent<Text>().text = jpName + "\n" + "HP " + hp.ToString() + "\n" + badStatus;
+            statusText.GetComponent<Text>().color = statusTextColor;
+
+        }
+
+        if (hpSlider != null)
         {
-            hpSlider.value = 0;
+            hpSlider.value = hp;
         }
-    }
-
-    public void hopUnit()
-    {
-        // 未完成
-        // ユニットををぴょんと跳ねさせる
-        time = 0;
-
-        while (time <= 5)
-        {
-            float sin = 10 * Mathf.Sin(2 * Mathf.PI * time);
-            //rt.anchoredPosition = new Vector2(originalX, originalY + sin);
-            posY = originalY + sin;
-            time += Time.deltaTime;
-            Debug.Log(this.name + ": " + posY);
-        }
-
-        posY = originalY;
         
     }
 

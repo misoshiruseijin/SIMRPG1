@@ -18,11 +18,13 @@ public static class TextController
     {
         if (logText.Count < n_lines)
         {
+            // if logText list contain less than n_lines lines, append new string to logText list
             logText.Add(textString);
         }
 
         else
         {
+            // else, discard oldest line and add new line (scroll text)
             for (int i = 0; i < n_lines-1; i++)
             {
                 logText[i] = logText[i + 1];
@@ -31,8 +33,9 @@ public static class TextController
             logText[n_lines - 1] = textString;
         }
 
+        // join all strings in logText list into single string
         outputString = string.Join("\n", logText.ToArray());
-        updateFlg = true;
+        updateFlg = true; // set flag to indicate that new text is ready
         
     }
 

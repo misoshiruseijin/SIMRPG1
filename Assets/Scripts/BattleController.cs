@@ -64,11 +64,6 @@ public class BattleController : MonoBehaviour
         {
             unitObj.SetActive(false);
         }
-        // 全ステータスパネルを非表示
-        foreach(GameObject statusPanel in statusPanelList)
-        {
-            statusPanel.SetActive(false);
-        }
         
         for (int i = 0; i < n_units; i++)
         {
@@ -88,7 +83,6 @@ public class BattleController : MonoBehaviour
                 character.SetStatus();
 
                 // ステータスパネルを設定
-                statusPanelList[i].GetComponentInChildren<Text>().text = SO.jpName + "\n" + "HP " + SO.hp + "\n";
                 statusPanelList[i].SetActive(true);
 
                 // スキルを設定
@@ -109,6 +103,7 @@ public class BattleController : MonoBehaviour
                     IEnumerable<string> assetfiles = Directory.GetFiles(skillSOpath, "*.asset").Where(name => name.Contains(stringID));
                     foreach(string ast in assetfiles)
                     {
+                        // foreachだけどassetfilesの中身は1つのはず
                         SkillStatus skillStatus = AssetDatabase.LoadAssetAtPath<SkillStatus>(ast);
                         character.skillList.Add(skillStatus);
                     }
@@ -487,7 +482,6 @@ public class BattleController : MonoBehaviour
 
         public void BattleLogMethod()
         {
-            //TextController.UpdateLog(logString);
             foreach (string logString in logList)
             {                
                 TextController.UpdateLog(logString);
