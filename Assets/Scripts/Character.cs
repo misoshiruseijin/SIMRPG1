@@ -15,6 +15,7 @@ public class Character: MonoBehaviour
     [HideInInspector] public string jpName;
 
     public List<SkillStatus> skillList;
+    public bool aliveFlg = true;
 
     private Color statusTextColor;
 
@@ -60,6 +61,7 @@ public class Character: MonoBehaviour
                     // HPがマイナスにならないようにする
                     hp = 0;
                     statusTextColor = Color.red;
+                    aliveFlg = false;
                 }
 
                 else

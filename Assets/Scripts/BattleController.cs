@@ -14,9 +14,10 @@ public class BattleController : MonoBehaviour
     public List<GameObject> enemyObjList; // 敵ユニット
     public List<GameObject> statusPanelList; // 味方のステータス表示用パネル
 
-    private List<string> players = new List<string> { "nezumi", "nezumi" }; // 戦闘に参加する味方ユニット
+    private List<string> players = new List<string> { "nezumi", "ka" }; // 戦闘に参加する味方ユニット
     private List<string> enemies = new List<string> { "nezumiM" }; // 戦闘に参加する敵ユニット
-    private List<GameObject> unitObjList = new List<GameObject>(); // 戦闘に参加する全ユニットオブジェクト
+    private List<GameObject> unitObjList = new List<GameObject>(); // 戦闘に参加する全ユニットオブジェクト（マスター）
+    private List<GameObject> allUnits = new List<GameObject>(); // unitObjListのコピー
 
     private string playerSOpath = "Assets/SO/PlayerUnits/";
     private string enemySOpath = "Assets/SO/EnemyUnits/";
@@ -37,15 +38,14 @@ public class BattleController : MonoBehaviour
         for (int i = 0; i < players.Count; i++)
         {
             unitObjList.Add(playerObjList[i]);
+            allUnits.Add(playerObjList[i]);
         }
         for (int i = 0; i < enemies.Count; i++)
         {
             unitObjList.Add(enemyObjList[i]);
+            allUnits.Add(enemyObjList[i]);
         }
 
-        //Debug.Log($"ユニット数は{unitObjList.Count}");
-
-        //StartBattleTurn(unitObjList, playerObjList, enemyObjList);
     }
 
 
@@ -151,7 +151,7 @@ public class BattleController : MonoBehaviour
         }
     }
 
-    public void StartBattleTurn(List<GameObject> allUnits, List<GameObject> playerUnits, List<GameObject> enemyUnits)
+    public void StartBattleTurn()
     {
         // spdステータスから行動順を決定
         allUnits = allUnits.OrderByDescending(unit => unit.GetComponent<Character>().spd).ToList(); // spdが高い順に並べる
@@ -201,6 +201,7 @@ public class BattleController : MonoBehaviour
                 battleQueue.Enqueue(action);
             }
         }
+
     }
 
 
@@ -366,8 +367,8 @@ public class BattleController : MonoBehaviour
         Action preAction = new Action()
         {
             //p = new Performance { unitList = actionUnit, effect = effectsList[0]},
-            p = new Performance { unitList = actionUnit },
-            log = new BattleLog { logList = new List<string> { msgString0} }
+            p = new Performance { unitList = actionUnit, skillUser = skillUser },
+            log = new BattleLog { logList = new List<string> { msgString0}, skillUser = skillUser}
         };
 
         actionsList.Add(preAction);
@@ -378,15 +379,15 @@ public class BattleController : MonoBehaviour
             // スキルを受けたエフェクト
             Action action1 = new Action()
             {
-                p = new Performance { unitList = receiveUnits[i], effect = effectsList[i+1]}
+                p = new Performance { unitList = receiveUnits[i], effect = effectsList[i+1], skillUser = skillUser}
             };
             actionsList.Add(action1);
 
             // ダメージとログ
             Action action2 = new Action()
             {
-                d = new Damage { receiveUnitList = receiveUnits[i], damageList = damageList[i]},
-                log = new BattleLog { logList = logStringList[i]}
+                d = new Damage { receiveUnitList = receiveUnits[i], damageList = damageList[i], skillUser = skillUser},
+                log = new BattleLog { logList = logStringList[i], skillUser = skillUser}
             };
             actionsList.Add(action2);
         }
@@ -394,30 +395,54 @@ public class BattleController : MonoBehaviour
         return actionsList;
     }
 
+    public void CheckUnitLife()
+    {
+        // 戦闘不能のユニットをリストから削除
+        allUnits.RemoveAll(i => !i.GetComponent<Character>().aliveFlg);
+        playerObjList.RemoveAll(i => !i.GetComponent<Character>().aliveFlg);
+        enemyObjList.RemoveAll(i => !i.GetComponent<Character>().aliveFlg);
+        Debug.Log("全ユニット " + String.Join(" ", allUnits));
+        Debug.Log("味方 " + String.Join(" ", playerObjList));
+        Debug.Log("敵 " + String.Join(" ", enemyObjList));
+
+        // バトル終了判定
+        if (playerObjList.Count == 0)
+        {
+            // プレイヤーサイドの敗北
+            Debug.Log("戦いに敗れた…");
+        }
+
+        else if (enemyObjList.Count == 0)
+        {
+            // 敵サイドの敗北
+            Debug.Log("戦いに勝利した");
+        }
+    }
+
     IEnumerator ActionCoroutine()
     {
         while (battleQueue.Count > 0)
         {
-            //Debug.Log(battleQueue.Count);
             Action action = battleQueue.Dequeue();
-            //Debug.Log(action);
-            if (action.log != null)
+
+            if (action.log != null && action.log.skillUser.aliveFlg == true)
             {
                 action.log.BattleLogMethod();
                 yield return new WaitForSeconds(0.2f);
             }
-            if (action.p != null)
+            if (action.p != null && action.p.skillUser.aliveFlg == true)
             {
                 action.p.PerformanceMethod();
                 yield return new WaitForSeconds(1.0f);
             }
-            if (action.d != null) 
+            if (action.d != null && action.d.skillUser.aliveFlg == true) 
             { 
                 action.d.DamageMethod();
                 yield return new WaitForSeconds(1.0f);
-            }
-            
+            } 
         }
+
+        CheckUnitLife();
     }
 
     public struct Action
@@ -433,6 +458,7 @@ public class BattleController : MonoBehaviour
         //public GameObject character;
         public List<GameObject> unitList;
         public GameObject effect;
+        public Character skillUser;
 
         public void PerformanceMethod()
         {
@@ -462,6 +488,7 @@ public class BattleController : MonoBehaviour
         // ダメージ制御
         public List<GameObject> receiveUnitList;
         public List<int> damageList;
+        public Character skillUser;
 
         public void DamageMethod()
         {
@@ -477,8 +504,8 @@ public class BattleController : MonoBehaviour
     public class BattleLog
     {
         // バトルログテキスト制御
-        //public string logString;
         public List<string> logList;
+        public Character skillUser;
 
         public void BattleLogMethod()
         {
@@ -491,7 +518,7 @@ public class BattleController : MonoBehaviour
 
     public void AttackButtonPressed()
     {
-        StartBattleTurn(unitObjList, playerObjList, enemyObjList);
+        StartBattleTurn();
         StartCoroutine("ActionCoroutine");
     }
 

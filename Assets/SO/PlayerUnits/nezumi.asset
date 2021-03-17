@@ -17,6 +17,6 @@ MonoBehaviour:
   jpName: "\u30CD\u30BA\u30DF"
   hp: 50
   atk: 10
-  def: 0
-  spd: 30
-  skills: 0000000002000000
+  def: 10
+  spd: 15
+  skills: 000000000100000002000000
