@@ -19,8 +19,10 @@ public class Character: MonoBehaviour
 
     private Color statusTextColor;
 
+
     public void SetStatus()
     {
+        // 戦闘開始前の設定
         nameText.GetComponent<Text>().text = jpName;
         statusTextColor = Color.white;
 
@@ -39,6 +41,7 @@ public class Character: MonoBehaviour
 
     public void UpdateStatus()
     {
+        // ダメージを受けると呼ばれる
         if (statusText != null)
         {
             if (hp > 0.3 * Maxhp)
@@ -58,10 +61,11 @@ public class Character: MonoBehaviour
             {
                 if (hp <= 0)
                 {
-                    // HPがマイナスにならないようにする
+                    // 戦闘不能になった
                     hp = 0;
                     statusTextColor = Color.red;
                     aliveFlg = false;
+                    this.GetComponent<FadeController>().FadeOut();
                 }
 
                 else

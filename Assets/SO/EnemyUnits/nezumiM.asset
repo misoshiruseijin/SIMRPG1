@@ -16,7 +16,7 @@ MonoBehaviour:
   engName: nezumiM
   jpName: "\u30CD\u30BA\u30DF\u5909\u7570\u7A2E"
   hp: 50
-  atk: 10
+  atk: 20
   def: 10
-  spd: 10
-  skills: 02000000
+  spd: 30
+  skills: 03000000
