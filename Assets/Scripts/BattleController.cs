@@ -27,6 +27,11 @@ public class BattleController : MonoBehaviour
     private string allyTag = "Ally";
     private string enemyTag = "Enemy";
 
+    private bool autoBattleFlg = false;
+    private bool manualBattleFlg = false;
+    private bool skillSelectFlg = false;
+    private bool targetSelectFlg = false;
+
     void Start()
     {
         InitializeBattleUnits(players, playerObjList, "Player");
