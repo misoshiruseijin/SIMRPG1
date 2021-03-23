@@ -5,49 +5,43 @@ using UnityEngine.UI;
 
 public class ButtonResponse : MonoBehaviour
 {
-    private bool btnReady; // false = 一度もクリックされていない, true = 一度クリックされて点滅中
-    private bool btnActive; // btnReady = true の状態でクリックされるとtrueになる。対応したメソッドを実行
+    [HideInInspector] public bool btnReady; // false = 一度もクリックされていない, true = 一度クリックされて点滅中
+    [HideInInspector] public bool btnActive; // btnReady = true の状態でクリックされるとtrueになる。対応したメソッドを実行
+
     private Image btnImage;
-    private Color btnColor;
+    private float time;
+    private float maxAlpha;
 
     void Start()
     {
         btnReady = false;
         btnActive = false;
         btnImage = GetComponent<Image>();
-        Debug.Log(btnImage);
-        btnColor = btnImage.GetComponent<Color>();
-
+        maxAlpha = 0.5f;
+        //Debug.Log(btnImage);
     }
 
     void Update()
     {
         if (btnReady)
         {
-            float sin = 0.5f * Mathf.Sin(Time.deltaTime) + 0.5f;
-            btnColor = new Color(btnColor.r, btnColor.g, btnColor.b, sin);
+            btnImage.color = GetAlpha(btnImage.color);
+            //float sin = 0.5f * Mathf.Sin(Time.deltaTime) + 0.5f;
+            //btnImage.color = new Color(btnImage.color.r, btnImage.color.g, btnImage.color.r, btnImage.color.a + sin);
         }
 
-        if (btnActive)
+        else if (btnActive)
         {
-            btnColor = new Color(btnColor.r, btnColor.g, btnColor.b, 1);
+            btnImage.color = Color.gray;
+            time = 0;
         }
     }
 
-    public void ButtonPressed()
+    Color GetAlpha(Color color)
     {
-        if (!btnReady)
-        {
-            // 初めてクリックされた
-            btnReady = true;
-            Debug.Log("初めてクリックされた");
-        }
+        time += Time.deltaTime;
+        color.a = (maxAlpha * 0.5f) * Mathf.Sin(3f * time) + (maxAlpha * 0.5f);
 
-        if (btnReady && !btnActive)
-        {
-            btnReady = false;
-            btnActive = true;
-            Debug.Log("二回目のクリック");
-        }
-    }
+        return color;
+    }    
 }
