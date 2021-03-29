@@ -35,13 +35,21 @@ public class ButtonResponse : MonoBehaviour
             btnImage.color = Color.gray;
             time = 0;
         }
+
     }
 
-    Color GetAlpha(Color color)
+    private Color GetAlpha(Color color)
     {
         time += Time.deltaTime;
         color.a = (maxAlpha * 0.5f) * Mathf.Sin(3f * time) + (maxAlpha * 0.5f);
 
         return color;
-    }    
+    }
+    
+    public void ResetButton()
+    {
+        btnReady = false;
+        btnActive = false;
+        btnImage.color = new Color(btnImage.color.r, btnImage.color.g, btnImage.color.b, 0f);
+    }
 }
