@@ -26,8 +26,6 @@ public class ButtonResponse : MonoBehaviour
         if (btnReady)
         {
             btnImage.color = GetAlpha(btnImage.color);
-            //float sin = 0.5f * Mathf.Sin(Time.deltaTime) + 0.5f;
-            //btnImage.color = new Color(btnImage.color.r, btnImage.color.g, btnImage.color.r, btnImage.color.a + sin);
         }
 
         else if (btnActive)
