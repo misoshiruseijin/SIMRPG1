@@ -50,4 +50,11 @@ public class ButtonResponse : MonoBehaviour
         btnActive = false;
         btnImage.color = new Color(btnImage.color.r, btnImage.color.g, btnImage.color.b, 0f);
     }
+
+    public void SetButton()
+    {
+        btnReady = false;
+        btnActive = false;
+        btnImage.color = Color.gray;
+    }
 }

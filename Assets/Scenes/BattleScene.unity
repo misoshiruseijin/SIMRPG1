@@ -1274,6 +1274,11 @@ MonoBehaviour:
   - {fileID: 7023172018366757913}
   btnList: []
   btnFlgList: 
+  modePanel: {fileID: 7545680073816298930}
+  actionPanel: {fileID: 8869049158257272637}
+  skillPanel: {fileID: 136464999233018696}
+  targetPanel: {fileID: 8086584188804196785}
+  battleLogPanel: {fileID: 1670632288}
 --- !u!4 &799792135
 Transform:
   m_ObjectHideFlags: 0
@@ -3245,7 +3250,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &156772968913816992
 GameObject:
   m_ObjectHideFlags: 0
@@ -5383,7 +5388,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &6871839900463816451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5770,7 +5775,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &8204209739115380651
 GameObject:
   m_ObjectHideFlags: 0
@@ -6018,7 +6023,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!222 &9087656631342351875
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -5,25 +5,39 @@ using UnityEngine.UI;
 
 public static class PanelController
 {
-    public static void DiablePanel(GameObject panel)
+    public static void DisablePanel(GameObject panel)
     {
         // パネルを表示し、ボタンをアクティブにする
-        Button[] btns = panel.gameObject.GetComponents<Button>();
-        foreach (Button btn in btns)
-        {
-            btn.enabled = false;
-        }
+        DisableButtons(panel);
         panel.SetActive(false);        
     }
 
     public static void EnablePanel(GameObject panel)
     {
         // パネルを非表示にし、ボタンを非アクティブにする
+        EnableButtons(panel);
+        panel.SetActive(true);
+    }
+
+    public static void DisableButtons(GameObject panel)
+    {
+        // パネルのすべてのボタンを非アクティブにする
         Button[] btns = panel.gameObject.GetComponents<Button>();
         foreach (Button btn in btns)
         {
-            btn.enabled = false;
+            btn.interactable = false;
         }
-        panel.SetActive(false);
     }
+
+    public static void EnableButtons(GameObject panel)
+    {
+        // パネルのすべてのボタンをアクティブにする
+        Button[] btns = panel.gameObject.GetComponents<Button>();
+        foreach (Button btn in btns)
+        {
+            btn.interactable = true;
+        }
+    }
+
+    
 }
