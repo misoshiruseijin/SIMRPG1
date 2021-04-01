@@ -311,6 +311,7 @@ GameObject:
   m_Component:
   - component: {fileID: 273184152}
   - component: {fileID: 273184153}
+  - component: {fileID: 273184154}
   m_Layer: 0
   m_Name: BattleController
   m_TagString: Untagged
@@ -356,6 +357,42 @@ MonoBehaviour:
   - {fileID: 1880811793}
   - {fileID: 1481394340}
   - {fileID: 758954077855672335}
+  autoBattleFlg: 0
+--- !u!114 &273184154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 273184151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef6fd5a8a2cd6094599912187c3ed667, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  btnListMode:
+  - {fileID: 7746066095238497114}
+  - {fileID: 8789237327769632794}
+  btnListAction:
+  - {fileID: 8709147107725275605}
+  - {fileID: 7663774150269776533}
+  btnListSkill:
+  - {fileID: 156772968913816992}
+  - {fileID: 1201004203566075616}
+  - {fileID: 2077227245}
+  - {fileID: 1419516006}
+  btnListTarget:
+  - {fileID: 790706088}
+  - {fileID: 8354594468108042073}
+  - {fileID: 7023172018366757913}
+  btnList: []
+  btnFlgList: 
+  modePanel: {fileID: 7545680073816298930}
+  actionPanel: {fileID: 8869049158257272637}
+  skillPanel: {fileID: 136464999233018696}
+  targetPanel: {fileID: 8086584188804196785}
+  battleLogPanel: {fileID: 1670632288}
+  autoBattleFlg: 0
 --- !u!1 &299300541 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3271070311161709559, guid: ce3c509a35976fa4bb91c0edde5f2c13,
@@ -1166,7 +1203,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -1228,71 +1265,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   btnReady: 0
   btnActive: 0
---- !u!1 &799792133
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 799792135}
-  - component: {fileID: 799792134}
-  m_Layer: 0
-  m_Name: ButtonController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &799792134
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 799792133}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef6fd5a8a2cd6094599912187c3ed667, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  btnListMode:
-  - {fileID: 7746066095238497114}
-  - {fileID: 8789237327769632794}
-  btnListAction:
-  - {fileID: 8709147107725275605}
-  - {fileID: 7663774150269776533}
-  btnListSkill:
-  - {fileID: 156772968913816992}
-  - {fileID: 1201004203566075616}
-  - {fileID: 2077227245}
-  - {fileID: 1419516006}
-  btnListTarget:
-  - {fileID: 790706088}
-  - {fileID: 8354594468108042073}
-  - {fileID: 7023172018366757913}
-  btnList: []
-  btnFlgList: 
-  modePanel: {fileID: 7545680073816298930}
-  actionPanel: {fileID: 8869049158257272637}
-  skillPanel: {fileID: 136464999233018696}
-  targetPanel: {fileID: 8086584188804196785}
-  battleLogPanel: {fileID: 1670632288}
---- !u!4 &799792135
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 799792133}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.4689763, y: -1.4163477, z: 469.09183}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &841633648 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8330864373297303403, guid: 6356c0fde22ebb04ab7ff43fe1ba635c,
@@ -1565,7 +1537,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -3041,7 +3013,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -3962,7 +3934,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -4393,7 +4365,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -4704,7 +4676,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -4878,7 +4850,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -4979,7 +4951,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -5172,7 +5144,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -5315,7 +5287,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -5432,7 +5404,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 799792134}
+      - m_Target: {fileID: 273184154}
         m_MethodName: ButtonPressed
         m_Mode: 1
         m_Arguments:

@@ -22,10 +22,10 @@ public static class PanelController
     public static void DisableButtons(GameObject panel)
     {
         // パネルのすべてのボタンを非アクティブにする
-        Button[] btns = panel.gameObject.GetComponents<Button>();
+        Button[] btns = panel.gameObject.GetComponentsInChildren<Button>();
         foreach (Button btn in btns)
         {
-            btn.interactable = false;
+            btn.enabled = false;
         }
     }
 

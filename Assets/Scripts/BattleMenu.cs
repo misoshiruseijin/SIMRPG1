@@ -18,6 +18,8 @@ public class BattleMenu : MonoBehaviour
     public GameObject modePanel, actionPanel, skillPanel, targetPanel; // 戦闘メニューパネル
     public GameObject battleLogPanel; // バトルログパネル
 
+    public bool autoBattleFlg, manualBattleFlg;
+
     private EventSystem eventSystem;
     private GameObject button;
     private GameObject prevButton; // 1回前に押されていたボタン
@@ -44,7 +46,7 @@ public class BattleMenu : MonoBehaviour
         n_targets = btnListTarget.Count;
         n_btns = btnList.Count;
 
-        prevBtnID = 20;
+        autoBattleFlg = false;
     }
     public void ButtonPressed()
     {
@@ -57,40 +59,31 @@ public class BattleMenu : MonoBehaviour
         btnID = btnList.IndexOf(button);
 
         bool btnChanged = btnID != prevBtnID; // 前と違うボタンを押した
-        bool noPrevBtn = prevBtnID == 20; // 前に押したボタンがない (今回初めてボタンを押した)
+        bool noPrevBtn = prevButton == null; // 前に押したボタンがない (今回初めてボタンを押した)
 
         //Debug.Log(button);
 
-        // 前と違うボタンを押した
-        if (btnChanged && !noPrevBtn)
+        // 同じパネル内で前と違うボタンを押した
+        if (!noPrevBtn && !CheckButtonTypeChange(btnID, prevBtnID) && btnChanged)
         {
-            // 違うパネルのボタンだった時
-            if(CheckButtonTypeChange(btnID, prevBtnID))
-            {
-                prevButton.GetComponent<ButtonResponse>().SetButton();
-            }
-
-            // 同じパネルのボタンだった時
-            else
-            {
-                btnFlgList[prevBtnID] = false;
-                prevButton.GetComponent<ButtonResponse>().ResetButton();
-            }
+            Debug.Log(noPrevBtn + ", " + btnChanged);
+            btnFlgList[prevBtnID] = false;
+            prevButton.GetComponent<ButtonResponse>().ResetButton();    
         }
 
         if (!btnResp.btnReady)
         {
-            btnResp.btnReady = true;
             //Debug.Log("初めてクリックされた");
+            btnResp.btnReady = true;
         }
 
         else if (btnResp.btnReady && !btnResp.btnActive)
         {
+            //Debug.Log("二回目のクリック");
             btnResp.btnReady = false;
             btnResp.btnActive = true;
             btnFlgList[btnID] = true;
-            TakeButtonAction(button);
-            //Debug.Log("二回目のクリック");
+            TakeButtonAction(btnID);
         }
     }
 
@@ -119,17 +112,17 @@ public class BattleMenu : MonoBehaviour
                 break;
 
             case int i when (i >= n_modes && i < n_modes + n_actions):
-                Debug.Log("アクションが選択された");
+                //Debug.Log("アクションが選択された");
                 btnType = 1;
                 break;
 
             case int i when (i >= n_modes + n_actions && i < n_modes + n_actions + n_skills):
-                Debug.Log("スキルが選択された");
+                //Debug.Log("スキルが選択された");
                 btnType = 2;
                 break;
 
             case int i when (i >= n_modes + n_actions + n_skills && i < n_btns):
-                Debug.Log("ターゲットが選択された");
+                //Debug.Log("ターゲットが選択された");
                 btnType = 3;
                 break;
             
@@ -141,15 +134,15 @@ public class BattleMenu : MonoBehaviour
         return btnType;
     }
 
-    private void TakeButtonAction(GameObject button)
+    private void TakeButtonAction(int btnID)
     {
         switch (btnID)
         {
             case 0:
                 Debug.Log("マニュアルモード");
                 PanelController.DisablePanel(modePanel);
-                //PanelController.EnablePanel(actionPanel);
-                actionPanel.SetActive(true);
+                PanelController.EnablePanel(actionPanel);
+                manualBattleFlg = true;
                 break;
 
             case 1:
@@ -158,7 +151,8 @@ public class BattleMenu : MonoBehaviour
                 {
                     PanelController.DisablePanel(panel);
                 }
-                // start auto battle
+                PanelController.EnablePanel(battleLogPanel);
+                autoBattleFlg = true;
                 break;
 
             case 2:

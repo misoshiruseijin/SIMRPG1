@@ -14,6 +14,9 @@ public class BattleController : MonoBehaviour
     public List<GameObject> enemyObjList; // 敵ユニット
     public List<GameObject> statusPanelList; // 味方のステータス表示用パネル
 
+    public bool autoBattleFlg;
+    public bool manualBattleFlg;
+
     private List<string> players = new List<string> { "nezumi", "ka" }; // 戦闘に参加する味方ユニット
     private List<string> enemies = new List<string> { "nezumiM" }; // 戦闘に参加する敵ユニット
     private List<GameObject> unitObjList = new List<GameObject>(); // 戦闘に参加する全ユニットオブジェクト（マスター）
@@ -26,11 +29,6 @@ public class BattleController : MonoBehaviour
 
     private string allyTag = "Ally";
     private string enemyTag = "Enemy";
-
-    //private bool autoBattleFlg = false;
-    //private bool manualBattleFlg = false;
-    //private bool skillSelectFlg = false;
-    //private bool targetSelectFlg = false;
 
     void Start()
     {
@@ -165,50 +163,84 @@ public class BattleController : MonoBehaviour
         // バトルキューを作成
         battleQueue = new Queue<Action>();
 
-        foreach (GameObject unit in allUnits)
+        autoBattleFlg = GetComponent<BattleMenu>().autoBattleFlg;
+        manualBattleFlg = GetComponent<BattleMenu>().manualBattleFlg;
+
+        // オートモードが選択された場合
+        if (autoBattleFlg)
         {
-            List<List<GameObject>> receiveUnits = new List<List<GameObject>>(); // 行動を受けるユニットのリスト
-            List<GameObject> actionUnit = new List<GameObject> { unit }; // 行動するユニット
-            List<List<int>> damages = new List<List<int>>(); 
-            List<List<string>> logStringList = new List<List<string>>();
-            Character character = unit.GetComponent<Character>();
-            string unitTag = unit.tag;
-
-            List<SkillStatus> skillList = character.skillList; // ユニットのスキルリストを取得
-            // 使うスキルをランダムに選ぶ
-            SkillStatus skill = skillList[0];
-            if (skillList.Count > 1)
+            foreach (GameObject unit in allUnits)
             {
-                skill = skillList[UnityEngine.Random.Range(0, skillList.Count)];
-            }
-
-            //Debug.Log($"{character.jpName}が使うスキルは{skill.jpName}");
-
-            // スキルを受けるユニットをリストに格納
-            foreach (int targetType in skill.targetList)
-            {
-                List<GameObject> tempList = ChooseTargetUnits(targetType, unit);
-                receiveUnits.Add(tempList);
-                //Debug.Log("スキルを受けるのは" + String.Join(" ", tempList));
-            }
-
-            // ダメージリストを作成
-            damages = CalculateDamage(character, receiveUnits, skill.actionTypeList, skill.multList);
-
-            // バトルログテキストのリストを作成
-            logStringList = GenerateLogStrings(receiveUnits, damages, skill);
-
-            // バトルキューにアクションを追加
-            List<Action> tempActionList = new List<Action>();
-            tempActionList = GenerateActions(receiveUnits, damages, logStringList, skill.effectList, actionUnit, skill);
-            foreach (Action action in tempActionList)
-            {
-                battleQueue.Enqueue(action);
+                AutoBattleTurn(unit);
             }
         }
 
+        // マニュアルモードが選択された場合
+        else if (manualBattleFlg)
+        {
+            foreach (GameObject unit in allUnits)
+            {
+                // ユニットが敵なら行動をランダム生成
+                if (unit.tag == enemyTag)
+                {
+                    AutoBattleTurn(unit);
+                }
+
+                // ユニットが味方なら
+                else if (unit.tag == allyTag)
+                {
+                    ManualBattleTurn(unit);
+                }
+            }
+        }
     }
 
+    public void ManualBattleTurn(GameObject unit)
+    {
+
+    }
+
+    public void AutoBattleTurn(GameObject unit)
+    {
+        List<List<GameObject>> receiveUnits = new List<List<GameObject>>(); // 行動を受けるユニットのリスト
+        List<GameObject> actionUnit = new List<GameObject> { unit }; // 行動するユニット
+        List<List<int>> damages = new List<List<int>>();
+        List<List<string>> logStringList = new List<List<string>>();
+        Character character = unit.GetComponent<Character>();
+        string unitTag = unit.tag;
+
+        List<SkillStatus> skillList = character.skillList; // ユニットのスキルリストを取得
+        // 使うスキルをランダムに選ぶ
+        SkillStatus skill = skillList[0];
+        if (skillList.Count > 1)
+        {
+            skill = skillList[UnityEngine.Random.Range(0, skillList.Count)];
+        }
+
+        //Debug.Log($"{character.jpName}が使うスキルは{skill.jpName}");
+
+        // スキルを受けるユニットをリストに格納
+        foreach (int targetType in skill.targetList)
+        {
+            List<GameObject> tempList = ChooseTargetUnits(targetType, unit);
+            receiveUnits.Add(tempList);
+            //Debug.Log("スキルを受けるのは" + String.Join(" ", tempList));
+        }
+
+        // ダメージリストを作成
+        damages = CalculateDamage(character, receiveUnits, skill.actionTypeList, skill.multList);
+
+        // バトルログテキストのリストを作成
+        logStringList = GenerateLogStrings(receiveUnits, damages, skill);
+
+        // バトルキューにアクションを追加
+        List<Action> tempActionList = new List<Action>();
+        tempActionList = GenerateActions(receiveUnits, damages, logStringList, skill.effectList, actionUnit, skill);
+        foreach (Action action in tempActionList)
+        {
+            battleQueue.Enqueue(action);
+        }
+    }
 
     public List<GameObject> ChooseTargetUnits(int targetCode, GameObject unit)
     {

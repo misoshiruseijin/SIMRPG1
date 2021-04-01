@@ -54,7 +54,7 @@ public class ButtonResponse : MonoBehaviour
     public void SetButton()
     {
         btnReady = false;
-        btnActive = false;
+        btnActive = true;
         btnImage.color = Color.gray;
     }
 }
