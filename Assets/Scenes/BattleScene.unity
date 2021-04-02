@@ -358,6 +358,8 @@ MonoBehaviour:
   - {fileID: 1481394340}
   - {fileID: 758954077855672335}
   autoBattleFlg: 0
+  manualBattleFlg: 0
+  battleMenu: {fileID: 0}
 --- !u!114 &273184154
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,7 +394,9 @@ MonoBehaviour:
   skillPanel: {fileID: 136464999233018696}
   targetPanel: {fileID: 8086584188804196785}
   battleLogPanel: {fileID: 1670632288}
+  battleController: {fileID: 0}
   autoBattleFlg: 0
+  manualBattleFlg: 0
 --- !u!1 &299300541 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3271070311161709559, guid: ce3c509a35976fa4bb91c0edde5f2c13,
@@ -3600,7 +3604,7 @@ GameObject:
   - component: {fileID: 5691131542455069169}
   - component: {fileID: 899864865316298945}
   m_Layer: 5
-  m_Name: UniteNameText
+  m_Name: UnitNameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

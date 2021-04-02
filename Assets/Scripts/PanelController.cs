@@ -32,10 +32,17 @@ public static class PanelController
     public static void EnableButtons(GameObject panel)
     {
         // パネルのすべてのボタンをアクティブにする
-        Button[] btns = panel.gameObject.GetComponents<Button>();
+        Button[] btns = panel.gameObject.GetComponentsInChildren<Button>();
         foreach (Button btn in btns)
         {
-            btn.interactable = true;
+            if (!string.IsNullOrEmpty(btn.GetComponentInChildren<Text>().text))
+            {
+                btn.interactable = true;
+            }
+            else
+            {
+                btn.interactable = false;
+            }
         }
     }
 

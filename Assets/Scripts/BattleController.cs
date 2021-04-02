@@ -14,8 +14,11 @@ public class BattleController : MonoBehaviour
     public List<GameObject> enemyObjList; // 敵ユニット
     public List<GameObject> statusPanelList; // 味方のステータス表示用パネル
 
-    public bool autoBattleFlg;
-    public bool manualBattleFlg;
+    //public bool autoBattleFlg;
+    //public bool manualBattleFlg;
+    public bool actionSelectedFlg;
+
+    public BattleMenu battleMenu;
 
     private List<string> players = new List<string> { "nezumi", "ka" }; // 戦闘に参加する味方ユニット
     private List<string> enemies = new List<string> { "nezumiM" }; // 戦闘に参加する敵ユニット
@@ -32,12 +35,17 @@ public class BattleController : MonoBehaviour
 
     void Start()
     {
+        battleMenu = GetComponent<BattleMenu>();
+
         InitializeBattleUnits(players, playerObjList, "Player");
         InitializeBattleUnits(enemies, enemyObjList, "Enemy");
 
         // initialize unit object lists to match number of units in battle
         playerObjList = playerObjList.Take(players.Count).ToList();
         enemyObjList = enemyObjList.Take(enemies.Count).ToList();
+
+        Button[] targetBtns = battleMenu.targetPanel.GetComponentsInChildren<Button>();
+
         for (int i = 0; i < players.Count; i++)
         {
             unitObjList.Add(playerObjList[i]);
@@ -46,8 +54,24 @@ public class BattleController : MonoBehaviour
         for (int i = 0; i < enemies.Count; i++)
         {
             unitObjList.Add(enemyObjList[i]);
-            allUnits.Add(enemyObjList[i]);
+            allUnits.Add(enemyObjList[i]);            
         }
+
+        // targetメニューのボタンテキスト設定
+        for (int i = 0; i < targetBtns.Length; i++)
+        {
+            if (i >= enemies.Count)
+            {
+                battleMenu.SetMenuObjectText(targetBtns[i].GetComponentInChildren<Text>(), "");
+            }
+            else
+            {
+                battleMenu.SetMenuObjectText(targetBtns[i].GetComponentInChildren<Text>(), enemyObjList[i].GetComponent<Character>().jpName);
+            }
+        }
+
+        // フラグ初期化
+        actionSelectedFlg = false;
 
     }
 
@@ -154,60 +178,106 @@ public class BattleController : MonoBehaviour
         }
     }
 
-    public void StartBattleTurn()
+    public void StartAutoTurn()
     {
         // spdステータスから行動順を決定
         allUnits = allUnits.OrderByDescending(unit => unit.GetComponent<Character>().spd).ToList(); // spdが高い順に並べる
         //Debug.Log("行動順は" + String.Join(" ", allUnits));
-        
+
         // バトルキューを作成
         battleQueue = new Queue<Action>();
 
-        autoBattleFlg = GetComponent<BattleMenu>().autoBattleFlg;
-        manualBattleFlg = GetComponent<BattleMenu>().manualBattleFlg;
-
-        // オートモードが選択された場合
-        if (autoBattleFlg)
+        foreach (GameObject unit in allUnits)
         {
-            foreach (GameObject unit in allUnits)
-            {
-                AutoBattleTurn(unit);
-            }
+            EnqueueAuto(unit);
         }
+        
+
+        StartCoroutine("ActionCoroutine");
+    }
+
+    public void StartManualTurn()
+    {
+        // spdステータスから行動順を決定
+        allUnits = allUnits.OrderByDescending(unit => unit.GetComponent<Character>().spd).ToList(); // spdが高い順に並べる
+        //Debug.Log("行動順は" + String.Join(" ", allUnits));
+
+        // バトルキューを作成
+        battleQueue = new Queue<Action>();
 
         // マニュアルモードが選択された場合
-        else if (manualBattleFlg)
+        foreach (GameObject unit in allUnits)
         {
-            foreach (GameObject unit in allUnits)
+            // ユニットが敵なら行動をランダム生成
+            if (unit.tag == enemyTag)
             {
-                // ユニットが敵なら行動をランダム生成
-                if (unit.tag == enemyTag)
-                {
-                    AutoBattleTurn(unit);
-                }
+                EnqueueAuto(unit);
+            }
 
-                // ユニットが味方なら
-                else if (unit.tag == allyTag)
-                {
-                    ManualBattleTurn(unit);
-                }
+            // ユニットが味方なら
+            else if (unit.tag == allyTag)
+            {
+                EnqueueManual(unit);
             }
         }
+
+        StartCoroutine("ActionCoroutine");
     }
 
-    public void ManualBattleTurn(GameObject unit)
+
+    public void EnqueueManual(GameObject unit)
     {
+        // フラグ初期化
+        battleMenu.actionSelectedFlg = false;
+
+        // BattleMenuがアクションパネルが表示している
+        List<List<GameObject>> receiveUnits = new List<List<GameObject>>(); // 行動を受けるユニットのリスト
+        List<GameObject> actionUnit = new List<GameObject> { unit }; // 行動するユニット
+        List<List<int>> damages = new List<List<int>>();
+        List<List<string>> logStringList = new List<List<string>>();
+        Character character = unit.GetComponent<Character>();
+
+        List<SkillStatus> skillList = character.skillList; // ユニットのスキルリストを取得
+        
+        // BattleMenuにスキル対象リストを渡す（アクション確定判定のため）
+        List<int> targetTypes = new List<int>();
+        foreach(SkillStatus skill in skillList)
+        {
+            targetTypes.Add(skill.targetList[0]);
+        }
+        battleMenu.skillTargetTypes = targetTypes;
+
+        // アクションパネルにキャラ名を表示
+        battleMenu.actionPanel.GetComponentInChildren<Text>().text = character.jpName;
+
+        // キャラのスキル情報をスキルパネルに表示
+        Button[] skillBtns = battleMenu.skillPanel.GetComponentsInChildren<Button>();
+        for (int i = 0; i < skillBtns.Length; i++)
+        {
+            if (i >= skillList.Count)
+            {
+                skillBtns[i].GetComponentInChildren<Text>().text = "";
+            }
+            else
+            {
+                skillBtns[i].GetComponentInChildren<Text>().text = skillList[i].jpName;
+            }
+        }
+
+        // Coroutine開始。アクションが確定するまで待つ
+        // スキルとターゲットが決定。
+        // ダメージリストとログリストを作成
+        // BattleQueueに追加
 
     }
 
-    public void AutoBattleTurn(GameObject unit)
+    public void EnqueueAuto(GameObject unit)
     {
         List<List<GameObject>> receiveUnits = new List<List<GameObject>>(); // 行動を受けるユニットのリスト
         List<GameObject> actionUnit = new List<GameObject> { unit }; // 行動するユニット
         List<List<int>> damages = new List<List<int>>();
         List<List<string>> logStringList = new List<List<string>>();
         Character character = unit.GetComponent<Character>();
-        string unitTag = unit.tag;
 
         List<SkillStatus> skillList = character.skillList; // ユニットのスキルリストを取得
         // 使うスキルをランダムに選ぶ
@@ -438,9 +508,9 @@ public class BattleController : MonoBehaviour
         allUnits.RemoveAll(i => !i.GetComponent<Character>().aliveFlg);
         playerObjList.RemoveAll(i => !i.GetComponent<Character>().aliveFlg);
         enemyObjList.RemoveAll(i => !i.GetComponent<Character>().aliveFlg);
-        Debug.Log("全ユニット " + String.Join(" ", allUnits));
-        Debug.Log("味方 " + String.Join(" ", playerObjList));
-        Debug.Log("敵 " + String.Join(" ", enemyObjList));
+        //Debug.Log("全ユニット " + String.Join(" ", allUnits));
+        //Debug.Log("味方 " + String.Join(" ", playerObjList));
+        //Debug.Log("敵 " + String.Join(" ", enemyObjList));
 
         // バトル終了判定
         if (playerObjList.Count == 0)
@@ -482,6 +552,16 @@ public class BattleController : MonoBehaviour
         CheckUnitLife();
     }
 
+    IEnumerator WaitForManualActionCoroutine()
+    {
+        while (!battleMenu.actionSelectedFlg)
+        {
+
+        }
+
+        // enqueue
+        yield return null;
+    }
     public struct Action
     {
         public Performance p;
@@ -555,8 +635,8 @@ public class BattleController : MonoBehaviour
 
     public void AttackButtonPressed()
     {
-        StartBattleTurn();
-        StartCoroutine("ActionCoroutine");
+        //StartBattleTurn();
+        //StartCoroutine("ActionCoroutine");
     }
 
 }

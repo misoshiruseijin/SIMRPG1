@@ -18,7 +18,15 @@ public class BattleMenu : MonoBehaviour
     public GameObject modePanel, actionPanel, skillPanel, targetPanel; // 戦闘メニューパネル
     public GameObject battleLogPanel; // バトルログパネル
 
+    public BattleController battleController;
+
     public bool autoBattleFlg, manualBattleFlg;
+    public bool actionSelectedFlg;
+
+    public List<int> skillTargetTypes;
+
+    public int skillNumber; // プレイヤーが選んだスキルが何番目のスキルか
+    public int targetNumber; // プレイヤーが選んだターゲットが何番目のターゲットか
 
     private EventSystem eventSystem;
     private GameObject button;
@@ -30,6 +38,7 @@ public class BattleMenu : MonoBehaviour
 
     private void Start()
     {
+        battleController = GetComponent<BattleController>();
         // initialize btnList and btnFlgList
         btnList = btnListMode.Concat(btnListAction).Concat(btnListSkill).Concat(btnListTarget).ToList();
         btnFlgList = new List<bool>();
@@ -46,8 +55,18 @@ public class BattleMenu : MonoBehaviour
         n_targets = btnListTarget.Count;
         n_btns = btnList.Count;
 
-        autoBattleFlg = false;
+        //autoBattleFlg = false;
     }
+    
+    public void ResetBattleMenu()
+    {
+        PanelController.EnablePanel(modePanel);
+        PanelController.DisablePanel(actionPanel);
+        PanelController.DisablePanel(skillPanel);
+        PanelController.DisablePanel(targetPanel);
+        PanelController.DisablePanel(battleLogPanel);
+    }
+
     public void ButtonPressed()
     {
         eventSystem = EventSystem.current;
@@ -87,6 +106,10 @@ public class BattleMenu : MonoBehaviour
         }
     }
 
+    public void SetMenuObjectText(Text textObj, string text)
+    {
+        textObj.GetComponent<Text>().text = text;
+    }
 
     private bool CheckButtonTypeChange(int btnID, int prevBtnID)
     {
@@ -142,7 +165,8 @@ public class BattleMenu : MonoBehaviour
                 Debug.Log("マニュアルモード");
                 PanelController.DisablePanel(modePanel);
                 PanelController.EnablePanel(actionPanel);
-                manualBattleFlg = true;
+                actionSelectedFlg = false;
+                battleController.StartManualTurn();
                 break;
 
             case 1:
@@ -152,7 +176,7 @@ public class BattleMenu : MonoBehaviour
                     PanelController.DisablePanel(panel);
                 }
                 PanelController.EnablePanel(battleLogPanel);
-                autoBattleFlg = true;
+                battleController.StartAutoTurn();
                 break;
 
             case 2:
@@ -167,50 +191,96 @@ public class BattleMenu : MonoBehaviour
                 {
                     PanelController.DisablePanel(panel);
                 }
+                actionSelectedFlg = true;
                 // 次のキャラへ
                 break;
 
             case 4:
                 Debug.Log("スキル1");
                 // 単体攻撃ならターゲットパネルへ
+                if (skillTargetTypes[0] == 0)
+                {
+                    PanelController.DisableButtons(skillPanel);
+                    PanelController.EnablePanel(targetPanel);
+                }
                 // 全体攻撃なら次のキャラへ
+                else
+                {
+                    actionSelectedFlg = true;
+                }
+                skillNumber = 0;
                 break;
 
             case 5:
                 Debug.Log("スキル2");
                 // 単体攻撃ならターゲットパネルへ
+                if (skillTargetTypes[1] == 0)
+                {
+                    PanelController.DisableButtons(skillPanel);
+                    PanelController.EnablePanel(targetPanel);
+                }
                 // 全体攻撃なら次のキャラへ
+                else
+                {
+                    actionSelectedFlg = true;
+                }
+                skillNumber = 1;
                 break;
 
             case 6:
                 Debug.Log("スキル3");
                 // 単体攻撃ならターゲットパネルへ
+                if (skillTargetTypes[2] == 0)
+                {
+                    PanelController.DisableButtons(skillPanel);
+                    PanelController.EnablePanel(targetPanel);
+                }
                 // 全体攻撃なら次のキャラへ
+                else
+                {
+                    actionSelectedFlg = true;
+                }
+                skillNumber = 2;
                 break;
 
             case 7:
                 Debug.Log("スキル4");
                 // 単体攻撃ならターゲットパネルへ
+                if (skillTargetTypes[3] == 0)
+                {
+                    PanelController.DisableButtons(skillPanel);
+                    PanelController.EnablePanel(targetPanel);
+                }
                 // 全体攻撃なら次のキャラへ
+                else
+                {
+                    actionSelectedFlg = true;
+                }
+                skillNumber = 3;
                 break;
 
             case 8:
                 Debug.Log("ターゲット1");
+                actionSelectedFlg = true;
+                targetNumber = 0;
                 // 次のキャラへ
                 break;
 
             case 9:
                 Debug.Log("ターゲット2");
+                actionSelectedFlg = true;
+                targetNumber = 1;
                 // 次のキャラへ
                 break;
 
             case 10:
                 Debug.Log("ターゲット3");
+                actionSelectedFlg = true;
+                targetNumber = 2;
                 // 次のキャラへ
                 break;
         }
 
     }
-
 
 }
