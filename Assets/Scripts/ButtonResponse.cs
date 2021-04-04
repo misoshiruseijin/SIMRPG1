@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class ButtonResponse : MonoBehaviour
 {
-    [HideInInspector] public bool btnReady; // false = 一度もクリックされていない, true = 一度クリックされて点滅中
-    [HideInInspector] public bool btnActive; // btnReady = true の状態でクリックされるとtrueになる。対応したメソッドを実行
+    public bool btnReady; // false = 一度もクリックされていない, true = 一度クリックされて点滅中
+    public bool btnActive; // btnReady = true の状態でクリックされるとtrueになる。対応したメソッドを実行
 
     private Image btnImage;
     private float time;

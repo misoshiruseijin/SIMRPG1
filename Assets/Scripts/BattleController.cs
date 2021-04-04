@@ -17,8 +17,10 @@ public class BattleController : MonoBehaviour
     //public bool autoBattleFlg;
     //public bool manualBattleFlg;
     public bool actionSelectedFlg;
+    public bool ActionConfirmedFlg;
 
     public BattleMenu battleMenu;
+    public GameObject objForCoroutine;
 
     private List<string> players = new List<string> { "nezumi", "ka" }; // 戦闘に参加する味方ユニット
     private List<string> enemies = new List<string> { "nezumiM" }; // 戦闘に参加する敵ユニット
@@ -72,6 +74,7 @@ public class BattleController : MonoBehaviour
 
         // フラグ初期化
         actionSelectedFlg = false;
+        ActionConfirmedFlg = false;
 
     }
 
@@ -196,8 +199,9 @@ public class BattleController : MonoBehaviour
         StartCoroutine("ActionCoroutine");
     }
 
-    public void StartManualTurn()
+    public IEnumerator StartManualTurn()
     {
+        Debug.Log("[!] Entered StartManualTurn coroutine");
         // spdステータスから行動順を決定
         allUnits = allUnits.OrderByDescending(unit => unit.GetComponent<Character>().spd).ToList(); // spdが高い順に並べる
         //Debug.Log("行動順は" + String.Join(" ", allUnits));
@@ -205,45 +209,52 @@ public class BattleController : MonoBehaviour
         // バトルキューを作成
         battleQueue = new Queue<Action>();
 
-        // マニュアルモードが選択された場合
         foreach (GameObject unit in allUnits)
         {
+            objForCoroutine = unit;
+            battleMenu.BattleMenuNewUnit();
+
             // ユニットが敵なら行動をランダム生成
             if (unit.tag == enemyTag)
             {
-                EnqueueAuto(unit);
+                yield return StartCoroutine("EnqueueManual");
+                //EnqueueAuto(unit);
             }
 
             // ユニットが味方なら
             else if (unit.tag == allyTag)
             {
-                EnqueueManual(unit);
+                yield return StartCoroutine("EnqueueManual");
+                //EnqueueManual(unit);
             }
         }
 
-        StartCoroutine("ActionCoroutine");
+        Debug.Log("Exiting StartManual Coroutine");
+        yield return null;
+        //yield return StartCoroutine("ActionCoroutine");
     }
 
 
-    public void EnqueueManual(GameObject unit)
+    IEnumerator EnqueueManual()
     {
+        Debug.Log("[!] Entered EnqueueManual Coroutine");
         // フラグ初期化
         battleMenu.actionSelectedFlg = false;
 
-        // BattleMenuがアクションパネルが表示している
+        // BattleMenuがアクションパネルを表示している
         List<List<GameObject>> receiveUnits = new List<List<GameObject>>(); // 行動を受けるユニットのリスト
-        List<GameObject> actionUnit = new List<GameObject> { unit }; // 行動するユニット
+        List<GameObject> actionUnit = new List<GameObject> { objForCoroutine }; // 行動するユニット
         List<List<int>> damages = new List<List<int>>();
         List<List<string>> logStringList = new List<List<string>>();
-        Character character = unit.GetComponent<Character>();
+        Character character = objForCoroutine.GetComponent<Character>();
 
         List<SkillStatus> skillList = character.skillList; // ユニットのスキルリストを取得
         
         // BattleMenuにスキル対象リストを渡す（アクション確定判定のため）
         List<int> targetTypes = new List<int>();
-        foreach(SkillStatus skill in skillList)
+        foreach (SkillStatus s in skillList)
         {
-            targetTypes.Add(skill.targetList[0]);
+            targetTypes.Add(s.targetList[0]);
         }
         battleMenu.skillTargetTypes = targetTypes;
 
@@ -265,10 +276,36 @@ public class BattleController : MonoBehaviour
         }
 
         // Coroutine開始。アクションが確定するまで待つ
-        // スキルとターゲットが決定。
-        // ダメージリストとログリストを作成
-        // BattleQueueに追加
+        yield return StartCoroutine("WaitForManualActionCoroutine");
 
+        Debug.Log("[!!] Returned to Enqueue Manual coroutine");
+        // BattleMenuからどのスキル、ターゲットが選ばれたかを取得
+        int skillNum = battleMenu.skillNumber;
+        int targetNum = battleMenu.targetNumber; // 最初のアクションタイプのターゲット（攻撃＋回復のスキルなら、攻撃を受けるユニット）
+        
+        // 選ばれたスキル
+        SkillStatus skill = skillList[skillNum];
+        Debug.Log("スキルを特定: " + skill);
+
+        // スキルを受けるユニットをreceiveUnitsに格納
+        if (targetNum == 20)
+        {
+            // ターゲット指定のないスキル
+            List<GameObject> tempList = ChooseTargetUnits(skill.targetList[0], objForCoroutine);
+            receiveUnits.Add(tempList);
+        }
+        else
+        {
+            // ターゲット指定されている
+            List<GameObject> tempList = ChooseTargetUnits(skill.targetList[0], objForCoroutine, targetNum);
+            receiveUnits.Add(tempList);            
+        }
+
+        // ダメージリストとログリストを作成
+
+        // BattleQueueに追加
+        
+        yield return null;
     }
 
     public void EnqueueAuto(GameObject unit)
@@ -312,7 +349,7 @@ public class BattleController : MonoBehaviour
         }
     }
 
-    public List<GameObject> ChooseTargetUnits(int targetCode, GameObject unit)
+    public List<GameObject> ChooseTargetUnits(int targetCode, GameObject unit, int targetNum = 10)
     {
         // unit = スキル使用者, targetCode = TargetListのintコード
         List<GameObject> targetUnits = new List<GameObject>(); // アウトプット
@@ -340,8 +377,17 @@ public class BattleController : MonoBehaviour
         switch (targetCode)
         {
             case 0:
-                // 敵単体が対象。敵ユニットの中からランダムに1体選択
-                targetUnits.Add(enemyTargets[UnityEngine.Random.Range(0, enemyTargets.Count)]);
+                // 敵単体が対象
+                if (targetNum == 10)
+                {
+                    // ターゲット指定のないオート戦闘の場合、敵ユニットの中からランダムに1体選択
+                    targetUnits.Add(enemyTargets[UnityEngine.Random.Range(0, enemyTargets.Count)]);
+                }
+                else
+                {
+                    // マニュアル戦闘でターゲットが選択されている
+                    targetUnits.Add(enemyTargets[targetNum]);
+                }
                 break;
 
             case 1:
@@ -350,8 +396,17 @@ public class BattleController : MonoBehaviour
                 break;
 
             case 2:
-                // 味方単体が対象。味方ユニットの中からランダムに1体選択
-                targetUnits.Add(allyTargets[UnityEngine.Random.Range(0, allyTargets.Count)]);
+                // 味方単体が対象
+                if (targetNum == 10)
+                {
+                    // ターゲット指定のないオート戦闘の場合、敵ユニットの中からランダムに1体選択
+                    targetUnits.Add(allyTargets[UnityEngine.Random.Range(0, allyTargets.Count)]);
+                }
+                else
+                {
+                    // マニュアル戦闘でターゲットが選択されている
+                    targetUnits.Add(allyTargets[targetNum]);
+                }
                 break;
 
             case 3:
@@ -554,12 +609,18 @@ public class BattleController : MonoBehaviour
 
     IEnumerator WaitForManualActionCoroutine()
     {
-        while (!battleMenu.actionSelectedFlg)
+        Debug.Log("[!] Entered Wait Coroutine");
+        while (true)
         {
+            if (battleMenu.actionSelectedFlg)
+            {
+                Debug.Log("[!] Exiting Wait Coroutine");
+                break;
+            }
 
+            yield return null;
         }
 
-        // enqueue
         yield return null;
     }
     public struct Action
@@ -639,4 +700,8 @@ public class BattleController : MonoBehaviour
         //StartCoroutine("ActionCoroutine");
     }
 
+    public void ConfirmButtonPressed()
+    {
+
+    }
 }

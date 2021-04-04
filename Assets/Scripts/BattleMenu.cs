@@ -67,6 +67,15 @@ public class BattleMenu : MonoBehaviour
         PanelController.DisablePanel(battleLogPanel);
     }
 
+    public void BattleMenuNewUnit()
+    {
+        PanelController.DisablePanel(modePanel);
+        PanelController.DisablePanel(skillPanel);
+        PanelController.DisablePanel(targetPanel);
+        PanelController.DisablePanel(battleLogPanel);
+        PanelController.EnablePanel(actionPanel);
+        actionSelectedFlg = false;
+    }
     public void ButtonPressed()
     {
         eventSystem = EventSystem.current;
@@ -85,7 +94,7 @@ public class BattleMenu : MonoBehaviour
         // 同じパネル内で前と違うボタンを押した
         if (!noPrevBtn && !CheckButtonTypeChange(btnID, prevBtnID) && btnChanged)
         {
-            Debug.Log(noPrevBtn + ", " + btnChanged);
+            Debug.Log("同じパネル内で違うボタンを押した");
             btnFlgList[prevBtnID] = false;
             prevButton.GetComponent<ButtonResponse>().ResetButton();    
         }
@@ -166,7 +175,8 @@ public class BattleMenu : MonoBehaviour
                 PanelController.DisablePanel(modePanel);
                 PanelController.EnablePanel(actionPanel);
                 actionSelectedFlg = false;
-                battleController.StartManualTurn();
+                StartCoroutine(battleController.StartManualTurn());
+                //battleController.StartManualTurn();
                 break;
 
             case 1:
@@ -191,6 +201,7 @@ public class BattleMenu : MonoBehaviour
                 {
                     PanelController.DisablePanel(panel);
                 }
+                btnResp.ResetButton();
                 actionSelectedFlg = true;
                 // 次のキャラへ
                 break;
@@ -200,12 +211,15 @@ public class BattleMenu : MonoBehaviour
                 // 単体攻撃ならターゲットパネルへ
                 if (skillTargetTypes[0] == 0)
                 {
+                    Debug.Log("スキル1は単体攻撃");
                     PanelController.DisableButtons(skillPanel);
                     PanelController.EnablePanel(targetPanel);
                 }
                 // 全体攻撃なら次のキャラへ
                 else
                 {
+                    Debug.Log("スキル1は全体攻撃");
+                    targetNumber = 20;
                     actionSelectedFlg = true;
                 }
                 skillNumber = 0;
@@ -222,6 +236,7 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
+                    targetNumber = 20;
                     actionSelectedFlg = true;
                 }
                 skillNumber = 1;
@@ -238,6 +253,7 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
+                    targetNumber = 20;
                     actionSelectedFlg = true;
                 }
                 skillNumber = 2;
@@ -254,6 +270,7 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
+                    targetNumber = 20;
                     actionSelectedFlg = true;
                 }
                 skillNumber = 3;

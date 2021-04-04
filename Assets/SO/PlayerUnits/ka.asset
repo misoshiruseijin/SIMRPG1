@@ -18,5 +18,5 @@ MonoBehaviour:
   hp: 20
   atk: 10
   def: 5
-  spd: 25
+  spd: 10
   skills: 02000000
