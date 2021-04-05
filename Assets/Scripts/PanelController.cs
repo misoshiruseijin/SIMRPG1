@@ -37,11 +37,11 @@ public static class PanelController
         {
             if (!string.IsNullOrEmpty(btn.GetComponentInChildren<Text>().text))
             {
-                btn.interactable = true;
+                btn.enabled = true;
             }
             else
             {
-                btn.interactable = false;
+                btn.enabled = false;
             }
         }
     }

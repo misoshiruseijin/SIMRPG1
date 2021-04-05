@@ -13,7 +13,6 @@ public class BattleMenu : MonoBehaviour
     public List<GameObject> btnListSkill;
     public List<GameObject> btnListTarget;
     public List<GameObject> btnList; // 全ボタンのリスト
-    public List<bool> btnFlgList; // 全ボタンの状況
 
     public GameObject modePanel, actionPanel, skillPanel, targetPanel; // 戦闘メニューパネル
     public GameObject battleLogPanel; // バトルログパネル
@@ -21,7 +20,6 @@ public class BattleMenu : MonoBehaviour
     public BattleController battleController;
 
     public bool autoBattleFlg, manualBattleFlg;
-    public bool actionSelectedFlg;
 
     public List<int> skillTargetTypes;
 
@@ -41,11 +39,6 @@ public class BattleMenu : MonoBehaviour
         battleController = GetComponent<BattleController>();
         // initialize btnList and btnFlgList
         btnList = btnListMode.Concat(btnListAction).Concat(btnListSkill).Concat(btnListTarget).ToList();
-        btnFlgList = new List<bool>();
-        for (int i=0; i<btnList.Count; i++)
-        {
-            btnFlgList.Add(false);
-        }
 
         menuPanelList = new List<GameObject>() { modePanel, actionPanel, skillPanel, targetPanel };
 
@@ -54,17 +47,36 @@ public class BattleMenu : MonoBehaviour
         n_skills = btnListSkill.Count;
         n_targets = btnListTarget.Count;
         n_btns = btnList.Count;
-
-        //autoBattleFlg = false;
     }
     
-    public void ResetBattleMenu()
+    public void SetMenuNewTurn()
     {
-        PanelController.EnablePanel(modePanel);
+        PanelController.DisablePanel(modePanel);
         PanelController.DisablePanel(actionPanel);
         PanelController.DisablePanel(skillPanel);
         PanelController.DisablePanel(targetPanel);
         PanelController.DisablePanel(battleLogPanel);
+
+        PanelController.EnablePanel(modePanel);
+    }
+
+    public void SetMenuNextUnit()
+    {
+        PanelController.DisablePanel(modePanel);
+        PanelController.DisablePanel(skillPanel);
+        PanelController.DisablePanel(targetPanel);
+        PanelController.DisablePanel(battleLogPanel);
+
+        PanelController.EnablePanel(actionPanel);
+    }
+
+    public void ResetAllButtonStates()
+    {
+        foreach (GameObject btn in btnList)
+        {
+            btn.GetComponent<ButtonResponse>().ResetButton();
+            //Debug.Log(btn.GetComponent<ButtonResponse>());
+        }
     }
 
     public void ButtonPressed()
@@ -86,7 +98,7 @@ public class BattleMenu : MonoBehaviour
         if (!noPrevBtn && !CheckButtonTypeChange(btnID, prevBtnID) && btnChanged)
         {
             Debug.Log(noPrevBtn + ", " + btnChanged);
-            btnFlgList[prevBtnID] = false;
+            //btnFlgList[prevBtnID] = false;
             prevButton.GetComponent<ButtonResponse>().ResetButton();    
         }
 
@@ -99,9 +111,10 @@ public class BattleMenu : MonoBehaviour
         else if (btnResp.btnReady && !btnResp.btnActive)
         {
             //Debug.Log("二回目のクリック");
-            btnResp.btnReady = false;
-            btnResp.btnActive = true;
-            btnFlgList[btnID] = true;
+
+            //btnResp.btnReady = false;
+            //btnResp.btnActive = true;
+            btnResp.SetButton();
             TakeButtonAction(btnID);
         }
     }
@@ -163,10 +176,7 @@ public class BattleMenu : MonoBehaviour
         {
             case 0:
                 Debug.Log("マニュアルモード");
-                PanelController.DisablePanel(modePanel);
-                PanelController.EnablePanel(actionPanel);
-                actionSelectedFlg = false;
-                battleController.StartManualTurn();
+                StartCoroutine(battleController.StartManualTurn());
                 break;
 
             case 1:
@@ -187,11 +197,8 @@ public class BattleMenu : MonoBehaviour
 
             case 3:
                 Debug.Log("防御");
-                foreach (GameObject panel in menuPanelList)
-                {
-                    PanelController.DisablePanel(panel);
-                }
-                actionSelectedFlg = true;
+                SetMenuNextUnit();
+                battleController.ActionSelected();
                 // 次のキャラへ
                 break;
 
@@ -206,7 +213,7 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
-                    actionSelectedFlg = true;
+                    battleController.ActionSelected();
                 }
                 skillNumber = 0;
                 break;
@@ -222,7 +229,7 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
-                    actionSelectedFlg = true;
+                    battleController.ActionSelected();
                 }
                 skillNumber = 1;
                 break;
@@ -238,7 +245,7 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
-                    actionSelectedFlg = true;
+                    battleController.ActionSelected();
                 }
                 skillNumber = 2;
                 break;
@@ -254,28 +261,28 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
-                    actionSelectedFlg = true;
+                    battleController.ActionSelected();
                 }
                 skillNumber = 3;
                 break;
 
             case 8:
                 Debug.Log("ターゲット1");
-                actionSelectedFlg = true;
-                targetNumber = 0;
+                battleController.ActionSelected();
+                targetNumber = 0;                
                 // 次のキャラへ
                 break;
 
             case 9:
                 Debug.Log("ターゲット2");
-                actionSelectedFlg = true;
+                battleController.ActionSelected();
                 targetNumber = 1;
                 // 次のキャラへ
                 break;
 
             case 10:
                 Debug.Log("ターゲット3");
-                actionSelectedFlg = true;
+                battleController.ActionSelected();
                 targetNumber = 2;
                 // 次のキャラへ
                 break;

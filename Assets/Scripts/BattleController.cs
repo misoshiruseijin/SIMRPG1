@@ -14,8 +14,6 @@ public class BattleController : MonoBehaviour
     public List<GameObject> enemyObjList; // 敵ユニット
     public List<GameObject> statusPanelList; // 味方のステータス表示用パネル
 
-    //public bool autoBattleFlg;
-    //public bool manualBattleFlg;
     public bool actionSelectedFlg;
 
     public BattleMenu battleMenu;
@@ -196,14 +194,14 @@ public class BattleController : MonoBehaviour
         StartCoroutine("ActionCoroutine");
     }
 
-    public void StartManualTurn()
+    public IEnumerator StartManualTurn()
     {
+        // バトルキューを作成
+        battleQueue = new Queue<Action>();
+
         // spdステータスから行動順を決定
         allUnits = allUnits.OrderByDescending(unit => unit.GetComponent<Character>().spd).ToList(); // spdが高い順に並べる
         //Debug.Log("行動順は" + String.Join(" ", allUnits));
-
-        // バトルキューを作成
-        battleQueue = new Queue<Action>();
 
         // マニュアルモードが選択された場合
         foreach (GameObject unit in allUnits)
@@ -211,13 +209,27 @@ public class BattleController : MonoBehaviour
             // ユニットが敵なら行動をランダム生成
             if (unit.tag == enemyTag)
             {
-                EnqueueAuto(unit);
+                Debug.Log("敵: " + unit.GetComponent<Character>().jpName);
+                //EnqueueAuto(unit);
             }
 
             // ユニットが味方なら
             else if (unit.tag == allyTag)
             {
-                EnqueueManual(unit);
+                Debug.Log("味方: " + unit.GetComponent<Character>().jpName);
+                
+                ManualActionSelect(unit);
+
+                battleMenu.SetMenuNextUnit();
+                battleMenu.ResetAllButtonStates();
+
+                yield return StartCoroutine("WaitCoroutine");
+                Debug.Log("[!] Resuming StartManual");
+
+
+                // スキルとターゲットが決定。
+                // ダメージリストとログリストを作成
+                // BattleQueueに追加
             }
         }
 
@@ -225,11 +237,8 @@ public class BattleController : MonoBehaviour
     }
 
 
-    public void EnqueueManual(GameObject unit)
+    public void ManualActionSelect(GameObject unit)
     {
-        // フラグ初期化
-        battleMenu.actionSelectedFlg = false;
-
         // BattleMenuがアクションパネルが表示している
         List<List<GameObject>> receiveUnits = new List<List<GameObject>>(); // 行動を受けるユニットのリスト
         List<GameObject> actionUnit = new List<GameObject> { unit }; // 行動するユニット
@@ -264,11 +273,11 @@ public class BattleController : MonoBehaviour
             }
         }
 
-        // Coroutine開始。アクションが確定するまで待つ
-        // スキルとターゲットが決定。
-        // ダメージリストとログリストを作成
-        // BattleQueueに追加
+    }
 
+    public void EnqueueManual()
+    {
+        
     }
 
     public void EnqueueAuto(GameObject unit)
@@ -552,15 +561,12 @@ public class BattleController : MonoBehaviour
         CheckUnitLife();
     }
 
-    IEnumerator WaitForManualActionCoroutine()
+    IEnumerator WaitCoroutine()
     {
-        while (!battleMenu.actionSelectedFlg)
-        {
-
-        }
-
-        // enqueue
-        yield return null;
+        Debug.Log("[!] Start Wait");
+        yield return new WaitUntil(() => actionSelectedFlg);
+        actionSelectedFlg = false;
+        Debug.Log("[!] End Wait");
     }
     public struct Action
     {
@@ -639,4 +645,8 @@ public class BattleController : MonoBehaviour
         //StartCoroutine("ActionCoroutine");
     }
 
+    public void ActionSelected()
+    {
+        actionSelectedFlg = true;
+    }
 }
