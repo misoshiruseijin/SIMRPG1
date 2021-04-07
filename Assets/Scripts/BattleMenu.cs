@@ -19,7 +19,7 @@ public class BattleMenu : MonoBehaviour
 
     public BattleController battleController;
 
-    public bool autoBattleFlg, manualBattleFlg;
+    public bool guardFlg;
 
     public List<int> skillTargetTypes;
 
@@ -47,6 +47,8 @@ public class BattleMenu : MonoBehaviour
         n_skills = btnListSkill.Count;
         n_targets = btnListTarget.Count;
         n_btns = btnList.Count;
+
+        guardFlg = false;
     }
     
     public void SetMenuNewTurn()
@@ -68,6 +70,16 @@ public class BattleMenu : MonoBehaviour
         PanelController.DisablePanel(battleLogPanel);
 
         PanelController.EnablePanel(actionPanel);
+    }
+
+    public void SetMenuStartAction()
+    {
+        PanelController.DisablePanel(modePanel);
+        PanelController.DisablePanel(actionPanel);
+        PanelController.DisablePanel(skillPanel);
+        PanelController.DisablePanel(targetPanel);
+        
+        PanelController.EnablePanel(battleLogPanel);
     }
 
     public void ResetAllButtonStates()
@@ -193,10 +205,12 @@ public class BattleMenu : MonoBehaviour
                 Debug.Log("スキル");
                 PanelController.DisableButtons(actionPanel);
                 PanelController.EnablePanel(skillPanel);
+                guardFlg = false;
                 break;
 
             case 3:
                 Debug.Log("防御");
+                guardFlg = true;
                 SetMenuNextUnit();
                 battleController.ActionSelected();
                 // 次のキャラへ
@@ -213,6 +227,7 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
+                    targetNumber = 20;
                     battleController.ActionSelected();
                 }
                 skillNumber = 0;
@@ -229,6 +244,7 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
+                    targetNumber = 20;
                     battleController.ActionSelected();
                 }
                 skillNumber = 1;
@@ -245,6 +261,7 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
+                    targetNumber = 20;
                     battleController.ActionSelected();
                 }
                 skillNumber = 2;
@@ -261,6 +278,7 @@ public class BattleMenu : MonoBehaviour
                 // 全体攻撃なら次のキャラへ
                 else
                 {
+                    targetNumber = 20;
                     battleController.ActionSelected();
                 }
                 skillNumber = 3;
