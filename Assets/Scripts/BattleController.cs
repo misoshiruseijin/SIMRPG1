@@ -178,6 +178,7 @@ public class BattleController : MonoBehaviour
 
     public void StartAutoTurn()
     {
+        battleMenu.ResetAllButtonStates();
         // spdステータスから行動順を決定
         allUnits = allUnits.OrderByDescending(unit => unit.GetComponent<Character>().spd).ToList(); // spdが高い順に並べる
         //Debug.Log("行動順は" + String.Join(" ", allUnits));
@@ -209,14 +210,14 @@ public class BattleController : MonoBehaviour
             // ユニットが敵なら行動をランダム生成
             if (unit.tag == enemyTag)
             {
-                Debug.Log("敵: " + unit.GetComponent<Character>().jpName);
+                //Debug.Log("敵: " + unit.GetComponent<Character>().jpName);
                 EnqueueAuto(unit);
             }
 
             // ユニットが味方なら
             else if (unit.tag == allyTag)
             {
-                Debug.Log("味方: " + unit.GetComponent<Character>().jpName);
+                //Debug.Log("味方: " + unit.GetComponent<Character>().jpName);
                 
                 ManualActionSelect(unit);
 
@@ -224,7 +225,7 @@ public class BattleController : MonoBehaviour
                 battleMenu.ResetAllButtonStates();
 
                 yield return StartCoroutine("WaitCoroutine");
-                Debug.Log("[!] Resuming StartManual");
+                //Debug.Log("[!] Resuming StartManual");
 
                 EnqueueManual(unit);
             }
@@ -247,13 +248,17 @@ public class BattleController : MonoBehaviour
 
         List<SkillStatus> skillList = character.skillList; // ユニットのスキルリストを取得
         
-        // BattleMenuにスキル対象リストを渡す（アクション確定判定のため）
+        // BattleMenuにスキル対象リスト（アクション確定判定のため）と
+        // スキル解説文リスト（スキルパネルに表示するため）をわたす
         List<int> targetTypes = new List<int>();
+        List<string> skillDescs = new List<string>();
         foreach(SkillStatus skill in skillList)
         {
             targetTypes.Add(skill.targetList[0]);
+            skillDescs.Add(skill.desc);
         }
         battleMenu.skillTargetTypes = targetTypes;
+        battleMenu.skillDescStrings = skillDescs;
 
         // アクションパネルにキャラ名を表示
         battleMenu.actionPanel.GetComponentInChildren<Text>().text = character.jpName;
@@ -375,6 +380,7 @@ public class BattleController : MonoBehaviour
         {
             battleQueue.Enqueue(action);
         }
+
     }
 
     public List<GameObject> ChooseTargetUnits(int targetCode, GameObject unit, int targetNum = 10)
@@ -600,13 +606,21 @@ public class BattleController : MonoBehaviour
         if (playerObjList.Count == 0)
         {
             // プレイヤーサイドの敗北
+            TextController.UpdateLog("戦いに敗れた...");
             Debug.Log("戦いに敗れた…");
         }
 
         else if (enemyObjList.Count == 0)
         {
             // 敵サイドの敗北
+            TextController.UpdateLog("戦いに勝利した");
             Debug.Log("戦いに勝利した");
+        }
+
+        else
+        {
+            // 次のターンへ
+            battleMenu.SetMenuNewTurn();
         }
     }
 
@@ -633,15 +647,16 @@ public class BattleController : MonoBehaviour
             } 
         }
 
+        battleMenu.ClearLogPanel();
         CheckUnitLife();
     }
 
     IEnumerator WaitCoroutine()
     {
-        Debug.Log("[!] Start Wait");
+        //Debug.Log("[!] Start Wait");
         yield return new WaitUntil(() => actionSelectedFlg);
         actionSelectedFlg = false;
-        Debug.Log("[!] End Wait");
+        //Debug.Log("[!] End Wait");
     }
     public struct Action
     {

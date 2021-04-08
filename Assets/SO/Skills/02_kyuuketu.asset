@@ -15,7 +15,7 @@ MonoBehaviour:
   id: 2
   engName: 02_kyuuketu
   jpName: "\u5438\u8840"
-  desc: "\u6575\u5358\u4F53\u306B\u30C0\u30E1\u30FC\u30B8"
+  desc: "\u6575\u5358\u4F53\u3092\u653B\u6483\u3057HP\u3092\u5438\u53CE"
   message: "\u306E\u5438\u8840\u653B\u6483\uFF01"
   targetList: 0000000004000000
   actionTypeList: 0000000001000000

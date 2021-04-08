@@ -6,9 +6,11 @@ using UnityEngine.UI;
 public class DisplayText : MonoBehaviour
 {
     // 会話、バトルログなど、スクロールするタイプのテキストオブジェクトにアタッチする
+    Text textObj;
     void Start()
     {
-        this.GetComponent<Text>().text = "";
+        textObj = this.GetComponent<Text>();
+        textObj.text = "";
     }
 
     void Update()
@@ -17,7 +19,8 @@ public class DisplayText : MonoBehaviour
         {
             // if new string is available from TextController --> get new string and set it to Text object, deactivate flag
             string logText = TextController.UpdateLog2();
-            this.GetComponent<Text>().text = logText;
+            textObj.text = logText;
         }
     }
+
 }

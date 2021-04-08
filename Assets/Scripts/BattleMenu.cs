@@ -17,11 +17,13 @@ public class BattleMenu : MonoBehaviour
     public GameObject modePanel, actionPanel, skillPanel, targetPanel; // 戦闘メニューパネル
     public GameObject battleLogPanel; // バトルログパネル
 
-    public BattleController battleController;
+    [HideInInspector] public BattleController battleController;
+    [HideInInspector] public Text skillDescText;
 
     public bool guardFlg;
 
     public List<int> skillTargetTypes;
+    public List<string> skillDescStrings;
 
     public int skillNumber; // プレイヤーが選んだスキルが何番目のスキルか
     public int targetNumber; // プレイヤーが選んだターゲットが何番目のターゲットか
@@ -33,11 +35,14 @@ public class BattleMenu : MonoBehaviour
     private int btnID, prevBtnID;
     private List<GameObject> menuPanelList;
     private int n_modes, n_actions, n_skills, n_targets, n_btns;
+    private Text logText;
 
     private void Start()
     {
         battleController = GetComponent<BattleController>();
-        // initialize btnList and btnFlgList
+        logText = battleLogPanel.GetComponentInChildren<Text>();
+
+        // initialize btnList
         btnList = btnListMode.Concat(btnListAction).Concat(btnListSkill).Concat(btnListTarget).ToList();
 
         menuPanelList = new List<GameObject>() { modePanel, actionPanel, skillPanel, targetPanel };
@@ -60,6 +65,8 @@ public class BattleMenu : MonoBehaviour
         PanelController.DisablePanel(battleLogPanel);
 
         PanelController.EnablePanel(modePanel);
+
+        skillDescText.text = "";
     }
 
     public void SetMenuNextUnit()
@@ -70,6 +77,8 @@ public class BattleMenu : MonoBehaviour
         PanelController.DisablePanel(battleLogPanel);
 
         PanelController.EnablePanel(actionPanel);
+
+        skillDescText.text = "";
     }
 
     public void SetMenuStartAction()
@@ -80,6 +89,12 @@ public class BattleMenu : MonoBehaviour
         PanelController.DisablePanel(targetPanel);
         
         PanelController.EnablePanel(battleLogPanel);
+    }
+
+    public void ClearLogPanel()
+    {
+        //Debug.Log("Clearing log panel");
+        TextController.ClearLog();
     }
 
     public void ResetAllButtonStates()
@@ -117,6 +132,12 @@ public class BattleMenu : MonoBehaviour
         if (!btnResp.btnReady)
         {
             //Debug.Log("初めてクリックされた");
+            if (GetButtonType(btnID) == 2)
+            {
+                // スキルボタンならスキル解説文を表示
+                skillDescText.text = skillDescStrings[btnID - n_modes - n_actions];
+            }
+
             btnResp.btnReady = true;
         }
 
@@ -192,7 +213,7 @@ public class BattleMenu : MonoBehaviour
                 break;
 
             case 1:
-                Debug.Log("オートモード");
+                //Debug.Log("オートモード");
                 foreach (GameObject panel in menuPanelList)
                 {
                     PanelController.DisablePanel(panel);
@@ -202,14 +223,14 @@ public class BattleMenu : MonoBehaviour
                 break;
 
             case 2:
-                Debug.Log("スキル");
+                //Debug.Log("スキル");
                 PanelController.DisableButtons(actionPanel);
                 PanelController.EnablePanel(skillPanel);
                 guardFlg = false;
                 break;
 
             case 3:
-                Debug.Log("防御");
+                //Debug.Log("防御");
                 guardFlg = true;
                 SetMenuNextUnit();
                 battleController.ActionSelected();
@@ -217,7 +238,7 @@ public class BattleMenu : MonoBehaviour
                 break;
 
             case 4:
-                Debug.Log("スキル1");
+                //Debug.Log("スキル1");
                 // 単体攻撃ならターゲットパネルへ
                 if (skillTargetTypes[0] == 0)
                 {
@@ -234,7 +255,7 @@ public class BattleMenu : MonoBehaviour
                 break;
 
             case 5:
-                Debug.Log("スキル2");
+                //Debug.Log("スキル2");
                 // 単体攻撃ならターゲットパネルへ
                 if (skillTargetTypes[1] == 0)
                 {
@@ -251,7 +272,7 @@ public class BattleMenu : MonoBehaviour
                 break;
 
             case 6:
-                Debug.Log("スキル3");
+                //Debug.Log("スキル3");
                 // 単体攻撃ならターゲットパネルへ
                 if (skillTargetTypes[2] == 0)
                 {
@@ -268,7 +289,7 @@ public class BattleMenu : MonoBehaviour
                 break;
 
             case 7:
-                Debug.Log("スキル4");
+                //Debug.Log("スキル4");
                 // 単体攻撃ならターゲットパネルへ
                 if (skillTargetTypes[3] == 0)
                 {
@@ -285,21 +306,21 @@ public class BattleMenu : MonoBehaviour
                 break;
 
             case 8:
-                Debug.Log("ターゲット1");
+                //Debug.Log("ターゲット1");
                 battleController.ActionSelected();
                 targetNumber = 0;                
                 // 次のキャラへ
                 break;
 
             case 9:
-                Debug.Log("ターゲット2");
+                //Debug.Log("ターゲット2");
                 battleController.ActionSelected();
                 targetNumber = 1;
                 // 次のキャラへ
                 break;
 
             case 10:
-                Debug.Log("ターゲット3");
+                //Debug.Log("ターゲット3");
                 battleController.ActionSelected();
                 targetNumber = 2;
                 // 次のキャラへ

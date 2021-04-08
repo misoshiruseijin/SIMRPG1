@@ -45,4 +45,9 @@ public static class TextController
         return outputString;
     }
 
+    public static void ClearLog()
+    {
+        logText = new List<string>();
+    }
+
 }
