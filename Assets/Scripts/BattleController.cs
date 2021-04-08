@@ -31,6 +31,8 @@ public class BattleController : MonoBehaviour
     private string allyTag = "Ally";
     private string enemyTag = "Enemy";
 
+    private int prevDamage;
+
     void Start()
     {
         battleMenu = GetComponent<BattleMenu>();
@@ -235,7 +237,6 @@ public class BattleController : MonoBehaviour
 
         StartCoroutine("ActionCoroutine");
     }
-
 
     public void ManualActionSelect(GameObject unit)
     {
@@ -483,18 +484,29 @@ public class BattleController : MonoBehaviour
                         int def = targetCharacter.def;
                         int damage = atk * multList[i] - def;
                         tempList.Add(damage);
+                        prevDamage = damage;
                     }
                     break;
 
                 case 1:
                     // 回復効果
-                    foreach(GameObject targetUnit in receiveUnits[i])
+                    foreach (GameObject targetUnit in receiveUnits[i])
                     {
                         Character targetCharacter = targetUnit.GetComponent<Character>();
                         int damage = Mathf.RoundToInt((float)(-atk * multList[i] / 10));
                         tempList.Add(damage);
                     }
                     break;
+
+                case 2:
+                    // 直前に与えたダメージ依存の回復
+                    foreach (GameObject targetUnit in receiveUnits[i])
+                    {
+                        int damage = Mathf.RoundToInt((float)(-prevDamage * multList[i] / 10));
+                        tempList.Add(damage);
+                    }
+                    break;
+
             }
 
             damageList.Add(tempList);
@@ -534,11 +546,17 @@ public class BattleController : MonoBehaviour
                         break;
 
                     case 2:
+                        // 直前の攻撃依存の回復
+                        int heal2 = -damageList[i][0];
+                        msgString = receiveCharaName + "の体力が" + heal2.ToString() + "回復した！";
+                        break;
+
+                    case 3:
                         // バフ
                         msgString = "バフがかかった！";
                         break;
 
-                    case 3:
+                    case 4:
                         // 状態異常付与
                         msgString = "状態異常効果！";
                         break;

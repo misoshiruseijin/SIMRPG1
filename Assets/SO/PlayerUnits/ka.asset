@@ -16,7 +16,7 @@ MonoBehaviour:
   engName: ka
   jpName: "\u868A"
   hp: 20
-  atk: 5
+  atk: 10
   def: 5
   spd: 25
   skills: 02000000
