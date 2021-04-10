@@ -392,10 +392,12 @@ MonoBehaviour:
   skillPanel: {fileID: 136464999233018696}
   targetPanel: {fileID: 8086584188804196785}
   battleLogPanel: {fileID: 1670632288}
-  skillDescText: {fileID: 8542507545789488308}
+  backBtn: {fileID: 3643776752715571900}
   battleController: {fileID: 0}
+  skillDescText: {fileID: 8542507545789488308}
   guardFlg: 0
   skillTargetTypes: 
+  skillDescStrings: []
   skillNumber: 0
   targetNumber: 0
 --- !u!1 &299300541 stripped
@@ -4238,6 +4240,7 @@ GameObject:
   - component: {fileID: 3852047591776871589}
   - component: {fileID: 530337617940054248}
   - component: {fileID: 482844273764679397}
+  - component: {fileID: 3643776752715571901}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -4245,6 +4248,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &3643776752715571901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3643776752715571900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10ae0a430c9db734d92622e61618eb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!222 &3750116358938301828
 CanvasRenderer:
   m_ObjectHideFlags: 0

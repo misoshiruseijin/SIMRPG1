@@ -16,6 +16,8 @@ public class BattleMenu : MonoBehaviour
 
     public GameObject modePanel, actionPanel, skillPanel, targetPanel; // 戦闘メニューパネル
     public GameObject battleLogPanel; // バトルログパネル
+    public GameObject backBtnObj;
+    public BackButton backBtn;
 
     [HideInInspector] public BattleController battleController;
     [HideInInspector] public Text skillDescText;
@@ -34,6 +36,7 @@ public class BattleMenu : MonoBehaviour
     private ButtonResponse btnResp;
     private int btnID, prevBtnID;
     private List<GameObject> menuPanelList;
+    private List<int> panelStates;
     private int n_modes, n_actions, n_skills, n_targets, n_btns;
     private Text logText;
 
@@ -41,11 +44,13 @@ public class BattleMenu : MonoBehaviour
     {
         battleController = GetComponent<BattleController>();
         logText = battleLogPanel.GetComponentInChildren<Text>();
+        backBtn = backBtnObj.GetComponent<BackButton>();
 
         // initialize btnList
         btnList = btnListMode.Concat(btnListAction).Concat(btnListSkill).Concat(btnListTarget).ToList();
 
         menuPanelList = new List<GameObject>() { modePanel, actionPanel, skillPanel, targetPanel };
+        panelStates = new List<int>() { 0, 0, 0, 0 };
 
         n_modes = btnListMode.Count;
         n_actions = btnListAction.Count;
@@ -326,6 +331,22 @@ public class BattleMenu : MonoBehaviour
                 // 次のキャラへ
                 break;
         }
+
+        // BackButtonにメニューパネルのアクティブステートを渡す
+        for (int i = 0; i < menuPanelList.Count; i++)
+        {
+            if (menuPanelList[i].activeInHierarchy)
+            {
+                panelStates[i] = 1;
+            }
+
+            else
+            {
+                panelStates[i] = 0;
+            }
+        }
+
+        backBtn.panelState = panelStates;
 
     }
 
