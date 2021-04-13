@@ -37,7 +37,6 @@ public class ButtonResponse : MonoBehaviour
             btnImage.color = Color.gray;
             time = 0;
         }
-
     }
 
     private Color GetAlpha(Color color)

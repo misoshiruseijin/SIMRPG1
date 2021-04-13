@@ -16,8 +16,8 @@ public class BattleMenu : MonoBehaviour
 
     public GameObject modePanel, actionPanel, skillPanel, targetPanel; // 戦闘メニューパネル
     public GameObject battleLogPanel; // バトルログパネル
-    public GameObject backBtnObj;
-    public BackButton backBtn;
+    public GameObject backDescPanel; // 戻るボタンの開設を表示するパネル
+    public GameObject backBtnObj1;
 
     [HideInInspector] public BattleController battleController;
     [HideInInspector] public Text skillDescText;
@@ -33,24 +33,31 @@ public class BattleMenu : MonoBehaviour
     private EventSystem eventSystem;
     private GameObject button;
     private GameObject prevButton; // 1回前に押されていたボタン
-    private ButtonResponse btnResp;
+    private ButtonResponse btnResp, backBtnResp1, backBtnResp2;
     private int btnID, prevBtnID;
     private List<GameObject> menuPanelList;
-    private List<int> panelStates;
+    private List<bool> panelStates;
     private int n_modes, n_actions, n_skills, n_targets, n_btns;
     private Text logText;
+    private Text backBtnDescText;
+
 
     private void Start()
     {
         battleController = GetComponent<BattleController>();
         logText = battleLogPanel.GetComponentInChildren<Text>();
-        backBtn = backBtnObj.GetComponent<BackButton>();
+        backBtnDescText = backDescPanel.GetComponentInChildren<Text>();
+        backBtnResp1 = backBtnObj1.GetComponent<ButtonResponse>();
 
         // initialize btnList
         btnList = btnListMode.Concat(btnListAction).Concat(btnListSkill).Concat(btnListTarget).ToList();
 
         menuPanelList = new List<GameObject>() { modePanel, actionPanel, skillPanel, targetPanel };
-        panelStates = new List<int>() { 0, 0, 0, 0 };
+        panelStates = new List<bool>();
+        for (int i = 0; i < menuPanelList.Count; i++)
+        {
+            panelStates.Add(false);
+        }
 
         n_modes = btnListMode.Count;
         n_actions = btnListAction.Count;
@@ -60,7 +67,35 @@ public class BattleMenu : MonoBehaviour
 
         guardFlg = false;
     }
-    
+
+    private void Update()
+    {
+        // 各メニューパネルのアクティブ状況をリストに反映
+        for (int i = 0; i < menuPanelList.Count; i++)
+        {
+            if (menuPanelList[i].activeInHierarchy)
+            {
+                panelStates[i] = true;
+            }
+
+            else
+            {
+                panelStates[i] = false;
+            }
+        }
+
+        if (panelStates.Any(x => x == true) && panelStates[0] == false)
+        {
+            // モードパネル以外のパネルが表示されている状態
+            backBtnObj1.GetComponent<Button>().enabled = true;
+        }
+        else
+        {
+            backBtnObj1.GetComponent<Button>().enabled = false;
+        }
+
+    }
+
     public void SetMenuNewTurn()
     {
         PanelController.DisablePanel(modePanel);
@@ -70,6 +105,8 @@ public class BattleMenu : MonoBehaviour
         PanelController.DisablePanel(battleLogPanel);
 
         PanelController.EnablePanel(modePanel);
+        PanelController.EnablePanel(backDescPanel);
+        backBtnObj1.SetActive(true);
 
         skillDescText.text = "";
     }
@@ -92,7 +129,9 @@ public class BattleMenu : MonoBehaviour
         PanelController.DisablePanel(actionPanel);
         PanelController.DisablePanel(skillPanel);
         PanelController.DisablePanel(targetPanel);
-        
+        PanelController.DisablePanel(backDescPanel);
+        backBtnObj1.SetActive(false);
+
         PanelController.EnablePanel(battleLogPanel);
     }
 
@@ -149,11 +188,29 @@ public class BattleMenu : MonoBehaviour
         else if (btnResp.btnReady && !btnResp.btnActive)
         {
             //Debug.Log("二回目のクリック");
-
-            //btnResp.btnReady = false;
-            //btnResp.btnActive = true;
             btnResp.SetButton();
             TakeButtonAction(btnID);
+        }
+    }
+
+    public void ReSelectUnitActionButtonPressed()
+    {
+        // ユニットの行動選択を解除。ユニットの行動が確定するまで押せる
+
+        if (!backBtnResp1.btnReady)
+        {
+            // 1回目のクリック
+            backBtnResp1.btnReady = true;
+            backBtnDescText.text = "現在選択中のユニットの行動を選びなおす";
+        }
+
+        else if (backBtnResp1.btnReady && !backBtnResp1.btnActive)
+        {
+            // 2回目のクリック
+            backBtnDescText.text = "";
+            backBtnResp1.ResetButton();
+            ResetAllButtonStates();
+            SetMenuNextUnit();
         }
     }
 
@@ -331,23 +388,6 @@ public class BattleMenu : MonoBehaviour
                 // 次のキャラへ
                 break;
         }
-
-        // BackButtonにメニューパネルのアクティブステートを渡す
-        for (int i = 0; i < menuPanelList.Count; i++)
-        {
-            if (menuPanelList[i].activeInHierarchy)
-            {
-                panelStates[i] = 1;
-            }
-
-            else
-            {
-                panelStates[i] = 0;
-            }
-        }
-
-        backBtn.panelState = panelStates;
-
     }
 
 }

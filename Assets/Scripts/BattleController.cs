@@ -192,7 +192,8 @@ public class BattleController : MonoBehaviour
         {
             EnqueueAuto(unit);
         }
-        
+
+        battleMenu.SetMenuStartAction();
 
         StartCoroutine("ActionCoroutine");
     }
@@ -745,12 +746,6 @@ public class BattleController : MonoBehaviour
                 TextController.UpdateLog(logString);
             }
         }
-    }
-
-    public void AttackButtonPressed()
-    {
-        //StartBattleTurn();
-        //StartCoroutine("ActionCoroutine");
     }
 
     public void ActionSelected()
