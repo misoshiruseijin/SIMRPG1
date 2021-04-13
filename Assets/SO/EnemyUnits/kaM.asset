@@ -20,3 +20,4 @@ MonoBehaviour:
   def: 5
   spd: 20
   skills: 02000000
+  unitImg: {fileID: 21300000, guid: 5035a1b4695d2ac4f8daba43180ac3df, type: 3}

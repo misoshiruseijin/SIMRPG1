@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class BattleMenu : MonoBehaviour
 {
+    #region Variable Definitions
     // 押されたボタンを見つけて、ボタン状況に対応したアクションを取る
     public List<GameObject> btnListMode;
     public List<GameObject> btnListAction;
@@ -40,7 +41,7 @@ public class BattleMenu : MonoBehaviour
     private int n_modes, n_actions, n_skills, n_targets, n_btns;
     private Text logText;
     private Text backBtnDescText;
-
+    #endregion
 
     private void Start()
     {

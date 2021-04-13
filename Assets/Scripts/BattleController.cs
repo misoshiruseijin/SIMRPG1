@@ -9,6 +9,7 @@ using UnityEditor;
 
 public class BattleController : MonoBehaviour
 {
+    #region Variable Definitions
     Queue<Action> battleQueue;
     public List<GameObject> playerObjList; // 味方ユニット
     public List<GameObject> enemyObjList; // 敵ユニット
@@ -32,6 +33,7 @@ public class BattleController : MonoBehaviour
     private string enemyTag = "Enemy";
 
     private int prevDamage;
+    #endregion
 
     void Start()
     {
@@ -74,7 +76,6 @@ public class BattleController : MonoBehaviour
         actionSelectedFlg = false;
 
     }
-
 
     public void InitializeBattleUnits(List<string> unitsInBattle, List<GameObject> unitObjList, string unitType)
     {

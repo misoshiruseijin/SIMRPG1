@@ -19,4 +19,8 @@ MonoBehaviour:
   atk: 10
   def: 10
   spd: 15
-  skills: 0000000001000000
+  skills: 
+  unitImg: {fileID: 21300000, guid: ccb0239176d765646be303c20220a16b, type: 3}
+  skillList:
+  - {fileID: 11400000, guid: 80e1d84a2d6e8bd4a98abf302c41fc28, type: 2}
+  - {fileID: 11400000, guid: f047d04f50451354c82eb58a618f74b1, type: 2}

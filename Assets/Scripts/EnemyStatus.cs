@@ -5,5 +5,6 @@ public class EnemyStatus : ScriptableObject
 {
     public string id, engName, jpName;
     public int hp, atk, def, spd;
-    public List<int> skills;
+    public Sprite unitImg;
+    public List<SkillStatus> skillList;
 }

@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 
 public class CSV2SO : MonoBehaviour
 {
@@ -13,14 +14,17 @@ public class CSV2SO : MonoBehaviour
     private static string PlayerCSVPath = "/SO/CSVs/PlayerUnit.csv";
     private static string EnemyCSVPath = "/SO/CSVs/EnemyUnit.csv";
     private static string SkillsCSVPath = "/SO/CSVs/Skills.csv";
-    
+
+    private static string imgPath = "Assets/Textures/UnitImages/"; // ADDED
+    private static string skillSOpath = "Assets/SO/Skills/"; // ADDED
+
 
     [MenuItem("Utilities/Generate AllData")]
     public static void GenerateAllData()
     {
+        GenerateSkillData();
         GeneratePlayerData();
         GenerateEnemyData();
-        GenerateSkillData();
     }
 
     [MenuItem("Utilities/Generate PlayerData")]
@@ -48,10 +52,12 @@ public class CSV2SO : MonoBehaviour
         {
             string[] splitData = csvLine.Split(',');
             PlayerStatus p = ScriptableObject.CreateInstance<PlayerStatus>();
-
+            string unitName;
+            
             // 名前とステータスを獲得
             p.id = splitData[0];
-            p.engName = splitData[1];
+            unitName = splitData[1];
+            p.engName = unitName;
             p.jpName = splitData[2];
             p.hp = int.Parse(splitData[3]);
             p.atk = int.Parse(splitData[4]);
@@ -59,11 +65,13 @@ public class CSV2SO : MonoBehaviour
             p.spd = int.Parse(splitData[6]);
 
             // スキルIDを獲得
-            List<string> skillData = new List<string>{ splitData[7], splitData[8], splitData[9], splitData[10]};
-            p.skills = new List<int>();
+            List<string> skillData = new List<string> { splitData[7], splitData[8], splitData[9], splitData[10] };
+            p.skillList = new List<SkillStatus>();
 
-            foreach(string s in skillData)
+            foreach (string s in skillData)
             {
+                string stringID;
+
                 if (String.IsNullOrEmpty(s))
                 {
                     break;
@@ -71,21 +79,22 @@ public class CSV2SO : MonoBehaviour
 
                 else
                 {
-                    int skillID;
+                    stringID = s.Substring(s.IndexOf("_") + 1);
+                }
 
-                    if (s[s.IndexOf("_")+1].ToString().Equals("0"))
-                    {
-                        skillID = int.Parse(s[s.Length-1].ToString());
-                    }
-
-                    else
-                    {
-                        skillID = int.Parse(s.Substring(s.IndexOf("_")));
-                    }
-
-                    p.skills.Add(skillID);
+                // skillIDに対応したスキルアッセットをCharacterに設定
+                IEnumerable<string> assetfiles = Directory.GetFiles(skillSOpath, "*.asset").Where(name => name.Contains(stringID));
+                foreach (string ast in assetfiles)
+                {
+                    SkillStatus skillStatus = AssetDatabase.LoadAssetAtPath<SkillStatus>(ast);
+                    Debug.Log(skillStatus);
+                    p.skillList.Add(skillStatus);
                 }
             }
+
+            // スプライトを設定
+            Sprite sp = AssetDatabase.LoadAssetAtPath<Sprite>(imgPath + unitName + ".png"); // キャラ画像を取得
+            p.unitImg = sp;
 
             AssetDatabase.CreateAsset(p, $"Assets/SO/PlayerUnits/{p.engName}.asset");
         }
@@ -119,10 +128,12 @@ public class CSV2SO : MonoBehaviour
         {
             string[] splitData = csvLine.Split(',');
             EnemyStatus e = ScriptableObject.CreateInstance<EnemyStatus>();
+            string unitName;
 
             // 名前とステータスを獲得
             e.id = splitData[0];
-            e.engName = splitData[1];
+            unitName = splitData[1];
+            e.engName = unitName;
             e.jpName = splitData[2];
             e.hp = int.Parse(splitData[3]);
             e.atk = int.Parse(splitData[4]);
@@ -131,10 +142,12 @@ public class CSV2SO : MonoBehaviour
 
             // スキルIDを獲得
             List<string> skillData = new List<string> { splitData[7], splitData[8], splitData[9], splitData[10] };
-            e.skills = new List<int>();
+            e.skillList = new List<SkillStatus>();
 
             foreach (string s in skillData)
             {
+                string stringID;
+
                 if (String.IsNullOrEmpty(s))
                 {
                     break;
@@ -142,22 +155,23 @@ public class CSV2SO : MonoBehaviour
 
                 else
                 {
-                    int skillID;
+                    stringID = s.Substring(s.IndexOf("_") + 1);
+                }
 
-                    if (s[s.IndexOf("_") + 1].ToString().Equals("0"))
-                    {
-                        skillID = int.Parse(s[s.Length - 1].ToString());
-                    }
-
-                    else
-                    {
-                        skillID = int.Parse(s.Substring(s.IndexOf("_")));
-                    }
-
-                    e.skills.Add(skillID);
+                // skillIDに対応したスキルアッセットをCharacterに設定
+                IEnumerable<string> assetfiles = Directory.GetFiles(skillSOpath, "*.asset").Where(name => name.Contains(stringID));
+                foreach (string ast in assetfiles)
+                {
+                    SkillStatus skillStatus = AssetDatabase.LoadAssetAtPath<SkillStatus>(ast);
+                    Debug.Log(skillStatus);
+                    e.skillList.Add(skillStatus);
                 }
             }
 
+            // スプライトを設定
+            Sprite sp = AssetDatabase.LoadAssetAtPath<Sprite>(imgPath + unitName + ".png"); // キャラ画像を取得
+            e.unitImg = sp;
+            
             AssetDatabase.CreateAsset(e, $"Assets/SO/EnemyUnits/{e.engName}.asset");
         }
 
@@ -249,6 +263,81 @@ public class CSV2SO : MonoBehaviour
             s.desc = splitData[17];
 
             AssetDatabase.CreateAsset(s, $"Assets/SO/Skills/{s.engName}.asset");
+        }
+
+        AssetDatabase.SaveAssets();
+    }
+    
+    
+    [MenuItem("Utilities/Generate PlayerData2")]
+    public static void GeneratePlayerData2()
+    {
+        csvData.Clear();
+        csvLine = string.Empty;
+        StreamReader reader = new StreamReader(Application.dataPath + PlayerCSVPath);
+
+        // skip header
+        reader.ReadLine();
+
+        while (reader.Peek() != -1)
+        {
+            // csvData = list containing arrays "csvLine"
+            csvLine = reader.ReadLine();
+
+            byte[] bytes = Encoding.Default.GetBytes(csvLine);
+            csvLine = Encoding.UTF8.GetString(bytes);
+
+            csvData.Add(csvLine);
+        }
+
+        foreach (string csvLine in csvData)
+        {
+            string[] splitData = csvLine.Split(',');
+            PlayerStatus p = ScriptableObject.CreateInstance<PlayerStatus>();
+            string unitName;
+            // 名前とステータスを獲得
+            p.id = splitData[0];
+            unitName = splitData[1];
+            p.engName = unitName;
+            p.jpName = splitData[2];
+            p.hp = int.Parse(splitData[3]);
+            p.atk = int.Parse(splitData[4]);
+            p.def = int.Parse(splitData[5]);
+            p.spd = int.Parse(splitData[6]);
+
+            // スキルIDを獲得
+            List<string> skillData = new List<string> { splitData[7], splitData[8], splitData[9], splitData[10] };
+            p.skillList = new List<SkillStatus>();
+
+            foreach (string s in skillData)
+            {
+                string stringID;
+
+                if (String.IsNullOrEmpty(s))
+                {
+                    break;
+                }
+
+                else
+                {
+                    stringID = s.Substring(s.IndexOf("_") + 1);
+                }
+
+                // skillIDに対応したスキルアッセットをCharacterに設定
+                IEnumerable<string> assetfiles = Directory.GetFiles(skillSOpath, "*.asset").Where(name => name.Contains(stringID));
+                foreach (string ast in assetfiles)
+                {
+                    SkillStatus skillStatus = AssetDatabase.LoadAssetAtPath<SkillStatus>(ast);
+                    Debug.Log(skillStatus);
+                    p.skillList.Add(skillStatus);
+                }
+            }
+
+            // スプライトを設定
+            Sprite sp = AssetDatabase.LoadAssetAtPath<Sprite>(imgPath + unitName + ".png"); // キャラ画像を取得
+            p.unitImg = sp;
+
+            AssetDatabase.CreateAsset(p, $"Assets/SO/PlayerUnits/{p.engName}.asset");
         }
 
         AssetDatabase.SaveAssets();

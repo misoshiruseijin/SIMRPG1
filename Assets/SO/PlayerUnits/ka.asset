@@ -16,7 +16,10 @@ MonoBehaviour:
   engName: ka
   jpName: "\u868A"
   hp: 20
-  atk: 10
+  atk: 5
   def: 5
   spd: 25
-  skills: 02000000
+  skills: 
+  unitImg: {fileID: 21300000, guid: 33e3c23a47f39f04591162b14362c189, type: 3}
+  skillList:
+  - {fileID: 11400000, guid: 08f7db32467567f48828c5f4461c778d, type: 2}
