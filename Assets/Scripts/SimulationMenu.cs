@@ -5,12 +5,23 @@ using UnityEngine.EventSystems;
 
 public class SimulationMenu : MonoBehaviour
 {
-    public List<GameObject> btnList;
+    public List<GameObject> menuBtnList;
+    public List<GameObject> popupPanelList;
 
     private EventSystem eventSystem;
+    public List<GameObject> btnList;
     private GameObject button, prevButton;
     private ButtonResponseSize btnResp;
     private int btnID, prevBtnID;
+    private int nPanels; // number of panels in popusPanelList
+    private int nMenuBtns;
+
+    private void Start()
+    {
+        btnList = menuBtnList;
+        nPanels = popupPanelList.Count;
+        nMenuBtns = menuBtnList.Count;
+    }
 
     public void ButtonPressed()
     {
@@ -44,32 +55,64 @@ public class SimulationMenu : MonoBehaviour
         {
             //Debug.Log("二回目のクリック");
             btnResp.btnReady = false;
+            TakeButtonAction(btnID);
         }
     }
 
-    private void TakeButtonAction(int btnID)
+    private void TakeButtonAction(int _btnID)
     {
-        switch (btnID)
+        switch (_btnID)
         {
-            case 0:
-                //Debug.Log("仲間管理ボタン");
-                break;
+            case int i when (i < nMenuBtns):
+                //Debug.Log("メニューバーのボタンが押された");
+                
+                for (int j = 0; j < nPanels; j++)
+                {
+                    if (i == btnID)
+                    {
+                        PanelController.EnablePanel(popupPanelList[i]);
+                    }
 
-            case 1:
-                //Debug.Log("会話ボタン");
-                break;
-
-            case 2:
-                //Debug.Log("マップボタン");
-                break;
-
-            case 3:
-                //Debug.Log("設定ボタン");
-                break;
-
-            case 4:
-                //Debug.Log("戦闘開始ボタン");
+                    else
+                    {
+                        PanelController.DisablePanel(popupPanelList[i]);
+                    }
+                }
                 break;
         }
+    }
+
+    private void SwitchPanels(int btnID)
+    {
+        // 押したボタンによって表示されるパネルを切り替える
+        Debug.Log("SwitchPanels Called. BtnID = " + btnID);
+
+        for (int i = 0; i < nPanels; i++)
+        {
+            if (i == btnID)
+            {
+                PanelController.EnablePanel(popupPanelList[i]);
+            }
+
+            else
+            {
+                PanelController.DisablePanel(popupPanelList[i]);
+            }
+        }
+    }
+
+    public void CloseButtonPressed()
+    {
+        // 閉じるボタンを押したら全てのパネルを閉じる
+        foreach (GameObject panel in popupPanelList)
+        {
+            PanelController.DisablePanel(panel);
+        }
+    }
+
+    public void ShowUnitStatus()
+    {
+        // アクティブなToggleに対応したキャラのステータスを表示する
+        Debug.Log("Show Unit Status Called");
     }
 }
