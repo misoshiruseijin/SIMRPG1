@@ -65,7 +65,6 @@ public class SimulationMenu : MonoBehaviour
         {
             case int i when (i < nMenuBtns):
                 //Debug.Log("メニューバーのボタンが押された");
-                
                 for (int j = 0; j < nPanels; j++)
                 {
                     if (i == btnID)
@@ -108,6 +107,11 @@ public class SimulationMenu : MonoBehaviour
         {
             PanelController.DisablePanel(panel);
         }
+    }
+
+    public void BattleButtonPressed()
+    {
+        SceneController.ToBattleScene();
     }
 
     public void ShowUnitStatus()

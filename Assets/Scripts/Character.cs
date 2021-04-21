@@ -12,7 +12,7 @@ public class Character: MonoBehaviour
 
     public int Maxhp, atk, def, spd;
     public string badStatus;
-    [HideInInspector] public string jpName;
+    public string jpName;
 
     public List<SkillStatus> skillList;
     public bool aliveFlg = true;
