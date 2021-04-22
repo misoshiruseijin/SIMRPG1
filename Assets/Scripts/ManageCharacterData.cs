@@ -45,4 +45,24 @@ public static class ManageCharacterData
             GameController.instance.allyDataArray[i] = allyDataList[i];
         }
     }
+
+    public static List<CharacterData> LoadCharacterData()
+    {
+        List<CharacterData> data = new List<CharacterData>();
+        CharacterData[] savedData = GameController.instance.allyDataArray;
+        foreach (CharacterData cd in savedData)
+        {
+            if (cd == null)
+            {
+                break;
+            }
+
+            else
+            {
+                data.Add(cd);
+            }
+        }
+
+        return data;
+    }
 }
