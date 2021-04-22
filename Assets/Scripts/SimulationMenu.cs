@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Linq;
 
 public class SimulationMenu : MonoBehaviour
 {
@@ -27,6 +28,8 @@ public class SimulationMenu : MonoBehaviour
     private int btnID, prevBtnID;
     private int nPanels; // number of panels in popupPanelList
     private int nMenuBtns;
+    private ToggleGroup allyToggleGroup;
+    private int activeToggleID, prevToggleID;
     #endregion
 
 
@@ -47,8 +50,8 @@ public class SimulationMenu : MonoBehaviour
         btnList = menuBtnList;
         nPanels = popupPanelList.Count;
         nMenuBtns = menuBtnList.Count;
-        ToggleGroup allyToggleGroup = allyMenuToggleParent.GetComponent<ToggleGroup>();
-
+        allyToggleGroup = allyMenuToggleParent.GetComponent<ToggleGroup>();
+        activeToggleID = -1; // default value
 
         // 味方管理画面の設定
         // トグルオブジェクトを作成
@@ -57,6 +60,7 @@ public class SimulationMenu : MonoBehaviour
             GameObject toggleObj = Instantiate(togglePrefab, allyMenuToggleParent.transform) as GameObject;
             toggleObj.GetComponent<Toggle>().group = allyToggleGroup;
             toggleObj.GetComponent<Toggle>().GetComponentInChildren<Text>().text = allyDataList[i].jpName;
+            toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => AllyMenuToggleStateChange());
 
             // 初期状態では一番上のトグルが選択状態になるようにする
             if (i == 0)
@@ -160,9 +164,20 @@ public class SimulationMenu : MonoBehaviour
         SceneController.ToBattleScene();
     }
 
-    public void ShowUnitStatus()
+    public void AllyMenuToggleStateChange()
     {
         // アクティブなToggleに対応したキャラのステータスを表示する
-        Debug.Log("Show Unit Status Called");
+        Debug.Log("Ally Menu Toggle State Changed");
+        GameObject activeToggle = allyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
+        
+        prevToggleID = activeToggleID;
+        activeToggleID = allyMenuToggleList.IndexOf(activeToggle);
+
+        bool toggleChanged = prevToggleID != activeToggleID;
+
+        if (toggleChanged)
+        {
+            // show character params
+        }
     }
 }
