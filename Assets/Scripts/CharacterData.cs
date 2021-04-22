@@ -7,4 +7,5 @@ public class CharacterData
     public int Maxhp, atk, def, spd;
     public string jpName;
     public List<SkillStatus> skillList;
+    public Sprite unitSprite;
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public static class InitializeCharacter
+public static class ManageCharacterData
 {
     public static CharacterData DataFromSO(string unitName, bool isAlly)
     {
@@ -20,6 +20,7 @@ public static class InitializeCharacter
             data.def = SO.def;
             data.spd = SO.spd;
             data.skillList = SO.skillList;
+            data.unitSprite = SO.unitImg;
         }
 
         else
@@ -31,8 +32,17 @@ public static class InitializeCharacter
             data.def = SO.def;
             data.spd = SO.spd;
             data.skillList = SO.skillList;
+            data.unitSprite = SO.unitImg;
         }
 
         return data;
+    }
+
+    public static void SaveCharacterData(List<CharacterData> allyDataList)
+    {
+        for (int i = 0; i < allyDataList.Count; i++)
+        {
+            GameController.instance.allyDataArray[i] = allyDataList[i];
+        }
     }
 }

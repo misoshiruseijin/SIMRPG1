@@ -8,7 +8,8 @@ public class GameController: MonoBehaviour
 {
     // シーン間で保持されるデータを所有
     public static GameController instance;
-    public CharacterData ally1, ally2, ally3;
+    public CharacterData[] allyDataArray; // 味方データを保存するArray
+
 
     private void Awake()
     {
@@ -23,11 +24,17 @@ public class GameController: MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        allyDataArray = new CharacterData[10]; // 10は味方の最大数
+
     }
 
     public void testmethod()
     {
-        Debug.Log("Name: " + ally1.jpName);
-
+        //Debug.Log("Name: " + ally1.jpName);
+        foreach (CharacterData cd in allyDataArray)
+        {
+            Debug.Log(cd.jpName);
+        }
     }
 }

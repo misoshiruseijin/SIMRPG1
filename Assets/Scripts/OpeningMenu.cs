@@ -4,20 +4,23 @@ using UnityEngine;
 
 public class OpeningMenu : MonoBehaviour
 {
-    CharacterData ally1, ally2;
-    string name1, name2;
+    List<string> newAllyNames;
+    List<CharacterData> allyDataList;
 
     public void Start()
     {
-        name1 = "nezumi";
-        name2 = "ka";  
+        allyDataList = new List<CharacterData>();
+        newAllyNames = new List<string> { "nezumi", "ka" };
+        foreach (string s in newAllyNames)
+        {
+            allyDataList.Add(ManageCharacterData.DataFromSO(s, true));
+        }
     }
 
     public void StartGame()
     {
-        ally1 = InitializeCharacter.DataFromSO(name1, true);
-        ally2 = InitializeCharacter.DataFromSO(name2, true);
-        GameController.instance.ally1 = ally1;
-        GameController.instance.ally2 = ally2;
+        ManageCharacterData.SaveCharacterData(allyDataList);
+        SceneController.ToSimulationScene();
+        //GameController.instance.testmethod();
     }
 }
