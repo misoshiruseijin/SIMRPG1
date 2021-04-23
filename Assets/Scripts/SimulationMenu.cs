@@ -54,7 +54,7 @@ public class SimulationMenu : MonoBehaviour
         activeToggleID = -1; // default value
 
         // 味方管理画面の設定
-        // トグルオブジェクトを作成
+        // トグルオブジェクトを作成 (初期状態では全部オフ)
         for (int i = 0; i < allyDataList.Count; i++)
         {
             GameObject toggleObj = Instantiate(togglePrefab, allyMenuToggleParent.transform) as GameObject;
@@ -62,11 +62,6 @@ public class SimulationMenu : MonoBehaviour
             toggleObj.GetComponent<Toggle>().GetComponentInChildren<Text>().text = allyDataList[i].jpName;
             toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => AllyMenuToggleStateChange());
 
-            // 初期状態では一番上のトグルが選択状態になるようにする
-            if (i == 0)
-            {
-                toggleObj.GetComponent<Toggle>().isOn = true;
-            }
             allyMenuToggleList.Add(toggleObj);          
         }
 
@@ -76,20 +71,6 @@ public class SimulationMenu : MonoBehaviour
         unitParam = allyStatusPanel.transform.Find("UnitParamText").gameObject;
         unitSkill = allyStatusPanel.transform.Find("UnitSkillText").gameObject;
         unitDesc = allyStatusPanel.transform.Find("UnitDescText").gameObject;
-
-        // ステータスパネル初期設定
-        unitName.GetComponent<Text>().text = allyDataList[0].jpName;
-        unitImage.GetComponent<Image>().sprite = allyDataList[0].unitSprite;
-        unitParam.GetComponent<Text>().text = string.Join("\n",
-            new string[]{"能力値", "体力: " + allyDataList[0].Maxhp, "力: " + allyDataList[0].atk,
-                "強靭さ: " + allyDataList[0].def, "俊敏性: " + allyDataList[0].spd});
-        List<string> skillNames = new List<string>() { "特殊技能" };
-        foreach (SkillStatus skill in allyDataList[0].skillList)
-        {
-            skillNames.Add(skill.jpName);
-        }
-        unitSkill.GetComponent<Text>().text = string.Join("\n", skillNames.ToArray());
-        unitDesc.GetComponent<Text>().text = "キャラ説明文";
     }
 
     public void ButtonPressed()
@@ -178,6 +159,21 @@ public class SimulationMenu : MonoBehaviour
         if (toggleChanged)
         {
             // show character params
+            Debug.Log("Toggle changed from " + prevToggleID + " to " + activeToggleID);
+            
+            // ステータスパネルを設定
+            unitName.GetComponent<Text>().text = allyDataList[activeToggleID].jpName;
+            unitImage.GetComponent<Image>().sprite = allyDataList[activeToggleID].unitSprite;
+            unitParam.GetComponent<Text>().text = string.Join("\n",
+                new string[]{"能力値", "体力: " + allyDataList[activeToggleID].Maxhp, "力: " + allyDataList[activeToggleID].atk,
+                "強靭さ: " + allyDataList[activeToggleID].def, "俊敏性: " + allyDataList[activeToggleID].spd});
+            List<string> skillNames = new List<string>() { "特殊技能" };
+            foreach (SkillStatus skill in allyDataList[activeToggleID].skillList)
+            {
+                skillNames.Add(skill.jpName);
+            }
+            unitSkill.GetComponent<Text>().text = string.Join("\n", skillNames.ToArray());
+            unitDesc.GetComponent<Text>().text = "キャラ説明文";
         }
     }
 }
