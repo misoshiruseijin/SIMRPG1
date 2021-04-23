@@ -25,7 +25,7 @@ public static class ManageCharacterData
 
         else
         {
-            PlayerStatus SO = AssetDatabase.LoadAssetAtPath<PlayerStatus>(enemySOpath + unitName + ".asset");
+            EnemyStatus SO = AssetDatabase.LoadAssetAtPath<EnemyStatus>(enemySOpath + unitName + ".asset");
             data.Maxhp = SO.hp;
             data.jpName = SO.jpName;
             data.atk = SO.atk;
@@ -33,6 +33,19 @@ public static class ManageCharacterData
             data.spd = SO.spd;
             data.skillList = SO.skillList;
             data.unitSprite = SO.unitImg;
+        }
+
+        return data;
+    }
+
+    public static List<CharacterData> GenerateEnemyParty()
+    {
+        List<string> enemyNameList = EnemyPartyData.GetEnemyNameList();
+        List<CharacterData> data = new List<CharacterData>();
+        
+        foreach (string name in enemyNameList)
+        {
+            data.Add(DataFromSO(name, false));
         }
 
         return data;
@@ -64,5 +77,15 @@ public static class ManageCharacterData
         }
 
         return data;
+    }
+
+    public static void SavePartyData(List<CharacterData> partyMemberData)
+    {
+        GameController.instance.partyMemberData = partyMemberData;
+    }
+
+    public static List<CharacterData> LoadPartyData()
+    {
+        return GameController.instance.partyMemberData;
     }
 }

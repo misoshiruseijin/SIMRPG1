@@ -36,12 +36,13 @@ public class SimulationMenu : MonoBehaviour
     private void Awake()
     {
         // GameControllerからキャラデータをロードする
-        //allyDataList = ManageCharacterData.LoadCharacterData();
-        allyDataList = new List<CharacterData>();
+        allyDataList = ManageCharacterData.LoadCharacterData();
+
 
         // below is for testing purposes. use above line
-        allyDataList.Add(ManageCharacterData.DataFromSO("nezumi", true));
-        allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
+        //allyDataList = new List<CharacterData>();
+        //allyDataList.Add(ManageCharacterData.DataFromSO("nezumi", true));
+        //allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
     }
 
 
@@ -142,13 +143,18 @@ public class SimulationMenu : MonoBehaviour
 
     public void BattleButtonPressed()
     {
+        // VVV FOR TESTING VVV
+        ManageCharacterData.SavePartyData(allyDataList); // 一時的に全味方とパーティーメンバーが同じことにしてる
+        // ^^^
+
+        ManageCharacterData.SaveCharacterData(allyDataList);
         SceneController.ToBattleScene();
     }
 
     public void AllyMenuToggleStateChange()
     {
         // アクティブなToggleに対応したキャラのステータスを表示する
-        Debug.Log("Ally Menu Toggle State Changed");
+        //Debug.Log("Ally Menu Toggle State Changed");
         GameObject activeToggle = allyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
         
         prevToggleID = activeToggleID;
@@ -158,10 +164,8 @@ public class SimulationMenu : MonoBehaviour
 
         if (toggleChanged)
         {
-            // show character params
-            Debug.Log("Toggle changed from " + prevToggleID + " to " + activeToggleID);
-            
             // ステータスパネルを設定
+            //Debug.Log("Toggle changed from " + prevToggleID + " to " + activeToggleID);
             unitName.GetComponent<Text>().text = allyDataList[activeToggleID].jpName;
             unitImage.GetComponent<Image>().sprite = allyDataList[activeToggleID].unitSprite;
             unitParam.GetComponent<Text>().text = string.Join("\n",

@@ -19,13 +19,11 @@ public class BattleController : MonoBehaviour
 
     public BattleMenu battleMenu;
 
-    private List<string> players = new List<string> { "nezumi", "ka" }; // 戦闘に参加する味方ユニット
-    private List<string> enemies = new List<string> { "nezumiM" }; // 戦闘に参加する敵ユニット
+    private List<CharacterData> allyData; // 戦闘に参加する味方ユニット
+    private List<CharacterData> enemyData; // 戦闘に参加する敵ユニット
+
     private List<GameObject> unitObjList = new List<GameObject>(); // 戦闘に参加する全ユニットオブジェクト（マスター）
     private List<GameObject> allUnits = new List<GameObject>(); // unitObjListのコピー
-
-    private string playerSOpath = "Assets/SO/PlayerUnits/";
-    private string enemySOpath = "Assets/SO/EnemyUnits/";
 
     private string allyTag = "Ally";
     private string enemyTag = "Enemy";
@@ -35,23 +33,27 @@ public class BattleController : MonoBehaviour
 
     void Start()
     {
+        // GameControllerからパーティー情報をロード
+        allyData = ManageCharacterData.LoadPartyData();
+        enemyData = ManageCharacterData.GenerateEnemyParty();
+
         battleMenu = GetComponent<BattleMenu>();
 
-        InitializeBattleUnits(players, playerObjList, "Player");
-        InitializeBattleUnits(enemies, enemyObjList, "Enemy");
+        InitializeBattleUnits(allyData, playerObjList);
+        InitializeBattleUnits(enemyData, enemyObjList);
 
-        // initialize unit object lists to match number of units in battle
-        playerObjList = playerObjList.Take(players.Count).ToList();
-        enemyObjList = enemyObjList.Take(enemies.Count).ToList();
+        // シーン上のオブジェクトの数を戦闘に参加するユニットの数に合わせる
+        playerObjList = playerObjList.Take(allyData.Count).ToList();
+        enemyObjList = enemyObjList.Take(enemyData.Count).ToList();
 
         Button[] targetBtns = battleMenu.targetPanel.GetComponentsInChildren<Button>();
 
-        for (int i = 0; i < players.Count; i++)
+        for (int i = 0; i < allyData.Count; i++)
         {
             unitObjList.Add(playerObjList[i]);
             allUnits.Add(playerObjList[i]);
         }
-        for (int i = 0; i < enemies.Count; i++)
+        for (int i = 0; i < enemyData.Count; i++)
         {
             unitObjList.Add(enemyObjList[i]);
             allUnits.Add(enemyObjList[i]);            
@@ -60,7 +62,7 @@ public class BattleController : MonoBehaviour
         // targetメニューのボタンテキスト設定
         for (int i = 0; i < targetBtns.Length; i++)
         {
-            if (i >= enemies.Count)
+            if (i >= enemyData.Count)
             {
                 battleMenu.SetMenuObjectText(targetBtns[i].GetComponentInChildren<Text>(), "");
             }
@@ -75,9 +77,9 @@ public class BattleController : MonoBehaviour
 
     }
 
-    public void InitializeBattleUnits(List<string> unitsInBattle, List<GameObject> unitObjList, string unitType)
+    public void InitializeBattleUnits(List<CharacterData> partyMemberData, List<GameObject> unitObjList)
     {
-        int n_units = unitsInBattle.Count;
+        int n_units = partyMemberData.Count;
         int max_units = unitObjList.Count;
 
         if (n_units > max_units)
@@ -85,7 +87,7 @@ public class BattleController : MonoBehaviour
             Debug.Log("バトルに参加できるのは" + max_units.ToString() + "体まで");
         }
 
-        // 全ユニットを非表示
+        // 全ユニットオブジェクトを非表示
         foreach (GameObject unitObj in unitObjList)
         {
             unitObj.SetActive(false);
@@ -93,45 +95,22 @@ public class BattleController : MonoBehaviour
 
         for (int i = 0; i < n_units; i++)
         {
+            // GameControllerから受け取った味方パーティーのデータをバトルシーンの味方オブジェクトに設定                       
             Character character = unitObjList[i].GetComponent<Character>();
-            string unitName = unitsInBattle[i];
+            character.Maxhp = partyMemberData[i].Maxhp;
+            character.jpName = partyMemberData[i].jpName;
+            character.atk = partyMemberData[i].atk;
+            character.def = partyMemberData[i].def;
+            character.spd = partyMemberData[i].spd;
+            character.skillList = partyMemberData[i].skillList;
+            character.SetStatus();
 
-            // ScriptableObjectを読み込み、対応するGameObjectにHPと名前を設定
-            if (unitType.Equals("Player"))
-            {
-                // プレイヤーユニットの場合
-                PlayerStatus SO = AssetDatabase.LoadAssetAtPath<PlayerStatus>(playerSOpath + unitName + ".asset");
-                character.Maxhp = SO.hp;
-                character.jpName = SO.jpName;
-                character.atk = SO.atk;
-                character.def = SO.def;
-                character.spd = SO.spd;
-                character.skillList = SO.skillList;
-                character.SetStatus();
+            // ステータスパネルを表示
+            statusPanelList[i].SetActive(true);
 
-                // ステータスパネルを設定
-                statusPanelList[i].SetActive(true);
-
-                // キャラ画像を設定
-                unitObjList[i].transform.Find("CharacterImage").GetComponent<Image>().sprite = SO.unitImg;
-            }
-
-            if (unitType.Equals("Enemy"))
-            {
-                // 敵ユニットの場合
-                EnemyStatus SO = AssetDatabase.LoadAssetAtPath<EnemyStatus>(enemySOpath + unitName + ".asset");
-                character.Maxhp = SO.hp;
-                character.jpName = SO.jpName;
-                character.atk = SO.atk;
-                character.def = SO.def;
-                character.spd = SO.spd;
-                character.skillList = SO.skillList;
-                character.SetStatus();
-
-                // キャラ画像を設定
-                unitObjList[i].transform.Find("CharacterImage").GetComponent<Image>().sprite = SO.unitImg;
-            }
-
+            // キャラ画像を設定
+            unitObjList[i].transform.Find("CharacterImage").GetComponent<Image>().sprite = partyMemberData[i].unitSprite;
+            
             unitObjList[i].SetActive(true); // 画像が設定されたら非表示を解除                  
         }
     }
