@@ -14,12 +14,12 @@ public class SimulationMenu : MonoBehaviour
     public List<GameObject> menuBtnList;
     public List<GameObject> popupPanelList;
     public GameObject togglePrefab;
-    public GameObject allyMenuToggleParent;
-    public GameObject allyStatusPanel; 
+    public GameObject allyMenuToggleParent, partyMenuToggleParent; // トグルの親オブジェクト。ToggleGroupを持つ
+    public GameObject allyStatusPanel, partyStatusPanel;
 
     // スクリプトで生成
-    public List<GameObject> allyMenuToggleList; // 味方管理画面のトグル
-    public GameObject unitName, unitImage, unitParam, unitSkill, unitDesc; // 味方ステータス画面のコンポーネント
+    public List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
+    //[HideInInspector] public GameObject unitName, unitImage, unitParam, unitSkill, unitDesc; // 味方ステータス画面のコンポーネント
 
     private EventSystem eventSystem;
     public List<GameObject> btnList;
@@ -28,7 +28,7 @@ public class SimulationMenu : MonoBehaviour
     private int btnID, prevBtnID;
     private int nPanels; // number of panels in popupPanelList
     private int nMenuBtns;
-    private ToggleGroup allyToggleGroup;
+    private ToggleGroup allyToggleGroup, partyToggleGroup;
     private int activeToggleID, prevToggleID;
     #endregion
 
@@ -36,13 +36,13 @@ public class SimulationMenu : MonoBehaviour
     private void Awake()
     {
         // GameControllerからキャラデータをロードする
-        allyDataList = ManageCharacterData.LoadCharacterData();
+        //allyDataList = ManageCharacterData.LoadCharacterData();
 
 
         // below is for testing purposes. use above line
-        //allyDataList = new List<CharacterData>();
-        //allyDataList.Add(ManageCharacterData.DataFromSO("nezumi", true));
-        //allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
+        allyDataList = new List<CharacterData>();
+        allyDataList.Add(ManageCharacterData.DataFromSO("nezumi", true));
+        allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
     }
 
 
@@ -52,26 +52,32 @@ public class SimulationMenu : MonoBehaviour
         nPanels = popupPanelList.Count;
         nMenuBtns = menuBtnList.Count;
         allyToggleGroup = allyMenuToggleParent.GetComponent<ToggleGroup>();
+        partyToggleGroup = partyMenuToggleParent.GetComponent<ToggleGroup>();
+        
         activeToggleID = -1; // default value
 
         // 味方管理画面の設定
         // トグルオブジェクトを作成 (初期状態では全部オフ)
-        for (int i = 0; i < allyDataList.Count; i++)
+        allyMenuToggleList = ToggleListFromAllyData(allyMenuToggleParent, allyToggleGroup);
+        foreach (GameObject toggleObj in allyMenuToggleList)
         {
-            GameObject toggleObj = Instantiate(togglePrefab, allyMenuToggleParent.transform) as GameObject;
-            toggleObj.GetComponent<Toggle>().group = allyToggleGroup;
-            toggleObj.GetComponent<Toggle>().GetComponentInChildren<Text>().text = allyDataList[i].jpName;
             toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => AllyMenuToggleStateChange());
-
-            allyMenuToggleList.Add(toggleObj);          
         }
 
         // ステータスパネルのコンポーネントを獲得
-        unitName = allyStatusPanel.transform.Find("UnitNameText").gameObject;
-        unitImage = allyStatusPanel.transform.Find("UnitImage").gameObject;
-        unitParam = allyStatusPanel.transform.Find("UnitParamText").gameObject;
-        unitSkill = allyStatusPanel.transform.Find("UnitSkillText").gameObject;
-        unitDesc = allyStatusPanel.transform.Find("UnitDescText").gameObject;
+        //unitName = allyStatusPanel.transform.Find("UnitNameText").gameObject;
+        //unitImage = allyStatusPanel.transform.Find("UnitImage").gameObject;
+        //unitParam = allyStatusPanel.transform.Find("UnitParam").transform.Find("UnitParamValue").gameObject;
+        //unitSkill = allyStatusPanel.transform.Find("UnitSkillText").gameObject;
+        //unitDesc = allyStatusPanel.transform.Find("UnitDescText").gameObject;
+
+        // パーティー編成画面の設定
+        // トグルオブジェクトを作成 (初期状態では全部オフ)
+        partyMenuToggleList = ToggleListFromAllyData(partyMenuToggleParent, partyToggleGroup);
+        foreach (GameObject toggleObj in partyMenuToggleList)
+        {
+            toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => PartyMenuToggleStateChange());
+        }
     }
 
     public void ButtonPressed()
@@ -110,9 +116,9 @@ public class SimulationMenu : MonoBehaviour
         }
     }
 
-    private void TakeButtonAction(int _btnID)
+    private void TakeButtonAction(int btnID)
     {
-        switch (_btnID)
+        switch (btnID)
         {
             case int i when (i < nMenuBtns):
                 //Debug.Log("メニューバーのボタンが押された。対応したパネルを表示する");
@@ -128,6 +134,7 @@ public class SimulationMenu : MonoBehaviour
                         PanelController.DisablePanel(popupPanelList[i]);
                     }
                 }
+
                 break;
         }
     }
@@ -156,7 +163,14 @@ public class SimulationMenu : MonoBehaviour
         // アクティブなToggleに対応したキャラのステータスを表示する
         //Debug.Log("Ally Menu Toggle State Changed");
         GameObject activeToggle = allyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
-        
+        GameObject unitName, unitImage, unitParam, unitSkill, unitDesc;
+
+        unitName = allyStatusPanel.transform.Find("UnitNameText").gameObject;
+        unitImage = allyStatusPanel.transform.Find("UnitImage").gameObject;
+        unitParam = allyStatusPanel.transform.Find("UnitParam").transform.Find("UnitParamValue").gameObject;
+        unitSkill = allyStatusPanel.transform.Find("UnitSkillText").gameObject;
+        unitDesc = allyStatusPanel.transform.Find("UnitDescText").gameObject;
+
         prevToggleID = activeToggleID;
         activeToggleID = allyMenuToggleList.IndexOf(activeToggle);
 
@@ -168,16 +182,67 @@ public class SimulationMenu : MonoBehaviour
             //Debug.Log("Toggle changed from " + prevToggleID + " to " + activeToggleID);
             unitName.GetComponent<Text>().text = allyDataList[activeToggleID].jpName;
             unitImage.GetComponent<Image>().sprite = allyDataList[activeToggleID].unitSprite;
-            unitParam.GetComponent<Text>().text = string.Join("\n",
-                new string[]{"能力値", "体力: " + allyDataList[activeToggleID].Maxhp, "力: " + allyDataList[activeToggleID].atk,
-                "強靭さ: " + allyDataList[activeToggleID].def, "俊敏性: " + allyDataList[activeToggleID].spd});
+
+            List<int> statusList = new List<int> { allyDataList[activeToggleID].Maxhp, allyDataList[activeToggleID].atk, allyDataList[activeToggleID].def, allyDataList[activeToggleID].spd };
+            unitParam.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+
             List<string> skillNames = new List<string>() { "特殊技能" };
+
             foreach (SkillStatus skill in allyDataList[activeToggleID].skillList)
             {
                 skillNames.Add(skill.jpName);
             }
+
             unitSkill.GetComponent<Text>().text = string.Join("\n", skillNames.ToArray());
             unitDesc.GetComponent<Text>().text = "キャラ説明文";
         }
+    }
+
+    public void PartyMenuToggleStateChange()
+    {
+        //Debug.Log("Party Menu Toggle State Changed");
+        GameObject activeToggle = partyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
+        GameObject paramObj, skillObj;
+
+        paramObj = partyStatusPanel.transform.Find("UnitParam").transform.Find("UnitParamValue").gameObject;
+        skillObj = partyStatusPanel.transform.Find("UnitSkillText").gameObject;
+
+        prevToggleID = activeToggleID;
+        activeToggleID = partyMenuToggleList.IndexOf(activeToggle);
+
+        bool toggleChanged = prevToggleID != activeToggleID;
+
+        if (toggleChanged)
+        {
+            // ステータスパネルを設定
+            //Debug.Log("Toggle changed from " + prevToggleID + " to " + activeToggleID);
+
+            List<int> statusList = new List<int> { allyDataList[activeToggleID].Maxhp, allyDataList[activeToggleID].atk, allyDataList[activeToggleID].def, allyDataList[activeToggleID].spd };
+            paramObj.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+
+            List<string> skillNames = new List<string>() { "特殊技能" };
+
+            foreach (SkillStatus skill in allyDataList[activeToggleID].skillList)
+            {
+                skillNames.Add(skill.jpName);
+            }
+
+            skillObj.GetComponent<Text>().text = string.Join("\n", skillNames.ToArray());
+        }
+    }
+
+    public List<GameObject> ToggleListFromAllyData(GameObject toggleParentObj, ToggleGroup toggleGroup)
+    {
+        List<GameObject> toggleList = new List<GameObject>();
+
+        for (int i = 0; i < allyDataList.Count; i++)
+        {
+            GameObject toggleObj = Instantiate(togglePrefab, toggleParentObj.transform) as GameObject;
+            toggleObj.GetComponent<Toggle>().group = toggleGroup;
+            toggleObj.GetComponent<Toggle>().GetComponentInChildren<Text>().text = allyDataList[i].jpName;
+            toggleList.Add(toggleObj);
+        }
+
+        return toggleList;
     }
 }
