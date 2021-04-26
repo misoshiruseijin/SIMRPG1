@@ -16,10 +16,12 @@ public class SimulationMenu : MonoBehaviour
     public GameObject togglePrefab;
     public GameObject allyMenuToggleParent, partyMenuToggleParent; // トグルの親オブジェクト。ToggleGroupを持つ
     public GameObject allyStatusPanel, partyStatusPanel;
+    public List<GameObject> memberImageList; // パーティーメンバー画像オブジェクト
+    public GameObject addUnitButton, redoPartyButton, finalizePartyButton; // パーティー編成画面のボタン
 
     // スクリプトで生成
     public List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
-    //[HideInInspector] public GameObject unitName, unitImage, unitParam, unitSkill, unitDesc; // 味方ステータス画面のコンポーネント
+    public List<CharacterData> partyDataList; // バトルシーンに渡すパーティーメンバーのデータ
 
     private EventSystem eventSystem;
     public List<GameObject> btnList;
@@ -30,19 +32,26 @@ public class SimulationMenu : MonoBehaviour
     private int nMenuBtns;
     private ToggleGroup allyToggleGroup, partyToggleGroup;
     private int activeToggleID, prevToggleID;
+    private List<int> partyMemberID; 
     #endregion
 
 
     private void Awake()
     {
         // GameControllerからキャラデータをロードする
-        //allyDataList = ManageCharacterData.LoadCharacterData();
+        allyDataList = ManageCharacterData.LoadCharacterData();
 
 
-        // below is for testing purposes. use above line
-        allyDataList = new List<CharacterData>();
-        allyDataList.Add(ManageCharacterData.DataFromSO("nezumi", true));
-        allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
+        // FOR TESTING PURPOSES. DELETE WHEN UNNEEDED //
+        if (allyDataList.Count == 0)
+        {
+            allyDataList = new List<CharacterData>();
+            allyDataList.Add(ManageCharacterData.DataFromSO("nezumi", true));
+            allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
+            allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
+            allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
+        }
+        
     }
 
 
@@ -51,6 +60,8 @@ public class SimulationMenu : MonoBehaviour
         btnList = menuBtnList;
         nPanels = popupPanelList.Count;
         nMenuBtns = menuBtnList.Count;
+        partyDataList = new List<CharacterData>();
+        partyMemberID = new List<int>();
         allyToggleGroup = allyMenuToggleParent.GetComponent<ToggleGroup>();
         partyToggleGroup = partyMenuToggleParent.GetComponent<ToggleGroup>();
         
@@ -63,13 +74,6 @@ public class SimulationMenu : MonoBehaviour
         {
             toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => AllyMenuToggleStateChange());
         }
-
-        // ステータスパネルのコンポーネントを獲得
-        //unitName = allyStatusPanel.transform.Find("UnitNameText").gameObject;
-        //unitImage = allyStatusPanel.transform.Find("UnitImage").gameObject;
-        //unitParam = allyStatusPanel.transform.Find("UnitParam").transform.Find("UnitParamValue").gameObject;
-        //unitSkill = allyStatusPanel.transform.Find("UnitSkillText").gameObject;
-        //unitDesc = allyStatusPanel.transform.Find("UnitDescText").gameObject;
 
         // パーティー編成画面の設定
         // トグルオブジェクトを作成 (初期状態では全部オフ)
@@ -148,16 +152,6 @@ public class SimulationMenu : MonoBehaviour
         }
     }
 
-    public void BattleButtonPressed()
-    {
-        // VVV FOR TESTING VVV
-        ManageCharacterData.SavePartyData(allyDataList); // 一時的に全味方とパーティーメンバーが同じことにしてる
-        // ^^^
-
-        ManageCharacterData.SaveCharacterData(allyDataList);
-        SceneController.ToBattleScene();
-    }
-
     public void AllyMenuToggleStateChange()
     {
         // アクティブなToggleに対応したキャラのステータスを表示する
@@ -230,6 +224,76 @@ public class SimulationMenu : MonoBehaviour
             skillObj.GetComponent<Text>().text = string.Join("\n", skillNames.ToArray());
         }
     }
+
+
+    #region パーティー編成画面のボタンコールバック
+    public void AddToPartyButtonPressed()
+    {
+        // パーティー編成画面のパーティーに追加ボタンのコールバック
+        GameObject activeToggle = partyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
+
+        if (activeToggle == null)
+        {
+            Debug.Log("キャラが選択されていない");
+            return;
+        }
+
+        int toggleID = partyMenuToggleList.IndexOf(activeToggle);
+        
+        if (partyMemberID.IndexOf(toggleID) != -1)
+        {
+            Debug.Log("そのキャラは既に追加されている");
+            return;
+        }
+
+        CharacterData addedUnitData = allyDataList[toggleID];
+        memberImageList[partyMemberID.Count].GetComponent<Image>().sprite = addedUnitData.unitSprite;
+        
+        partyMemberID.Add(toggleID); // 何番目のキャラがパーティーに追加されたか保存
+        
+        if (partyMemberID.Count == 1)
+        {
+            //Debug.Log("最初のメンバーが追加された。出撃ボタンのロックを解除");
+            finalizePartyButton.GetComponent<Button>().interactable = true;
+        }
+
+        if (partyMemberID.Count == memberImageList.Count)
+        {
+            //Debug.Log("編成可能数の上限に到達。追加ボタンをロック");
+            addUnitButton.GetComponent<Button>().interactable = false;
+        }
+    }
+
+    public void RedoPartyButtonPressed()
+    {
+        //Debug.Log("パーティーメンバーの選択をやり直す");
+        // リストをクリア
+        partyMemberID = new List<int>();
+
+        // 画像をクリア
+        foreach (GameObject img in memberImageList)
+        {
+            img.GetComponent<Image>().sprite = null;
+        }
+
+        // ボタンを初期化
+        addUnitButton.GetComponent<Button>().interactable = true;
+        finalizePartyButton.GetComponent<Button>().interactable = false;
+    }
+
+    public void FinalizePartyButtonPressed()
+    {
+        //Debug.Log("パーティーを確定して戦闘を開始");
+        foreach (int i in partyMemberID)
+        {
+            partyDataList.Add(allyDataList[i]);
+        }
+
+        ManageCharacterData.SavePartyData(partyDataList);
+        ManageCharacterData.SaveCharacterData(allyDataList);
+        SceneController.ToBattleScene();
+    }
+    #endregion
 
     public List<GameObject> ToggleListFromAllyData(GameObject toggleParentObj, ToggleGroup toggleGroup)
     {

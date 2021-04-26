@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class Character: MonoBehaviour
 {
     public Slider hpSlider;
+    public GameObject statusPanel;
     public Text nameText;
     public Text statusText;
     public int hp;
@@ -27,6 +28,12 @@ public class Character: MonoBehaviour
         statusTextColor = Color.white;
 
         hp = Maxhp;
+
+        if (statusPanel != null)
+        {
+            statusPanel.SetActive(true);
+        }
+
         if (statusText != null)
         {
             statusText.GetComponent<Text>().text = jpName + "\n" + "HP " + hp.ToString() + "\n" + badStatus;

@@ -13,7 +13,6 @@ public class BattleController : MonoBehaviour
     Queue<Action> battleQueue;
     public List<GameObject> playerObjList; // 味方ユニット
     public List<GameObject> enemyObjList; // 敵ユニット
-    public List<GameObject> statusPanelList; // 味方のステータス表示用パネル
 
     public bool actionSelectedFlg;
 
@@ -36,6 +35,14 @@ public class BattleController : MonoBehaviour
         // GameControllerからパーティー情報をロード
         allyData = ManageCharacterData.LoadPartyData();
         enemyData = ManageCharacterData.GenerateEnemyParty();
+
+        // FOR TESTING PURPOSES. DELETE WHEN UNNEEDED //
+        if (allyData.Count == 0)
+        {
+            allyData = new List<CharacterData>();
+            allyData.Add(ManageCharacterData.DataFromSO("nezumi", true));
+            allyData.Add(ManageCharacterData.DataFromSO("ka", true));
+        }
 
         battleMenu = GetComponent<BattleMenu>();
 
@@ -104,9 +111,6 @@ public class BattleController : MonoBehaviour
             character.spd = partyMemberData[i].spd;
             character.skillList = partyMemberData[i].skillList;
             character.SetStatus();
-
-            // ステータスパネルを表示
-            statusPanelList[i].SetActive(true);
 
             // キャラ画像を設定
             unitObjList[i].transform.Find("CharacterImage").GetComponent<Image>().sprite = partyMemberData[i].unitSprite;
@@ -289,6 +293,7 @@ public class BattleController : MonoBehaviour
         Character character = unit.GetComponent<Character>();
 
         List<SkillStatus> skillList = character.skillList; // ユニットのスキルリストを取得
+
         // 使うスキルをランダムに選ぶ
         SkillStatus skill = skillList[0];
         if (skillList.Count > 1)

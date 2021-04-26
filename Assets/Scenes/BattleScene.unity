@@ -497,10 +497,6 @@ MonoBehaviour:
   - {fileID: 1515709407}
   - {fileID: 1895394325}
   - {fileID: 706601074}
-  statusPanelList:
-  - {fileID: 1880811793}
-  - {fileID: 1481394340}
-  - {fileID: 758954077855672335}
   actionSelectedFlg: 0
   battleMenu: {fileID: 0}
 --- !u!114 &273184154
@@ -709,6 +705,11 @@ PrefabInstance:
       propertyPath: hpSlider
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3271070311161709558, guid: ce3c509a35976fa4bb91c0edde5f2c13,
+        type: 3}
+      propertyPath: statusPanel
+      value: 
+      objectReference: {fileID: 758954077855672335}
     - target: {fileID: 3271070311161709559, guid: ce3c509a35976fa4bb91c0edde5f2c13,
         type: 3}
       propertyPath: m_Name
@@ -971,6 +972,11 @@ PrefabInstance:
       propertyPath: hpSlider
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3271070311161709558, guid: ce3c509a35976fa4bb91c0edde5f2c13,
+        type: 3}
+      propertyPath: statusPanel
+      value: 
+      objectReference: {fileID: 1481394340}
     - target: {fileID: 3271070311161709559, guid: ce3c509a35976fa4bb91c0edde5f2c13,
         type: 3}
       propertyPath: m_Name
@@ -2102,6 +2108,11 @@ PrefabInstance:
       propertyPath: hpSlider
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3271070311161709558, guid: ce3c509a35976fa4bb91c0edde5f2c13,
+        type: 3}
+      propertyPath: statusPanel
+      value: 
+      objectReference: {fileID: 1880811793}
     - target: {fileID: 3271070311161709559, guid: ce3c509a35976fa4bb91c0edde5f2c13,
         type: 3}
       propertyPath: m_Name
