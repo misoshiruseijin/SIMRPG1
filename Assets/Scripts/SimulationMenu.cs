@@ -18,6 +18,7 @@ public class SimulationMenu : MonoBehaviour
     public GameObject allyStatusPanel, partyStatusPanel;
     public List<GameObject> memberImageList; // パーティーメンバー画像オブジェクト
     public GameObject addUnitButton, redoPartyButton, finalizePartyButton; // パーティー編成画面のボタン
+    public GameObject msgPanel1, msgPanel2; // ポップアップメッセージパネル
 
     // スクリプトで生成
     public List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
@@ -53,7 +54,6 @@ public class SimulationMenu : MonoBehaviour
         }
         
     }
-
 
     private void Start()
     {
@@ -234,7 +234,8 @@ public class SimulationMenu : MonoBehaviour
 
         if (activeToggle == null)
         {
-            Debug.Log("キャラが選択されていない");
+            //Debug.Log("キャラが選択されていない");
+            ShowMessagePanel1(true, "味方生物が択されていない");
             return;
         }
 
@@ -243,6 +244,7 @@ public class SimulationMenu : MonoBehaviour
         if (partyMemberID.IndexOf(toggleID) != -1)
         {
             Debug.Log("そのキャラは既に追加されている");
+            ShowMessagePanel1(true, "その生物は既に編成されている");
             return;
         }
 
@@ -283,7 +285,19 @@ public class SimulationMenu : MonoBehaviour
 
     public void FinalizePartyButtonPressed()
     {
-        //Debug.Log("パーティーを確定して戦闘を開始");
+        //Debug.Log("確認メッセージを表示");
+        ShowMessagePanel2(true, "本当に向かうか？");
+    }
+
+    public void OKButtonPressed()
+    {
+        //Debug.Log("OKボタンが押された");
+        ShowMessagePanel1(false);
+    }
+
+    public void YesButtonPressed()
+    {
+        //Debug.Log("はいが押された。戦闘を開始する");
         foreach (int i in partyMemberID)
         {
             partyDataList.Add(allyDataList[i]);
@@ -292,6 +306,12 @@ public class SimulationMenu : MonoBehaviour
         ManageCharacterData.SavePartyData(partyDataList);
         ManageCharacterData.SaveCharacterData(allyDataList);
         SceneController.ToBattleScene();
+    }
+
+    public void NoButtonPressed()
+    {
+        //Debug.Log("いいえが押された。メッセージダイアログを閉じる");
+        ShowMessagePanel2(false);
     }
     #endregion
 
@@ -308,5 +328,37 @@ public class SimulationMenu : MonoBehaviour
         }
 
         return toggleList;
+    }
+
+    public void ShowMessagePanel1(bool show, string msgString = "")
+    {
+        if (show)
+        {
+            //Debug.Log("パネルを表示する");
+            GameObject textObj = msgPanel1.transform.Find("TextPanel").Find("MsgText").gameObject;
+            textObj.GetComponent<Text>().text = msgString;
+            msgPanel1.SetActive(true);
+        }
+
+        else
+        {
+            msgPanel1.SetActive(false);
+        }
+    }
+
+    public void ShowMessagePanel2(bool show, string msgString = "")
+    {
+        if (show)
+        {
+            //Debug.Log("パネルを表示する");
+            GameObject textObj = msgPanel2.transform.Find("TextPanel").Find("MsgText").gameObject;
+            textObj.GetComponent<Text>().text = msgString;
+            msgPanel2.SetActive(true);
+        }
+
+        else
+        {
+            msgPanel2.SetActive(false);
+        }
     }
 }
