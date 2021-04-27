@@ -14,7 +14,13 @@ public class SimulationMenu : MonoBehaviour
     public List<GameObject> menuBtnList;
     public List<GameObject> popupPanelList;
     public GameObject togglePrefab;
+    
+    
+    public GameObject skillNameTextPrefab;
+    public GameObject skillNameBtnPrefab;
+
     public GameObject allyMenuToggleParent, partyMenuToggleParent; // トグルの親オブジェクト。ToggleGroupを持つ
+    public GameObject skillNameParent; // スキル名テキストオブジェクトの親。VerticalLayout持ち
     public GameObject allyStatusPanel, partyStatusPanel;
     public List<GameObject> memberImageList; // パーティーメンバー画像オブジェクト
     public GameObject addUnitButton, redoPartyButton, finalizePartyButton; // パーティー編成画面のボタン
@@ -23,6 +29,7 @@ public class SimulationMenu : MonoBehaviour
     // スクリプトで生成
     public List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
     public List<CharacterData> partyDataList; // バトルシーンに渡すパーティーメンバーのデータ
+    public List<GameObject> skillTextList; // 各キャラのスキル名オブジェクトリスト
 
     private EventSystem eventSystem;
     public List<GameObject> btnList;
@@ -33,7 +40,8 @@ public class SimulationMenu : MonoBehaviour
     private int nMenuBtns;
     private ToggleGroup allyToggleGroup, partyToggleGroup;
     private int activeToggleID, prevToggleID;
-    private List<int> partyMemberID; 
+    private List<int> partyMemberID;
+    private GameObject skillDescObj;
     #endregion
 
 
@@ -64,6 +72,7 @@ public class SimulationMenu : MonoBehaviour
         partyMemberID = new List<int>();
         allyToggleGroup = allyMenuToggleParent.GetComponent<ToggleGroup>();
         partyToggleGroup = partyMenuToggleParent.GetComponent<ToggleGroup>();
+        skillDescObj = allyStatusPanel.transform.Find("SkillDescText").gameObject;
         
         activeToggleID = -1; // default value
 
@@ -157,12 +166,11 @@ public class SimulationMenu : MonoBehaviour
         // アクティブなToggleに対応したキャラのステータスを表示する
         //Debug.Log("Ally Menu Toggle State Changed");
         GameObject activeToggle = allyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
-        GameObject unitName, unitImage, unitParam, unitSkill, unitDesc;
+        GameObject unitName, unitImage, unitParam, unitDesc;
 
         unitName = allyStatusPanel.transform.Find("UnitNameText").gameObject;
         unitImage = allyStatusPanel.transform.Find("UnitImage").gameObject;
         unitParam = allyStatusPanel.transform.Find("UnitParam").transform.Find("UnitParamValue").gameObject;
-        unitSkill = allyStatusPanel.transform.Find("UnitSkillText").gameObject;
         unitDesc = allyStatusPanel.transform.Find("UnitDescText").gameObject;
 
         prevToggleID = activeToggleID;
@@ -180,14 +188,20 @@ public class SimulationMenu : MonoBehaviour
             List<int> statusList = new List<int> { allyDataList[activeToggleID].Maxhp, allyDataList[activeToggleID].atk, allyDataList[activeToggleID].def, allyDataList[activeToggleID].spd };
             unitParam.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
 
-            List<string> skillNames = new List<string>() { "特殊技能" };
+            // 前のキャラのスキルボタンを消去
+            foreach (GameObject obj in skillTextList)
+            {
+                Destroy(obj, 0f);
+            }
 
+            List<string> skillNames = new List<string>();
             foreach (SkillStatus skill in allyDataList[activeToggleID].skillList)
             {
                 skillNames.Add(skill.jpName);
             }
 
-            unitSkill.GetComponent<Text>().text = string.Join("\n", skillNames.ToArray());
+            skillTextList = GenerateSkillBtnList(skillNames);
+
             unitDesc.GetComponent<Text>().text = "キャラ説明文";
         }
     }
@@ -330,6 +344,46 @@ public class SimulationMenu : MonoBehaviour
         return toggleList;
     }
 
+    //public List<GameObject> SkillTextList(List<string> nameList)
+    //{
+    //    List<GameObject> textObjList = new List<GameObject>();
+
+    //    for (int i = 0; i < nameList.Count; i++)
+    //    {
+    //        GameObject textObj = Instantiate(skillNameTextPrefab, skillNameParent.transform) as GameObject;
+
+    //        EventTrigger trigger = textObj.GetComponent<EventTrigger>();
+    //        EventTrigger.Entry entry = new EventTrigger.Entry();
+    //        entry.eventID = EventTriggerType.PointerClick;
+    //        //entry.callback.AddListener( (data) => { ShowSkillDesc( (PointerEventData) data ); });
+    //        entry.callback.AddListener((data) => { ShowSkillDesc(EventSystem.current.currentSelectedGameObject); });
+
+    //        trigger.triggers.Add(entry);
+
+    //        textObj.GetComponent<Text>().text = nameList[i];
+    //        textObjList.Add(textObj);
+    //    }
+
+    //    return textObjList;
+    //}
+
+    public List<GameObject> GenerateSkillBtnList(List<string> nameList)
+    {
+        List<GameObject> btnObjList = new List<GameObject>();
+
+        for (int i = 0; i < nameList.Count; i++)
+        {
+            GameObject btnObj = Instantiate(skillNameBtnPrefab, skillNameParent.transform) as GameObject;
+            btnObj.GetComponent<Button>().onClick.AddListener(delegate { ShowSkillDesc(); });
+
+            btnObj.GetComponentInChildren<Text>().text = nameList[i];
+            btnObjList.Add(btnObj);
+
+
+        }
+
+        return btnObjList;
+    }
     public void ShowMessagePanel1(bool show, string msgString = "")
     {
         if (show)
@@ -360,5 +414,22 @@ public class SimulationMenu : MonoBehaviour
         {
             msgPanel2.SetActive(false);
         }
+    }
+
+    public void TestOnClick()
+    {
+        Debug.Log("Object clicked");
+    }
+
+    public void ShowSkillDesc()
+    {
+        Debug.Log("ShowSkillDesc");
+
+        GameObject clickedBtnObj = EventSystem.current.currentSelectedGameObject;
+        Debug.Log("Clicked Object: " + clickedBtnObj.name);
+        int skillTextID = skillTextList.IndexOf(clickedBtnObj);
+        string skillName = allyDataList[activeToggleID].skillList[skillTextID].jpName;
+        string skillDesc = allyDataList[activeToggleID].skillList[skillTextID].desc;
+        skillDescObj.GetComponent<Text>().text = skillName + "\n" + skillDesc;
     }
 }
