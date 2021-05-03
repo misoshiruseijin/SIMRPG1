@@ -5,8 +5,10 @@ using UnityEngine.UI;
 
 public static class TextController
 {
-    // テキストオブジェクトにアタッチする
-    // テキストを更新。テキストstringはBattleControllerなどの別クラスからもらう
+    /// <summary>
+    /// バトルログなど、勝手にスクロールして進むタイプのテキストコントローラー
+    /// テキストを更新。テキストstringはBattleControllerなどの別クラスからもらう
+    /// </summary>
 
     private static int n_lines = 3; // 表示できる最大の行数
     private static List<string> logText = new List<string>();

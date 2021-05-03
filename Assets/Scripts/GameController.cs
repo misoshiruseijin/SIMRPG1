@@ -8,10 +8,15 @@ public class GameController: MonoBehaviour
 {
     // シーン間で保持されるデータを所有
     public static GameController instance;
+
+    // キャラデータ
     public CharacterData[] allyDataArray; // 味方データを保存するArray
     public List<CharacterData> partyMemberData; // 戦闘に参加するユニットの情報
+    
     public int phase; // ゲームの進行状況
 
+    // 設定データ
+    public float msgSpd; // メッセージの表示速度
 
     private void Awake()
     {
