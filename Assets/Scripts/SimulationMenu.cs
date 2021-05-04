@@ -416,11 +416,6 @@ public class SimulationMenu : MonoBehaviour
         }
     }
 
-    public void TestOnClick()
-    {
-        Debug.Log("Object clicked");
-    }
-
     public void ShowSkillDesc()
     {
         Debug.Log("ShowSkillDesc");
@@ -431,5 +426,13 @@ public class SimulationMenu : MonoBehaviour
         string skillName = allyDataList[activeToggleID].skillList[skillTextID].jpName;
         string skillDesc = allyDataList[activeToggleID].skillList[skillTextID].desc;
         skillDescObj.GetComponent<Text>().text = skillName + "\n" + skillDesc;
+    }
+
+
+
+
+    public void TestOnClick()
+    {
+        Debug.Log("Object clicked");
     }
 }

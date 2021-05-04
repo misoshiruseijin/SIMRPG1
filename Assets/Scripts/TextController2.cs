@@ -12,24 +12,27 @@ public class TextController2 : MonoBehaviour
     private Text messageText;
     
     private string[] segments; // 一度に表示する文章のArray
-    private string splitPattern;
+    private string splitPattern; // セグメントを区切るのに使うキー
     private float elapsedTime; // 1文字表示してから経過した時間
     private float textSpeed; // 次の文字を表示するまでの時間（小さいほうが早い）
     private int segmentIndex; // 何個目のセグメントを表示中か
     private int charIndex; // 一度に表示する文章の何文字目まで表示されているか
     private bool isSegmentDone; // 1セグメントを表示し終わったか
     private bool isMsgDone; // messageを全て表示し終わったか
+
+
+    private bool isMsgBoxPressed;
     
     void Start()
     {
-        messageText = this.GetComponent<Text>();
+        messageText = this.GetComponentInChildren<Text>();
 
         message = "1行目だあああああああああああああああああああああああああああああああああああ。\n"
             + "改行して2行目ええええええええええええ\n"
             + "3行目ええええええええええええええええええええええええええええええええええええええええええええええええええええええええええ\n<>"
             + "うわあああああああああああああああああああああああああああああああああああああ";
         splitPattern = "<>";
-        textSpeed = 0.05f;
+        textSpeed = GameController.instance.messaegSpeed;
 
         SetMessage(message);
     }
@@ -62,25 +65,33 @@ public class TextController2 : MonoBehaviour
             }
 
             elapsedTime += Time.deltaTime;
+
+            if (isMsgBoxPressed)
+            {
+                messageText.text = segments[segmentIndex];
+                isSegmentDone = true;
+                isMsgBoxPressed = false;
+            }
         }
 
         else
         {
-            // 1セグメント表示しきった
-            if (Input.GetMouseButtonDown(0))
+            if (isMsgBoxPressed)
             {
                 // クリックで次のセグメントの表示を開始
-                Debug.Log("クリックを確認");
+                //Debug.Log("クリックを確認");
                 charIndex = 0;
                 segmentIndex++;
                 messageText.text = "";
                 elapsedTime = 0f;
                 isSegmentDone = false;
+                isMsgBoxPressed = false;
 
                 if (segmentIndex >= segments.Length)
                 {
                     // メッセージをすべて表示しきった
                     isMsgDone = true;
+                    PanelController.DisablePanel(this.gameObject);
                     Debug.Log("メッセージを表示しきった");
                 }
             }
@@ -96,5 +107,11 @@ public class TextController2 : MonoBehaviour
         messageText.text = "";
         isSegmentDone = false;
         isMsgDone = false;
+    }
+
+    public void MessageBoxPressed()
+    {
+        Debug.Log("Message window pressed");
+        isMsgBoxPressed = true;
     }
 }
