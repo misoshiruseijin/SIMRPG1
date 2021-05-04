@@ -28,11 +28,13 @@ public class SimulationMenu : MonoBehaviour
 
     // スクリプトで生成
     public List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
+    
     public List<CharacterData> partyDataList; // バトルシーンに渡すパーティーメンバーのデータ
     public List<GameObject> skillTextList; // 各キャラのスキル名オブジェクトリスト
+    public List<GeneData> geneDataList; // 所持している遺伝子アイテムのリスト
 
     private EventSystem eventSystem;
-    public List<GameObject> btnList;
+    private List<GameObject> btnList;
     private GameObject button, prevButton;
     private ButtonResponseSize btnResp;
     private int btnID, prevBtnID;
@@ -60,7 +62,12 @@ public class SimulationMenu : MonoBehaviour
             allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
             allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
         }
-        
+
+        geneDataList = new List<GeneData>();
+        geneDataList.Add(ManageGeneData.DataFromSO("koumori"));
+        geneDataList.Add(ManageGeneData.DataFromSO("usagi"));
+        // FOR TESTING PURPOSES. DELETE WHEN UNNEEDED //
+
     }
 
     private void Start()

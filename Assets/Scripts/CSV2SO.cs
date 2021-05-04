@@ -14,9 +14,10 @@ public class CSV2SO : MonoBehaviour
     private static string PlayerCSVPath = "/SO/CSVs/PlayerUnit.csv";
     private static string EnemyCSVPath = "/SO/CSVs/EnemyUnit.csv";
     private static string SkillsCSVPath = "/SO/CSVs/Skills.csv";
+    private static string GeneCSVPath = "//SO/CSVs/Genes.csv";
 
-    private static string imgPath = "Assets/Textures/UnitImages/"; // ADDED
-    private static string skillSOpath = "Assets/SO/Skills/"; // ADDED
+    private static string imgPath = "Assets/Textures/UnitImages/"; 
+    private static string skillSOpath = "Assets/SO/Skills/"; 
 
 
     [MenuItem("Utilities/Generate AllData")]
@@ -25,6 +26,7 @@ public class CSV2SO : MonoBehaviour
         GenerateSkillData();
         GeneratePlayerData();
         GenerateEnemyData();
+        GenerateGeneData();
     }
 
     [MenuItem("Utilities/Generate PlayerData")]
@@ -338,6 +340,72 @@ public class CSV2SO : MonoBehaviour
             p.unitImg = sp;
 
             AssetDatabase.CreateAsset(p, $"Assets/SO/PlayerUnits/{p.engName}.asset");
+        }
+
+        AssetDatabase.SaveAssets();
+    }
+
+    [MenuItem("Utilities/Generate GeneData")]
+    public static void GenerateGeneData()
+    {
+        csvData.Clear();
+        csvLine = string.Empty;
+        StreamReader reader = new StreamReader(Application.dataPath + GeneCSVPath);
+
+        // skip header
+        reader.ReadLine();
+
+        while (reader.Peek() != -1)
+        {
+            // csvData = list containing arrays "csvLine"
+            csvLine = reader.ReadLine();
+
+            byte[] bytes = Encoding.Default.GetBytes(csvLine);
+            csvLine = Encoding.UTF8.GetString(bytes);
+
+            csvData.Add(csvLine);
+        }
+
+        foreach (string csvLine in csvData)
+        {
+            string[] splitData = csvLine.Split(',');
+            GeneStatus p = ScriptableObject.CreateInstance<GeneStatus>();
+
+            // 名前とステータスを獲得
+            p.id = splitData[0];
+            p.engName = splitData[1];
+            p.jpName = splitData[2];
+            p.hp = int.Parse(splitData[3]);
+            p.atk = int.Parse(splitData[4]);
+            p.def = int.Parse(splitData[5]);
+            p.spd = int.Parse(splitData[6]);
+
+            // スキルIDを獲得
+            string skillData = splitData[7];
+            string stringID;
+
+            if (String.IsNullOrEmpty(skillData))
+            {
+                break;
+            }
+
+            else
+            {
+                stringID = skillData.Substring(skillData.IndexOf("_") + 1);
+            }
+
+            // skillIDに対応したスキルアッセットをCharacterに設定
+            IEnumerable<string> assetfiles = Directory.GetFiles(skillSOpath, "*.asset").Where(name => name.Contains(stringID));
+            foreach (string ast in assetfiles)
+            {
+                SkillStatus skillStatus = AssetDatabase.LoadAssetAtPath<SkillStatus>(ast);
+                Debug.Log(skillStatus);
+                p.skill = skillStatus;
+            }
+
+            p.risk = int.Parse(splitData[8]);
+
+            AssetDatabase.CreateAsset(p, $"Assets/SO/Genes/{p.engName}.asset");
         }
 
         AssetDatabase.SaveAssets();
