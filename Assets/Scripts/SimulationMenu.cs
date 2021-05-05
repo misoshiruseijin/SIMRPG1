@@ -41,9 +41,10 @@ public class SimulationMenu : MonoBehaviour
     private ButtonResponseSize btnResp;
     private int btnID, prevBtnID;
     private int nPanels; // number of panels in popupPanelList
-    private int nMenuBtns;
+    private int nMainBtns;
     private ToggleGroup allyToggleGroup, partyToggleGroup, evolveToggleGroup;
     private int activeToggleID, prevToggleID;
+    private int evolveUnitID; // 育成されるユニットID
     private List<int> partyMemberID;
     private GameObject skillDescObj;
     #endregion
@@ -76,7 +77,7 @@ public class SimulationMenu : MonoBehaviour
     {
         btnList = menuBtnList;
         nPanels = popupPanelList.Count;
-        nMenuBtns = menuBtnList.Count;
+        nMainBtns = 5; // 大元のメニューボタン数
         partyDataList = new List<CharacterData>();
         partyMemberID = new List<int>();
         allyToggleGroup = allyMenuToggleParent.GetComponent<ToggleGroup>();
@@ -150,37 +151,33 @@ public class SimulationMenu : MonoBehaviour
 
     private void TakeButtonAction(int btnID)
     {
-        switch (btnID)
+        activeToggleID = -1;
+        prevButton = null;
+        button = null;
+
+        if (btnID < nMainBtns)
         {
-            case int i when (i < nMenuBtns):
-                //Debug.Log("メニューバーのボタンが押された。対応したパネルを表示する");
-
-                activeToggleID = -1;
-
-                for (int j = 0; j < nPanels; j++)
+            Debug.Log("メインメニューのボタンが押された。対応したパネルを表示する");
+            for (int i = 0; i < nPanels; i++)
+            {
+                if (i == btnID)
                 {
-                    if (i == btnID)
-                    {
-                        PanelController.EnablePanel(popupPanelList[i]);
-                    }
-
-                    else
-                    {
-                        PanelController.DisablePanel(popupPanelList[i]);
-                    }
+                    PanelController.EnablePanel(popupPanelList[i]);
                 }
 
-                break;
+                else
+                {
+                    PanelController.DisablePanel(popupPanelList[i]);
+                }
+            }
         }
-    }
 
-    public void CloseButtonPressed()
-    {
-        // 閉じるボタンを押したら全てのパネルを閉じる
-        foreach (GameObject panel in popupPanelList)
+        else
         {
-            PanelController.DisablePanel(panel);
+            Debug.Log("メインメニュー以外のボタンが押された。メインパネルに重ねてパネルを表示する");
+            PanelController.EnablePanel(popupPanelList[btnID]);
         }
+        
     }
 
     public void AllyMenuToggleStateChange()
@@ -266,24 +263,28 @@ public class SimulationMenu : MonoBehaviour
         GameObject activeToggle = evolveToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
         GameObject paramChange;
 
-        paramChange = evolveStatusPanel.transform.Find("UnitParam").transform.Find("ChangeValue").transform.gameObject;
+        paramChange = evolveStatusPanel.transform.Find("UnitParam").transform.Find("ChangeValue").gameObject;
 
         prevToggleID = activeToggleID;
         activeToggleID = evolveMenuToggleList.IndexOf(activeToggle);
-
-        Debug.Log("PREV: " + prevToggleID + " , ACTIVE: " + activeToggleID);
+        evolveUnitID = activeToggleID;
 
         bool toggleChanged = prevToggleID != activeToggleID;
 
         if (toggleChanged)
         {
             // ステータスパネルを設定
-            Debug.Log("ToggleStateChanged");
             List<int> statusList = new List<int> { geneDataList[activeToggleID].hp, geneDataList[activeToggleID].atk, geneDataList[activeToggleID].def, geneDataList[activeToggleID].spd };
             paramChange.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
         }
     }
 
+    public void CloseButtonPressed()
+    {
+        // 閉じるボタンを押したら対応したパネルを閉じる。閉じるボタンはパネルの子オブジェクトでなくてはいけない
+        GameObject panelObj = eventSystem.currentSelectedGameObject.transform.parent.gameObject;
+        PanelController.DisablePanel(panelObj);
+    }
 
     #region パーティー編成画面のボタンコールバック
     public void AddToPartyButtonPressed()
@@ -374,6 +375,32 @@ public class SimulationMenu : MonoBehaviour
     }
     #endregion
 
+    public void EvolveButtonPressed()
+    {
+        // 育成画面を開く準備
+        eventSystem = EventSystem.current;
+        button = eventSystem.currentSelectedGameObject;
+        btnID = btnList.IndexOf(button);
+
+        CharacterData evolveUnitData = allyDataList[evolveUnitID]; // 育成されるキャラのデータ
+        GameObject unitName, originalParam;
+
+
+        // 育成画面のキャラクターステータスを設定
+        originalParam = evolveStatusPanel.transform.Find("UnitParam").transform.Find("BeforeValue").gameObject;
+        unitName = evolveStatusPanel.transform.Find("UnitNameText").gameObject;
+
+        unitName.GetComponent<Text>().text = evolveUnitData.jpName;
+        List<int> statusList = new List<int> { allyDataList[evolveUnitID].Maxhp, allyDataList[evolveUnitID].atk, allyDataList[evolveUnitID].def, allyDataList[evolveUnitID].spd };
+        originalParam.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+
+        // スキルを設定
+
+
+        TakeButtonAction(btnID);
+
+    }
+
     public List<GameObject> ToggleListFromAllyData(GameObject toggleParentObj, ToggleGroup toggleGroup)
     {
         List<GameObject> toggleList = new List<GameObject>();
@@ -415,8 +442,6 @@ public class SimulationMenu : MonoBehaviour
 
             btnObj.GetComponentInChildren<Text>().text = nameList[i];
             btnObjList.Add(btnObj);
-
-
         }
 
         return btnObjList;
