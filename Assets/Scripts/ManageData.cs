@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public static class ManageCharacterData
+public static class ManageData
 {
-    public static CharacterData DataFromSO(string unitName, bool isAlly)
+    public static CharacterData CharacterDataFromSO(string unitName, bool isAlly)
     {
         string playerSOpath = "Assets/SO/PlayerUnits/";
         string enemySOpath = "Assets/SO/EnemyUnits/";
@@ -45,7 +45,7 @@ public static class ManageCharacterData
         
         foreach (string name in enemyNameList)
         {
-            data.Add(DataFromSO(name, false));
+            data.Add(CharacterDataFromSO(name, false));
         }
 
         return data;
@@ -87,5 +87,50 @@ public static class ManageCharacterData
     public static List<CharacterData> LoadPartyData()
     {
         return GameController.instance.partyMemberData;
+    }
+
+    public static GeneData GeneDataFromSO(string organismName)
+    {
+        string geneSOpath = "Assets/SO/Genes/";
+        GeneData data = new GeneData();
+
+        GeneStatus SO = AssetDatabase.LoadAssetAtPath<GeneStatus>(geneSOpath + organismName + "DNA.asset");
+        data.jpName = SO.jpName;
+        data.hp = SO.hp;
+        data.atk = SO.atk;
+        data.def = SO.def;
+        data.spd = SO.spd;
+        data.skill = SO.skill;
+        data.risk = SO.risk;
+
+        return data;
+    }
+
+    public static void SaveGeneData(List<GeneData> geneDataList)
+    {
+        for (int i = 0; i < geneDataList.Count; i++)
+        {
+            GameController.instance.geneDataArray[i] = geneDataList[i];
+        }
+    }
+
+    public static List<GeneData> LoadGeneData()
+    {
+        List<GeneData> data = new List<GeneData>();
+        GeneData[] savedData = GameController.instance.geneDataArray;
+        foreach (GeneData gd in savedData)
+        {
+            if (gd == null)
+            {
+                break;
+            }
+
+            else
+            {
+                data.Add(gd);
+            }
+        }
+
+        return data;
     }
 }

@@ -33,15 +33,15 @@ public class BattleController : MonoBehaviour
     void Start()
     {
         // GameControllerからパーティー情報をロード
-        allyData = ManageCharacterData.LoadPartyData();
-        enemyData = ManageCharacterData.GenerateEnemyParty();
+        allyData = ManageData.LoadPartyData();
+        enemyData = ManageData.GenerateEnemyParty();
 
         // FOR TESTING PURPOSES. DELETE WHEN UNNEEDED //
         if (allyData.Count == 0)
         {
             allyData = new List<CharacterData>();
-            allyData.Add(ManageCharacterData.DataFromSO("nezumi", true));
-            allyData.Add(ManageCharacterData.DataFromSO("ka", true));
+            allyData.Add(ManageData.CharacterDataFromSO("nezumi", true));
+            allyData.Add(ManageData.CharacterDataFromSO("ka", true));
         }
 
         battleMenu = GetComponent<BattleMenu>();

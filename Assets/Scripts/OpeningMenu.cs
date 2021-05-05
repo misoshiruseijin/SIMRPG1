@@ -13,13 +13,13 @@ public class OpeningMenu : MonoBehaviour
         newAllyNames = new List<string> { "nezumi", "ka" };
         foreach (string s in newAllyNames)
         {
-            allyDataList.Add(ManageCharacterData.DataFromSO(s, true));
+            allyDataList.Add(ManageData.CharacterDataFromSO(s, true));
         }
     }
 
     public void StartGame()
     {
-        ManageCharacterData.SaveCharacterData(allyDataList);
+        ManageData.SaveCharacterData(allyDataList);
         SceneController.ToSimulationScene();
         //GameController.instance.testmethod();
     }

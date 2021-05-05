@@ -8,7 +8,6 @@ using System.Linq;
 public class SimulationMenu : MonoBehaviour
 {
     #region Variable Definitions
-    public List<CharacterData> allyDataList; // 味方キャラのステータスデータ
 
     // インスペクターで設定
     public List<GameObject> menuBtnList;
@@ -20,15 +19,18 @@ public class SimulationMenu : MonoBehaviour
     public GameObject skillNameBtnPrefab;
 
     public GameObject allyMenuToggleParent, partyMenuToggleParent; // トグルの親オブジェクト。ToggleGroupを持つ
+    public GameObject evolveMenuToggleParent;
     public GameObject skillNameParent; // スキル名テキストオブジェクトの親。VerticalLayout持ち
-    public GameObject allyStatusPanel, partyStatusPanel;
+    public GameObject allyStatusPanel, partyStatusPanel, evolveStatusPanel;
     public List<GameObject> memberImageList; // パーティーメンバー画像オブジェクト
     public GameObject addUnitButton, redoPartyButton, finalizePartyButton; // パーティー編成画面のボタン
     public GameObject msgPanel1, msgPanel2; // ポップアップメッセージパネル
 
     // スクリプトで生成
     public List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
-    
+    public List<GameObject> evolveMenuToggleList; // 育成画面の遺伝子アイテムトグルリスト
+
+    public List<CharacterData> allyDataList; // 味方キャラのステータスデータ
     public List<CharacterData> partyDataList; // バトルシーンに渡すパーティーメンバーのデータ
     public List<GameObject> skillTextList; // 各キャラのスキル名オブジェクトリスト
     public List<GeneData> geneDataList; // 所持している遺伝子アイテムのリスト
@@ -40,7 +42,7 @@ public class SimulationMenu : MonoBehaviour
     private int btnID, prevBtnID;
     private int nPanels; // number of panels in popupPanelList
     private int nMenuBtns;
-    private ToggleGroup allyToggleGroup, partyToggleGroup;
+    private ToggleGroup allyToggleGroup, partyToggleGroup, evolveToggleGroup;
     private int activeToggleID, prevToggleID;
     private List<int> partyMemberID;
     private GameObject skillDescObj;
@@ -50,22 +52,22 @@ public class SimulationMenu : MonoBehaviour
     private void Awake()
     {
         // GameControllerからキャラデータをロードする
-        allyDataList = ManageCharacterData.LoadCharacterData();
+        allyDataList = ManageData.LoadCharacterData();
 
 
         // FOR TESTING PURPOSES. DELETE WHEN UNNEEDED //
         if (allyDataList.Count == 0)
         {
             allyDataList = new List<CharacterData>();
-            allyDataList.Add(ManageCharacterData.DataFromSO("nezumi", true));
-            allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
-            allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
-            allyDataList.Add(ManageCharacterData.DataFromSO("ka", true));
+            allyDataList.Add(ManageData.CharacterDataFromSO("nezumi", true));
+            allyDataList.Add(ManageData.CharacterDataFromSO("ka", true));
+            allyDataList.Add(ManageData.CharacterDataFromSO("ka", true));
+            allyDataList.Add(ManageData.CharacterDataFromSO("ka", true));
         }
 
         geneDataList = new List<GeneData>();
-        geneDataList.Add(ManageGeneData.DataFromSO("koumori"));
-        geneDataList.Add(ManageGeneData.DataFromSO("usagi"));
+        geneDataList.Add(ManageData.GeneDataFromSO("koumori"));
+        geneDataList.Add(ManageData.GeneDataFromSO("usagi"));
         // FOR TESTING PURPOSES. DELETE WHEN UNNEEDED //
 
     }
@@ -79,6 +81,7 @@ public class SimulationMenu : MonoBehaviour
         partyMemberID = new List<int>();
         allyToggleGroup = allyMenuToggleParent.GetComponent<ToggleGroup>();
         partyToggleGroup = partyMenuToggleParent.GetComponent<ToggleGroup>();
+        evolveToggleGroup = evolveMenuToggleParent.GetComponent<ToggleGroup>();
         skillDescObj = allyStatusPanel.transform.Find("SkillDescText").gameObject;
         
         activeToggleID = -1; // default value
@@ -98,6 +101,15 @@ public class SimulationMenu : MonoBehaviour
         {
             toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => PartyMenuToggleStateChange());
         }
+
+        // 育成画面の設定
+        // トグルオブジェクトを作成 (初期状態では全部オフ)
+        evolveMenuToggleList = ToggleListFromGeneData(evolveMenuToggleParent, evolveToggleGroup);
+        foreach (GameObject toggleObj in evolveMenuToggleList)
+        {
+            toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => EvolveMenuToggleStateChange());
+        }
+
     }
 
     public void ButtonPressed()
@@ -142,6 +154,9 @@ public class SimulationMenu : MonoBehaviour
         {
             case int i when (i < nMenuBtns):
                 //Debug.Log("メニューバーのボタンが押された。対応したパネルを表示する");
+
+                activeToggleID = -1;
+
                 for (int j = 0; j < nPanels; j++)
                 {
                     if (i == btnID)
@@ -246,6 +261,29 @@ public class SimulationMenu : MonoBehaviour
         }
     }
 
+    public void EvolveMenuToggleStateChange()
+    {
+        GameObject activeToggle = evolveToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
+        GameObject paramChange;
+
+        paramChange = evolveStatusPanel.transform.Find("UnitParam").transform.Find("ChangeValue").transform.gameObject;
+
+        prevToggleID = activeToggleID;
+        activeToggleID = evolveMenuToggleList.IndexOf(activeToggle);
+
+        Debug.Log("PREV: " + prevToggleID + " , ACTIVE: " + activeToggleID);
+
+        bool toggleChanged = prevToggleID != activeToggleID;
+
+        if (toggleChanged)
+        {
+            // ステータスパネルを設定
+            Debug.Log("ToggleStateChanged");
+            List<int> statusList = new List<int> { geneDataList[activeToggleID].hp, geneDataList[activeToggleID].atk, geneDataList[activeToggleID].def, geneDataList[activeToggleID].spd };
+            paramChange.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+        }
+    }
+
 
     #region パーティー編成画面のボタンコールバック
     public void AddToPartyButtonPressed()
@@ -324,8 +362,8 @@ public class SimulationMenu : MonoBehaviour
             partyDataList.Add(allyDataList[i]);
         }
 
-        ManageCharacterData.SavePartyData(partyDataList);
-        ManageCharacterData.SaveCharacterData(allyDataList);
+        ManageData.SavePartyData(partyDataList);
+        ManageData.SaveCharacterData(allyDataList);
         SceneController.ToBattleScene();
     }
 
@@ -351,28 +389,20 @@ public class SimulationMenu : MonoBehaviour
         return toggleList;
     }
 
-    //public List<GameObject> SkillTextList(List<string> nameList)
-    //{
-    //    List<GameObject> textObjList = new List<GameObject>();
+    public List<GameObject> ToggleListFromGeneData(GameObject toggleParentObj, ToggleGroup toggleGroup)
+    {
+        List<GameObject> toggleList = new List<GameObject>();
 
-    //    for (int i = 0; i < nameList.Count; i++)
-    //    {
-    //        GameObject textObj = Instantiate(skillNameTextPrefab, skillNameParent.transform) as GameObject;
+        for (int i = 0; i < geneDataList.Count; i++)
+        {
+            GameObject toggleObj = Instantiate(togglePrefab, toggleParentObj.transform) as GameObject;
+            toggleObj.GetComponent<Toggle>().group = toggleGroup;
+            toggleObj.GetComponent<Toggle>().GetComponentInChildren<Text>().text = geneDataList[i].jpName;
+            toggleList.Add(toggleObj);
+        }
 
-    //        EventTrigger trigger = textObj.GetComponent<EventTrigger>();
-    //        EventTrigger.Entry entry = new EventTrigger.Entry();
-    //        entry.eventID = EventTriggerType.PointerClick;
-    //        //entry.callback.AddListener( (data) => { ShowSkillDesc( (PointerEventData) data ); });
-    //        entry.callback.AddListener((data) => { ShowSkillDesc(EventSystem.current.currentSelectedGameObject); });
-
-    //        trigger.triggers.Add(entry);
-
-    //        textObj.GetComponent<Text>().text = nameList[i];
-    //        textObjList.Add(textObj);
-    //    }
-
-    //    return textObjList;
-    //}
+        return toggleList;
+    }
 
     public List<GameObject> GenerateSkillBtnList(List<string> nameList)
     {
@@ -391,6 +421,7 @@ public class SimulationMenu : MonoBehaviour
 
         return btnObjList;
     }
+
     public void ShowMessagePanel1(bool show, string msgString = "")
     {
         if (show)
