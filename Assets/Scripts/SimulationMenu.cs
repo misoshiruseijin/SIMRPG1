@@ -42,9 +42,10 @@ public class SimulationMenu : MonoBehaviour
     private int nMainBtns;
     private ToggleGroup allyToggleGroup, partyToggleGroup, evolveToggleGroup;
     private int activeToggleID, prevToggleID;
-    private int evolveUnitID; // 育成されるユニットID
+    private int evolveUnitID, useGeneID; // 育成されるユニットID、使用する遺伝子アイテムID
     private List<int> partyMemberID;
     private GameObject skillDescObj;
+    private bool updateAllyMenuFlg;
     #endregion
 
 
@@ -82,7 +83,8 @@ public class SimulationMenu : MonoBehaviour
         partyToggleGroup = partyMenuToggleParent.GetComponent<ToggleGroup>();
         evolveToggleGroup = evolveMenuToggleParent.GetComponent<ToggleGroup>();
         skillDescObj = allyStatusPanel.transform.Find("SkillDescText").gameObject;
-        
+        updateAllyMenuFlg = false;
+
         activeToggleID = -1; // default value
 
         // 味方管理画面の設定
@@ -175,7 +177,15 @@ public class SimulationMenu : MonoBehaviour
             //Debug.Log("メインメニュー以外のボタンが押された。メインパネルに重ねてパネルを表示する");
             PanelController.EnablePanel(popupPanelList[btnID]);
         }
-        
+
+        if (updateAllyMenuFlg)
+        {
+            // キャラを進化させていた場合、次にメニューを開いたときステータスがアップデートされるようにする
+            GameObject activeAllyToggle = allyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
+            activeToggleID = allyMenuToggleList.IndexOf(activeAllyToggle);
+            updateAllyMenuFlg = false;
+            UpdateAllyMenu();
+        }
     }
 
     public void AllyMenuToggleStateChange()
@@ -183,44 +193,16 @@ public class SimulationMenu : MonoBehaviour
         // アクティブなToggleに対応したキャラのステータスを表示する
         //Debug.Log("Ally Menu Toggle State Changed");
         GameObject activeToggle = allyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
-        GameObject unitName, unitImage, unitParam, unitDesc;
-
-        unitName = allyStatusPanel.transform.Find("UnitNameText").gameObject;
-        unitImage = allyStatusPanel.transform.Find("UnitImage").gameObject;
-        unitParam = allyStatusPanel.transform.Find("UnitParam").transform.Find("UnitParamValue").gameObject;
-        unitDesc = allyStatusPanel.transform.Find("UnitDescText").gameObject;
 
         prevToggleID = activeToggleID;
         activeToggleID = allyMenuToggleList.IndexOf(activeToggle);
         evolveUnitID = activeToggleID;
-
         bool toggleChanged = prevToggleID != activeToggleID;
 
         if (toggleChanged)
         {
-            // ステータスパネルを設定
-            //Debug.Log("Toggle changed from " + prevToggleID + " to " + activeToggleID);
-            unitName.GetComponent<Text>().text = allyDataList[activeToggleID].jpName;
-            unitImage.GetComponent<Image>().sprite = allyDataList[activeToggleID].unitSprite;
-
-            List<int> statusList = new List<int> { allyDataList[activeToggleID].Maxhp, allyDataList[activeToggleID].atk, allyDataList[activeToggleID].def, allyDataList[activeToggleID].spd };
-            unitParam.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
-
-            // 前のキャラのスキルボタンを消去
-            foreach (GameObject obj in skillBtnList)
-            {
-                Destroy(obj, 0f);
-            }
-
-            List<string> skillNames = new List<string>();
-            foreach (SkillStatus skill in allyDataList[activeToggleID].skillList)
-            {
-                skillNames.Add(skill.jpName);
-            }
-
-            skillBtnList = GenerateSkillBtnList(skillNames);
-
-            unitDesc.GetComponent<Text>().text = "キャラ説明文";
+            //Debug.Log("ToggleState Changed");
+            UpdateAllyMenu();
         }
     }
 
@@ -269,6 +251,7 @@ public class SimulationMenu : MonoBehaviour
 
         prevToggleID = activeToggleID;
         activeToggleID = evolveMenuToggleList.IndexOf(activeToggle);
+        useGeneID = activeToggleID;
 
         bool toggleChanged = prevToggleID != activeToggleID;
         GeneData activeGeneData = geneDataList[activeToggleID];
@@ -417,6 +400,25 @@ public class SimulationMenu : MonoBehaviour
 
     }
 
+    public void StartEvolveButtonPressed()
+    {
+        Debug.Log("変異開始ボタンが押された");
+        CloseAllPanels();
+
+        CharacterData newData = allyDataList[evolveUnitID];
+        GeneData gene = geneDataList[useGeneID];
+
+        newData.Maxhp += gene.hp;
+        newData.atk += gene.atk;
+        newData.def += gene.def;
+        newData.spd += gene.spd;
+        newData.skillList.Add(gene.skill);
+
+        allyDataList[evolveUnitID] = newData;
+
+        updateAllyMenuFlg = true;
+    }
+
     #region トグルやボタンを作成
     private List<GameObject> ToggleListFromAllyData(GameObject toggleParentObj, ToggleGroup toggleGroup)
     {
@@ -499,14 +501,47 @@ public class SimulationMenu : MonoBehaviour
 
     private void ShowSkillDesc()
     {
-        Debug.Log("ShowSkillDesc");
-
+        //Debug.Log("ShowSkillDesc");
         GameObject clickedBtnObj = EventSystem.current.currentSelectedGameObject;
-        Debug.Log("Clicked Object: " + clickedBtnObj.name);
         int skillTextID = skillBtnList.IndexOf(clickedBtnObj);
         string skillName = allyDataList[activeToggleID].skillList[skillTextID].jpName;
         string skillDesc = allyDataList[activeToggleID].skillList[skillTextID].desc;
         skillDescObj.GetComponent<Text>().text = skillName + "\n" + skillDesc;
+    }
+
+    private void UpdateAllyMenu()
+    {
+        //Debug.Log("UpdateAllyMenuCalled");
+        GameObject unitName, unitImage, unitParam, unitDesc;
+
+        unitName = allyStatusPanel.transform.Find("UnitNameText").gameObject;
+        unitImage = allyStatusPanel.transform.Find("UnitImage").gameObject;
+        unitParam = allyStatusPanel.transform.Find("UnitParam").transform.Find("UnitParamValue").gameObject;
+        unitDesc = allyStatusPanel.transform.Find("UnitDescText").gameObject;
+
+        // ステータスパネルを設定
+        unitName.GetComponent<Text>().text = allyDataList[activeToggleID].jpName;
+        unitImage.GetComponent<Image>().sprite = allyDataList[activeToggleID].unitSprite;
+
+        List<int> statusList = new List<int> { allyDataList[activeToggleID].Maxhp, allyDataList[activeToggleID].atk, allyDataList[activeToggleID].def, allyDataList[activeToggleID].spd };
+        unitParam.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+
+        // 前のキャラのスキルボタンを消去
+        foreach (GameObject obj in skillBtnList)
+        {
+            Destroy(obj, 0f);
+        }
+
+        List<string> skillNames = new List<string>();
+        foreach (SkillStatus skill in allyDataList[activeToggleID].skillList)
+        {
+            skillNames.Add(skill.jpName);
+        }
+
+        skillBtnList = GenerateSkillBtnList(skillNames);
+
+        unitDesc.GetComponent<Text>().text = "キャラ説明文";
+        
     }
 
     private (string riskString, Color textColor) RiskLevelString(int riskPercent)
@@ -551,6 +586,13 @@ public class SimulationMenu : MonoBehaviour
         return (riskString, color);
     }
 
+    private void CloseAllPanels()
+    {
+        foreach (GameObject panel in popupPanelList)
+        {
+            PanelController.DisablePanel(panel);
+        }
+    }
     public void TestOnClick()
     {
         Debug.Log("Object clicked");
