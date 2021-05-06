@@ -12,10 +12,8 @@ public class SimulationMenu : MonoBehaviour
     // インスペクターで設定
     public List<GameObject> menuBtnList;
     public List<GameObject> popupPanelList;
+
     public GameObject togglePrefab;
-    
-    
-    public GameObject skillNameTextPrefab;
     public GameObject skillNameBtnPrefab;
 
     public GameObject allyMenuToggleParent, partyMenuToggleParent; // トグルの親オブジェクト。ToggleGroupを持つ
@@ -32,7 +30,7 @@ public class SimulationMenu : MonoBehaviour
 
     public List<CharacterData> allyDataList; // 味方キャラのステータスデータ
     public List<CharacterData> partyDataList; // バトルシーンに渡すパーティーメンバーのデータ
-    public List<GameObject> skillTextList; // 各キャラのスキル名オブジェクトリスト
+    public List<GameObject> skillBtnList; // 各キャラのスキル名オブジェクトリスト
     public List<GeneData> geneDataList; // 所持している遺伝子アイテムのリスト
 
     private EventSystem eventSystem;
@@ -157,7 +155,7 @@ public class SimulationMenu : MonoBehaviour
 
         if (btnID < nMainBtns)
         {
-            Debug.Log("メインメニューのボタンが押された。対応したパネルを表示する");
+            //Debug.Log("メインメニューのボタンが押された。対応したパネルを表示する");
             for (int i = 0; i < nPanels; i++)
             {
                 if (i == btnID)
@@ -174,7 +172,7 @@ public class SimulationMenu : MonoBehaviour
 
         else
         {
-            Debug.Log("メインメニュー以外のボタンが押された。メインパネルに重ねてパネルを表示する");
+            //Debug.Log("メインメニュー以外のボタンが押された。メインパネルに重ねてパネルを表示する");
             PanelController.EnablePanel(popupPanelList[btnID]);
         }
         
@@ -194,6 +192,7 @@ public class SimulationMenu : MonoBehaviour
 
         prevToggleID = activeToggleID;
         activeToggleID = allyMenuToggleList.IndexOf(activeToggle);
+        evolveUnitID = activeToggleID;
 
         bool toggleChanged = prevToggleID != activeToggleID;
 
@@ -208,7 +207,7 @@ public class SimulationMenu : MonoBehaviour
             unitParam.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
 
             // 前のキャラのスキルボタンを消去
-            foreach (GameObject obj in skillTextList)
+            foreach (GameObject obj in skillBtnList)
             {
                 Destroy(obj, 0f);
             }
@@ -219,7 +218,7 @@ public class SimulationMenu : MonoBehaviour
                 skillNames.Add(skill.jpName);
             }
 
-            skillTextList = GenerateSkillBtnList(skillNames);
+            skillBtnList = GenerateSkillBtnList(skillNames);
 
             unitDesc.GetComponent<Text>().text = "キャラ説明文";
         }
@@ -260,22 +259,33 @@ public class SimulationMenu : MonoBehaviour
 
     public void EvolveMenuToggleStateChange()
     {
+        //Debug.Log("Evolve Menu Toggle State Change");
         GameObject activeToggle = evolveToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
-        GameObject paramChange;
+        GameObject paramChange, newSkillText, riskText;
 
         paramChange = evolveStatusPanel.transform.Find("UnitParam").transform.Find("ChangeValue").gameObject;
+        newSkillText = evolveStatusPanel.transform.Find("NewSkillText").gameObject;
+        riskText = evolveStatusPanel.transform.Find("RiskText").gameObject;
 
         prevToggleID = activeToggleID;
         activeToggleID = evolveMenuToggleList.IndexOf(activeToggle);
-        evolveUnitID = activeToggleID;
 
         bool toggleChanged = prevToggleID != activeToggleID;
+        GeneData activeGeneData = geneDataList[activeToggleID];
 
         if (toggleChanged)
         {
             // ステータスパネルを設定
-            List<int> statusList = new List<int> { geneDataList[activeToggleID].hp, geneDataList[activeToggleID].atk, geneDataList[activeToggleID].def, geneDataList[activeToggleID].spd };
+            List<int> statusList = new List<int> { activeGeneData.hp, activeGeneData.atk, activeGeneData.def, activeGeneData.spd };
             paramChange.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+
+            // 追加スキルの表記を更新
+            newSkillText.GetComponent<Text>().text = "追加される能力\n" + activeGeneData.skill.jpName + "\n" + activeGeneData.skill.desc;
+
+            // リスクレベルを更新
+            (string riskString, Color riskTextColor) = RiskLevelString(activeGeneData.risk);
+            riskText.GetComponent<Text>().text = riskString;
+            riskText.GetComponent<Text>().color = riskTextColor;
         }
     }
 
@@ -384,24 +394,31 @@ public class SimulationMenu : MonoBehaviour
 
         CharacterData evolveUnitData = allyDataList[evolveUnitID]; // 育成されるキャラのデータ
         GameObject unitName, originalParam;
-
+        GameObject skillTextObj = evolveStatusPanel.transform.Find("SkillText").gameObject;
 
         // 育成画面のキャラクターステータスを設定
         originalParam = evolveStatusPanel.transform.Find("UnitParam").transform.Find("BeforeValue").gameObject;
         unitName = evolveStatusPanel.transform.Find("UnitNameText").gameObject;
 
         unitName.GetComponent<Text>().text = evolveUnitData.jpName;
-        List<int> statusList = new List<int> { allyDataList[evolveUnitID].Maxhp, allyDataList[evolveUnitID].atk, allyDataList[evolveUnitID].def, allyDataList[evolveUnitID].spd };
+        List<int> statusList = new List<int> { evolveUnitData.Maxhp, evolveUnitData.atk, evolveUnitData.def, evolveUnitData.spd };
         originalParam.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
 
-        // スキルを設定
+        // 現在所持しているスキルを表示
+        List<string> skillNameList = new List<string>();
+        foreach (SkillStatus skillStatus in evolveUnitData.skillList)
+        {
+            skillNameList.Add(skillStatus.jpName);
+        }
 
+        skillTextObj.GetComponent<Text>().text = "特殊能力\n" + string.Join("\n", skillNameList);
 
         TakeButtonAction(btnID);
 
     }
 
-    public List<GameObject> ToggleListFromAllyData(GameObject toggleParentObj, ToggleGroup toggleGroup)
+    #region トグルやボタンを作成
+    private List<GameObject> ToggleListFromAllyData(GameObject toggleParentObj, ToggleGroup toggleGroup)
     {
         List<GameObject> toggleList = new List<GameObject>();
 
@@ -416,7 +433,7 @@ public class SimulationMenu : MonoBehaviour
         return toggleList;
     }
 
-    public List<GameObject> ToggleListFromGeneData(GameObject toggleParentObj, ToggleGroup toggleGroup)
+    private List<GameObject> ToggleListFromGeneData(GameObject toggleParentObj, ToggleGroup toggleGroup)
     {
         List<GameObject> toggleList = new List<GameObject>();
 
@@ -431,7 +448,7 @@ public class SimulationMenu : MonoBehaviour
         return toggleList;
     }
 
-    public List<GameObject> GenerateSkillBtnList(List<string> nameList)
+    private List<GameObject> GenerateSkillBtnList(List<string> nameList)
     {
         List<GameObject> btnObjList = new List<GameObject>();
 
@@ -446,8 +463,9 @@ public class SimulationMenu : MonoBehaviour
 
         return btnObjList;
     }
+    #endregion
 
-    public void ShowMessagePanel1(bool show, string msgString = "")
+    private void ShowMessagePanel1(bool show, string msgString = "")
     {
         if (show)
         {
@@ -463,7 +481,7 @@ public class SimulationMenu : MonoBehaviour
         }
     }
 
-    public void ShowMessagePanel2(bool show, string msgString = "")
+    private void ShowMessagePanel2(bool show, string msgString = "")
     {
         if (show)
         {
@@ -479,20 +497,59 @@ public class SimulationMenu : MonoBehaviour
         }
     }
 
-    public void ShowSkillDesc()
+    private void ShowSkillDesc()
     {
         Debug.Log("ShowSkillDesc");
 
         GameObject clickedBtnObj = EventSystem.current.currentSelectedGameObject;
         Debug.Log("Clicked Object: " + clickedBtnObj.name);
-        int skillTextID = skillTextList.IndexOf(clickedBtnObj);
+        int skillTextID = skillBtnList.IndexOf(clickedBtnObj);
         string skillName = allyDataList[activeToggleID].skillList[skillTextID].jpName;
         string skillDesc = allyDataList[activeToggleID].skillList[skillTextID].desc;
         skillDescObj.GetComponent<Text>().text = skillName + "\n" + skillDesc;
     }
 
+    private (string riskString, Color textColor) RiskLevelString(int riskPercent)
+    {
+        Color color = Color.black;
 
+        string riskString = "リスクレベル：";
+        switch (riskPercent)
+        {
+            case int i when (i <= 5):
+                riskString += "Minimum\n" + "危険度は非常に低い。想定外の変異が起こる可能性は極めて低いだろう。";
+                color = new Color(0f, 0f, 1f, 1f);
+                break;
 
+            case int i when (i > 5 && i <= 20):
+                riskString += "Minor\n" + "危険度は低いと言える。予想通りの結果になることは十分期待できる。";
+                color = new Color(0f, 1f, 0f, 1f);
+                break;
+
+            case int i when (i > 20 && i <= 30):
+                riskString += "Medium\n" + "危険度は中程度。想定外の結果に注意が必要だろう。";
+                color = new Color(0.7f, 0.8f, 0.1f, 1f);
+                break;
+
+            case int i when (i > 30 && i <= 50):
+                riskString += "Warning\n" + "やや危険度の高い変異だろう。無視できない確率で想定外な結果となるだろう。";
+                color = new Color(0.9f, 0.6f, 0.1f, 1f);
+                break;
+
+            case int i when (i > 50 && i <= 75):
+                riskString += "Caution\n" + "危険度が高い。想定外の結果を覚悟しておく必要があるだろう。";
+                color = new Color(1.0f, 0f, 0f, 1f);
+                break;
+
+            case int i when (i > 75):
+                riskString += "Danger\n" + "極めて危険度な変異となるだろう。結果を予測することは不可能に近い。";
+                color = new Color(0.7f, 0f, 1f, 1f);
+                break;
+
+        }
+
+        return (riskString, color);
+    }
 
     public void TestOnClick()
     {
