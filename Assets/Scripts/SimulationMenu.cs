@@ -45,7 +45,7 @@ public class SimulationMenu : MonoBehaviour
     private int evolveUnitID, useGeneID; // 育成されるユニットID、使用する遺伝子アイテムID
     private List<int> partyMemberID;
     private GameObject skillDescObj;
-    private bool updateAllyMenuFlg;
+    private bool updateStatusFlg;
     #endregion
 
 
@@ -83,7 +83,7 @@ public class SimulationMenu : MonoBehaviour
         partyToggleGroup = partyMenuToggleParent.GetComponent<ToggleGroup>();
         evolveToggleGroup = evolveMenuToggleParent.GetComponent<ToggleGroup>();
         skillDescObj = allyStatusPanel.transform.Find("SkillDescText").gameObject;
-        updateAllyMenuFlg = false;
+        updateStatusFlg = false;
 
         activeToggleID = -1; // default value
 
@@ -178,13 +178,14 @@ public class SimulationMenu : MonoBehaviour
             PanelController.EnablePanel(popupPanelList[btnID]);
         }
 
-        if (updateAllyMenuFlg)
+        if (updateStatusFlg)
         {
             // キャラを進化させていた場合、次にメニューを開いたときステータスがアップデートされるようにする
             GameObject activeAllyToggle = allyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
             activeToggleID = allyMenuToggleList.IndexOf(activeAllyToggle);
-            updateAllyMenuFlg = false;
             UpdateAllyMenu();
+            UpdatePartyMenu();
+            updateStatusFlg = false;
         }
     }
 
@@ -206,36 +207,51 @@ public class SimulationMenu : MonoBehaviour
         }
     }
 
+    //public void PartyMenuToggleStateChange()
+    //{
+    //    //Debug.Log("Party Menu Toggle State Changed");
+    //    GameObject activeToggle = partyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
+    //    GameObject paramObj, skillObj;
+
+    //    paramObj = partyStatusPanel.transform.Find("UnitParam").transform.Find("UnitParamValue").gameObject;
+    //    skillObj = partyStatusPanel.transform.Find("UnitSkillText").gameObject;
+
+    //    prevToggleID = activeToggleID;
+    //    activeToggleID = partyMenuToggleList.IndexOf(activeToggle);
+
+    //    bool toggleChanged = prevToggleID != activeToggleID;
+
+    //    if (toggleChanged)
+    //    {
+    //        // ステータスパネルを設定
+    //        //Debug.Log("Toggle changed from " + prevToggleID + " to " + activeToggleID);
+
+    //        List<int> statusList = new List<int> { allyDataList[activeToggleID].Maxhp, allyDataList[activeToggleID].atk, allyDataList[activeToggleID].def, allyDataList[activeToggleID].spd };
+    //        paramObj.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+
+    //        List<string> skillNames = new List<string>() { "特殊技能" };
+
+    //        foreach (SkillStatus skill in allyDataList[activeToggleID].skillList)
+    //        {
+    //            skillNames.Add(skill.jpName);
+    //        }
+
+    //        skillObj.GetComponent<Text>().text = string.Join("\n", skillNames.ToArray());
+    //    }
+    //}
+
     public void PartyMenuToggleStateChange()
     {
         //Debug.Log("Party Menu Toggle State Changed");
         GameObject activeToggle = partyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
-        GameObject paramObj, skillObj;
-
-        paramObj = partyStatusPanel.transform.Find("UnitParam").transform.Find("UnitParamValue").gameObject;
-        skillObj = partyStatusPanel.transform.Find("UnitSkillText").gameObject;
-
+        
         prevToggleID = activeToggleID;
         activeToggleID = partyMenuToggleList.IndexOf(activeToggle);
-
         bool toggleChanged = prevToggleID != activeToggleID;
 
         if (toggleChanged)
         {
-            // ステータスパネルを設定
-            //Debug.Log("Toggle changed from " + prevToggleID + " to " + activeToggleID);
-
-            List<int> statusList = new List<int> { allyDataList[activeToggleID].Maxhp, allyDataList[activeToggleID].atk, allyDataList[activeToggleID].def, allyDataList[activeToggleID].spd };
-            paramObj.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
-
-            List<string> skillNames = new List<string>() { "特殊技能" };
-
-            foreach (SkillStatus skill in allyDataList[activeToggleID].skillList)
-            {
-                skillNames.Add(skill.jpName);
-            }
-
-            skillObj.GetComponent<Text>().text = string.Join("\n", skillNames.ToArray());
+            UpdatePartyMenu();
         }
     }
 
@@ -404,19 +420,24 @@ public class SimulationMenu : MonoBehaviour
     {
         Debug.Log("変異開始ボタンが押された");
         CloseAllPanels();
+        // 代わりに進化演出　→　新ステータスの表示
 
         CharacterData newData = allyDataList[evolveUnitID];
         GeneData gene = geneDataList[useGeneID];
 
+        // ステータス変化を反映
         newData.Maxhp += gene.hp;
         newData.atk += gene.atk;
         newData.def += gene.def;
         newData.spd += gene.spd;
         newData.skillList.Add(gene.skill);
 
-        allyDataList[evolveUnitID] = newData;
+        allyDataList[evolveUnitID] = newData; // 進化前の情報を上書きする
+        geneDataList.RemoveAt(useGeneID); // アイテムリストから消費したアイテムを削除
+        Destroy(evolveMenuToggleList[useGeneID]); // 消費されたアイテムのトグルを削除
+        activeToggleID = -1; // 初期化
 
-        updateAllyMenuFlg = true;
+        updateStatusFlg = true;
     }
 
     #region トグルやボタンを作成
@@ -542,6 +563,29 @@ public class SimulationMenu : MonoBehaviour
 
         unitDesc.GetComponent<Text>().text = "キャラ説明文";
         
+    }
+
+    private void UpdatePartyMenu()
+    {
+        GameObject paramObj, skillObj;
+
+        paramObj = partyStatusPanel.transform.Find("UnitParam").transform.Find("UnitParamValue").gameObject;
+        skillObj = partyStatusPanel.transform.Find("UnitSkillText").gameObject;
+
+        // ステータスパネルを設定
+        //Debug.Log("Toggle changed from " + prevToggleID + " to " + activeToggleID);
+
+        List<int> statusList = new List<int> { allyDataList[activeToggleID].Maxhp, allyDataList[activeToggleID].atk, allyDataList[activeToggleID].def, allyDataList[activeToggleID].spd };
+        paramObj.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+
+        List<string> skillNames = new List<string>() { "特殊技能" };
+
+        foreach (SkillStatus skill in allyDataList[activeToggleID].skillList)
+        {
+            skillNames.Add(skill.jpName);
+        }
+
+        skillObj.GetComponent<Text>().text = string.Join("\n", skillNames.ToArray());
     }
 
     private (string riskString, Color textColor) RiskLevelString(int riskPercent)

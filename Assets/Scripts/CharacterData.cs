@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterData: GenericData
+public class CharacterData
 {
     public int Maxhp, atk, def, spd;
     public string jpName;

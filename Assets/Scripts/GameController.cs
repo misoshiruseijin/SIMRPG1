@@ -13,7 +13,7 @@ public class GameController: MonoBehaviour
     public CharacterData[] allyDataArray; // 味方データを保存するArray
     public List<CharacterData> partyMemberData; // 戦闘に参加するユニットの情報
 
-    public GeneData[] geneDataArray; // 所持している遺伝子アイテムのリスト
+    public List<GeneData> geneDataList; // 所持している遺伝子アイテムのリスト
 
     public int phase; // ゲームの進行状況
     public float messaegSpeed; // 文字表示速度
@@ -40,7 +40,7 @@ public class GameController: MonoBehaviour
 
         // データ初期化。本来はセーブデータをロードする
         allyDataArray = new CharacterData[10]; // 10は味方の最大数
-        geneDataArray = new GeneData[10];
+        geneDataList = new List<GeneData>();
         phase = 0;
         messaegSpeed = def_messageSpeed;
     }

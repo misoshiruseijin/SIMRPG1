@@ -108,29 +108,11 @@ public static class ManageData
 
     public static void SaveGeneData(List<GeneData> geneDataList)
     {
-        for (int i = 0; i < geneDataList.Count; i++)
-        {
-            GameController.instance.geneDataArray[i] = geneDataList[i];
-        }
+        GameController.instance.geneDataList = geneDataList;
     }
 
     public static List<GeneData> LoadGeneData()
     {
-        List<GeneData> data = new List<GeneData>();
-        GeneData[] savedData = GameController.instance.geneDataArray;
-        foreach (GeneData gd in savedData)
-        {
-            if (gd == null)
-            {
-                break;
-            }
-
-            else
-            {
-                data.Add(gd);
-            }
-        }
-
-        return data;
+        return GameController.instance.geneDataList;
     }
 }

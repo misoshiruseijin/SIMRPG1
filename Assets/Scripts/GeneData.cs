@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GeneData: GenericData
+public class GeneData
 {
     public string jpName;
     public int hp, atk, def, spd;
