@@ -12,6 +12,11 @@ public static class ProbabilityCalculator
         int maxX = 100;
         int factor = 0;
 
+        if(risk < 10)
+        {
+            return factor;
+        }
+
         float a1 = 15; // mu at risk = 10;
         float a2 = -10; // mu at risk = 100;
         float A = (a2 - a1) / 90;
