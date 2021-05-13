@@ -6,7 +6,7 @@ using System.Linq;
 
 public static class ProbabilityCalculator
 {
-    static int CalculateGrowthFactor(int risk)
+    public static int GrowthFactor(int risk)
     {
         int minX = -100;
         int maxX = 100;

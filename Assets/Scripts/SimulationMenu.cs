@@ -45,7 +45,7 @@ public class SimulationMenu : MonoBehaviour
     private int evolveUnitID, useGeneID; // 育成されるユニットID、使用する遺伝子アイテムID
     private List<int> partyMemberID;
     private GameObject skillDescObj;
-    private bool updateStatusFlg;
+    private bool updateStatusFlg, updateEvolveMenuFlg;
     #endregion
 
 
@@ -84,6 +84,7 @@ public class SimulationMenu : MonoBehaviour
         evolveToggleGroup = evolveMenuToggleParent.GetComponent<ToggleGroup>();
         skillDescObj = allyStatusPanel.transform.Find("SkillDescText").gameObject;
         updateStatusFlg = false;
+        updateEvolveMenuFlg = false;
 
         activeToggleID = -1; // default value
 
@@ -181,10 +182,9 @@ public class SimulationMenu : MonoBehaviour
         if (updateStatusFlg)
         {
             // キャラを進化させていた場合、次にメニューを開いたときステータスがアップデートされるようにする
-            GameObject activeAllyToggle = allyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
-            activeToggleID = allyMenuToggleList.IndexOf(activeAllyToggle);
-            UpdateAllyMenu();
-            UpdatePartyMenu();
+            allyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
+            partyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
+
             updateStatusFlg = false;
         }
     }
@@ -259,35 +259,52 @@ public class SimulationMenu : MonoBehaviour
     {
         //Debug.Log("Evolve Menu Toggle State Change");
         GameObject activeToggle = evolveToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
-        GameObject paramChange, newSkillText, riskText;
-
-        paramChange = evolveStatusPanel.transform.Find("UnitParam").transform.Find("ChangeValue").gameObject;
-        newSkillText = evolveStatusPanel.transform.Find("NewSkillText").gameObject;
-        riskText = evolveStatusPanel.transform.Find("RiskText").gameObject;
-
+        
         prevToggleID = activeToggleID;
         activeToggleID = evolveMenuToggleList.IndexOf(activeToggle);
-        useGeneID = activeToggleID;
-
         bool toggleChanged = prevToggleID != activeToggleID;
-        GeneData activeGeneData = geneDataList[activeToggleID];
 
         if (toggleChanged)
         {
-            // ステータスパネルを設定
-            List<int> statusList = new List<int> { activeGeneData.hp, activeGeneData.atk, activeGeneData.def, activeGeneData.spd };
-            paramChange.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
-
-            // 追加スキルの表記を更新
-            newSkillText.GetComponent<Text>().text = "追加される能力\n" + activeGeneData.skill.jpName + "\n" + activeGeneData.skill.desc;
-
-            // リスクレベルを更新
-            (string riskString, Color riskTextColor) = RiskLevelString(activeGeneData.risk);
-            riskText.GetComponent<Text>().text = riskString;
-            riskText.GetComponent<Text>().color = riskTextColor;
+            UpdateEvolveMenu();
         }
     }
 
+    //public void EvolveMenuToggleStateChange()
+    //{
+    //    //Debug.Log("Evolve Menu Toggle State Change");
+    //    GameObject activeToggle = evolveToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
+
+    //    prevToggleID = activeToggleID;
+    //    activeToggleID = evolveMenuToggleList.IndexOf(activeToggle);
+    //    bool toggleChanged = prevToggleID != activeToggleID;
+
+    //    GameObject paramChange, newSkillText, riskText;
+
+    //    paramChange = evolveStatusPanel.transform.Find("UnitParam").transform.Find("ChangeValue").gameObject;
+    //    newSkillText = evolveStatusPanel.transform.Find("NewSkillText").gameObject;
+    //    riskText = evolveStatusPanel.transform.Find("RiskText").gameObject;
+
+
+    //    useGeneID = activeToggleID;
+
+    //    GeneData activeGeneData = geneDataList[activeToggleID];
+
+    //    if (toggleChanged)
+    //    {
+    //        // ステータスパネルを設定
+    //        List<int> statusList = new List<int> { activeGeneData.hp, activeGeneData.atk, activeGeneData.def, activeGeneData.spd };
+    //        paramChange.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+
+    //        // 追加スキルの表記を更新
+    //        newSkillText.GetComponent<Text>().text = "追加される能力\n" + activeGeneData.skill.jpName + "\n" + activeGeneData.skill.desc;
+
+    //        // リスクレベルを更新
+    //        (string riskString, Color riskTextColor) = RiskLevelString(activeGeneData.risk);
+    //        riskText.GetComponent<Text>().text = riskString;
+    //        riskText.GetComponent<Text>().color = riskTextColor;
+    //    }
+    //}
     public void CloseButtonPressed()
     {
         // 閉じるボタンを押したら対応したパネルを閉じる。閉じるボタンはパネルの子オブジェクトでなくてはいけない
@@ -414,6 +431,11 @@ public class SimulationMenu : MonoBehaviour
 
         TakeButtonAction(btnID);
 
+        if (updateEvolveMenuFlg)
+        {
+            evolveMenuToggleList[0].GetComponent<Toggle>().isOn = true;
+        }
+
     }
 
     public void StartEvolveButtonPressed()
@@ -424,19 +446,49 @@ public class SimulationMenu : MonoBehaviour
 
         CharacterData newData = allyDataList[evolveUnitID];
         GeneData gene = geneDataList[useGeneID];
+        int riskPercent = gene.risk;
 
         // ステータス変化を反映
-        newData.Maxhp += gene.hp;
-        newData.atk += gene.atk;
-        newData.def += gene.def;
-        newData.spd += gene.spd;
+        if (riskPercent < 10)
+        {
+            // リスク値10未満ならランダム要素なし
+            newData.Maxhp += gene.hp;
+            newData.atk += gene.atk;
+            newData.def += gene.def;
+            newData.spd += gene.spd;
+        }
+
+        else
+        {
+            // ランダム要素あり。定数を計算
+            int[] paramArray = new int[] { newData.Maxhp, newData.atk, newData.def, newData.spd };
+            int[] growthArray = new int[] { gene.hp, gene.atk, gene.def, gene.spd };
+            for (int i = 0; i < growthArray.Length; i++)
+            {
+                int factor = ProbabilityCalculator.GrowthFactor(riskPercent);
+                //Debug.Log("Factor" + i + ": " + factor);
+                paramArray[i] = Mathf.RoundToInt((1 + (factor / 100f)) * paramArray[i]);
+            }
+
+            newData.Maxhp = paramArray[0];
+            newData.atk = paramArray[1];
+            newData.def = paramArray[2];
+            newData.spd = paramArray[3];
+        }
+        
         newData.skillList.Add(gene.skill);
 
         allyDataList[evolveUnitID] = newData; // 進化前の情報を上書きする
         geneDataList.RemoveAt(useGeneID); // アイテムリストから消費したアイテムを削除
         Destroy(evolveMenuToggleList[useGeneID]); // 消費されたアイテムのトグルを削除
-        activeToggleID = -1; // 初期化
+        evolveMenuToggleList.RemoveAt(useGeneID); // トグルリストからトグルを削除
 
+        if (evolveMenuToggleList.Count > 0)
+        {
+            updateEvolveMenuFlg = true;
+        }
+
+        activeToggleID = -1; // 初期化
         updateStatusFlg = true;
     }
 
@@ -586,6 +638,33 @@ public class SimulationMenu : MonoBehaviour
         }
 
         skillObj.GetComponent<Text>().text = string.Join("\n", skillNames.ToArray());
+    }
+
+    private void UpdateEvolveMenu()
+    {
+        Debug.Log("UpdateEvolveMenu Called");
+
+        GameObject paramChange, newSkillText, riskText;
+
+        paramChange = evolveStatusPanel.transform.Find("UnitParam").transform.Find("ChangeValue").gameObject;
+        newSkillText = evolveStatusPanel.transform.Find("NewSkillText").gameObject;
+        riskText = evolveStatusPanel.transform.Find("RiskText").gameObject;
+
+        useGeneID = activeToggleID;
+        Debug.Log("ActiveToggleID: "+activeToggleID);
+        GeneData activeGeneData = geneDataList[activeToggleID];
+
+        // ステータスパネルを設定
+        List<int> statusList = new List<int> { activeGeneData.hp, activeGeneData.atk, activeGeneData.def, activeGeneData.spd };
+        paramChange.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+
+        // 追加スキルの表記を更新
+        newSkillText.GetComponent<Text>().text = "追加される能力\n" + activeGeneData.skill.jpName + "\n" + activeGeneData.skill.desc;
+
+        // リスクレベルを更新
+        (string riskString, Color riskTextColor) = RiskLevelString(activeGeneData.risk);
+        riskText.GetComponent<Text>().text = riskString;
+        riskText.GetComponent<Text>().color = riskTextColor;
     }
 
     private (string riskString, Color textColor) RiskLevelString(int riskPercent)
