@@ -642,8 +642,7 @@ public class SimulationMenu : MonoBehaviour
 
     private void UpdateEvolveMenu()
     {
-        Debug.Log("UpdateEvolveMenu Called");
-
+        //Debug.Log("UpdateEvolveMenu Called");
         GameObject paramChange, newSkillText, riskText;
 
         paramChange = evolveStatusPanel.transform.Find("UnitParam").transform.Find("ChangeValue").gameObject;
@@ -651,7 +650,6 @@ public class SimulationMenu : MonoBehaviour
         riskText = evolveStatusPanel.transform.Find("RiskText").gameObject;
 
         useGeneID = activeToggleID;
-        Debug.Log("ActiveToggleID: "+activeToggleID);
         GeneData activeGeneData = geneDataList[activeToggleID];
 
         // ステータスパネルを設定
