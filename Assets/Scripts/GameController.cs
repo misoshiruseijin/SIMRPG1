@@ -12,11 +12,13 @@ public class GameController: MonoBehaviour
     // キャラデータ
     public CharacterData[] allyDataArray; // 味方データを保存するArray
     public List<CharacterData> partyMemberData; // 戦闘に参加するユニットの情報
-
     public List<GeneData> geneDataList; // 所持している遺伝子アイテムのリスト
 
     public int phase; // ゲームの進行状況
     public float messaegSpeed; // 文字表示速度
+    public int day; // 開始からの日数
+    public int survivors; // 人間の数
+    public int food; // 食料の残量
 
 
     #region デフォルトの値
@@ -43,6 +45,9 @@ public class GameController: MonoBehaviour
         geneDataList = new List<GeneData>();
         phase = 0;
         messaegSpeed = def_messageSpeed;
+        day = 1;
+        survivors = 10;
+        food = 50;
     }
 
 }
