@@ -9,7 +9,7 @@ public class SimulationMenu : MonoBehaviour
 {
     #region Variable Definitions
 
-    // インスペクターで設定
+    #region インスペクターで設定する項目
     public List<GameObject> menuBtnList;
     public List<GameObject> popupPanelList;
 
@@ -22,9 +22,11 @@ public class SimulationMenu : MonoBehaviour
     public GameObject allyStatusPanel, partyStatusPanel, evolveStatusPanel;
     public List<GameObject> memberImageList; // パーティーメンバー画像オブジェクト
     public GameObject addUnitButton, redoPartyButton, finalizePartyButton; // パーティー編成画面のボタン
-    public GameObject msgPanel1, msgPanel2; // ポップアップメッセージパネル
 
-    // スクリプトで生成
+    public GameObject HUDPanel;
+    #endregion
+
+    #region スクリプトで生成する項目
     public List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
     public List<GameObject> evolveMenuToggleList; // 育成画面の遺伝子アイテムトグルリスト
 
@@ -32,6 +34,8 @@ public class SimulationMenu : MonoBehaviour
     public List<CharacterData> partyDataList; // バトルシーンに渡すパーティーメンバーのデータ
     public List<GameObject> skillBtnList; // 各キャラのスキル名オブジェクトリスト
     public List<GeneData> geneDataList; // 所持している遺伝子アイテムのリスト
+
+    private int day, food, survivors, phase;
 
     private EventSystem eventSystem;
     private List<GameObject> btnList;
@@ -48,13 +52,14 @@ public class SimulationMenu : MonoBehaviour
     private bool updateStatusFlg, updateEvolveMenuFlg;
     private DialogBox dialog;
     #endregion
+    #endregion
 
 
     private void Awake()
     {
         // GameControllerからキャラデータをロードする
         allyDataList = ManageData.LoadCharacterData();
-
+        geneDataList = ManageData.LoadGeneData();
 
         // FOR TESTING PURPOSES. DELETE WHEN UNNEEDED //
         if (allyDataList.Count == 0)
@@ -70,7 +75,6 @@ public class SimulationMenu : MonoBehaviour
         geneDataList.Add(ManageData.GeneDataFromSO("koumori"));
         geneDataList.Add(ManageData.GeneDataFromSO("usagi"));
         // FOR TESTING PURPOSES. DELETE WHEN UNNEEDED //
-
     }
 
     private void Start()
@@ -89,6 +93,21 @@ public class SimulationMenu : MonoBehaviour
         dialog = DialogBox.Instance();
 
         activeToggleID = -1; // default value
+
+        // HUDの設定
+        day = GameController.instance.day;
+        food = GameController.instance.food;
+        survivors = GameController.instance.survivors;
+
+        Text infoText = HUDPanel.transform.Find("InfoText").gameObject.GetComponent<Text>();
+        Text foodText = HUDPanel.transform.Find("FoodText").gameObject.GetComponent<Text>();
+        Text survivorText = HUDPanel.transform.Find("SurvivorText").gameObject.GetComponent<Text>();
+        Text dateText = HUDPanel.transform.Find("DateText").gameObject.GetComponent<Text>();
+
+        infoText.text = $"食料消費： {allyDataList.Count + survivors} /日";
+        foodText.text = $"X {food}";
+        survivorText.text = $"X {survivors}";
+        dateText.text = $"{day} 日目";
 
         // 味方管理画面の設定
         // トグルオブジェクトを作成 (初期状態では全部オフ)
@@ -186,7 +205,10 @@ public class SimulationMenu : MonoBehaviour
             // キャラを進化させていた場合、次にメニューを開いたときステータスがアップデートされるようにする
             allyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
             partyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
-
+            activeToggleID = 0;
+            UpdateAllyMenu();
+            UpdatePartyMenu();
+            activeToggleID = -1;
             updateStatusFlg = false;
         }
     }
@@ -397,6 +419,7 @@ public class SimulationMenu : MonoBehaviour
 
         ManageData.SavePartyData(partyDataList);
         ManageData.SaveCharacterData(allyDataList);
+        ManageData.SaveGeneData(geneDataList);
         SceneController.ToBattleScene();
     }
     #endregion
@@ -694,7 +717,26 @@ public class SimulationMenu : MonoBehaviour
     private void ToNextDay()
     {
         Debug.Log("ToNextDay Called");
+        // シーン更新前にデータを保存
+        ManageData.SaveCharacterData(allyDataList);
+        ManageData.SaveGeneData(geneDataList);
+        day++;
+
+        if (food < survivors + allyDataList.Count)
+        {
+            food = 0;
+        }
+        else
+        {
+            food -= (survivors + allyDataList.Count);
+        }
+
+        GameController.instance.day = day;
+        GameController.instance.food = food;
+
+        SceneController.ToSimulationScene();
     }
+
     public void TestOnClick()
     {
         Debug.Log("Object clicked");
