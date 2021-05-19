@@ -10,13 +10,6 @@ public class ChangeScene : MonoBehaviour
 
     private string simulation = "SimulationScene";
 
-    private void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            NewDay();
-        }
-    }
 
     public void NewDay()
     {

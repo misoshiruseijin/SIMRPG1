@@ -24,6 +24,8 @@ public class SimulationMenu : MonoBehaviour
     public GameObject addUnitButton, redoPartyButton, finalizePartyButton; // パーティー編成画面のボタン
 
     public GameObject HUDPanel;
+
+    public ChangeScene sceneChanger;
     #endregion
 
     #region スクリプトで生成する項目
@@ -716,7 +718,7 @@ public class SimulationMenu : MonoBehaviour
 
     private void ToNextDay()
     {
-        Debug.Log("ToNextDay Called");
+        //Debug.Log("ToNextDay Called");
         // シーン更新前にデータを保存
         ManageData.SaveCharacterData(allyDataList);
         ManageData.SaveGeneData(geneDataList);
@@ -734,7 +736,7 @@ public class SimulationMenu : MonoBehaviour
         GameController.instance.day = day;
         GameController.instance.food = food;
 
-        SceneController.ToSimulationScene();
+        sceneChanger.NewDay();
     }
 
     public void TestOnClick()

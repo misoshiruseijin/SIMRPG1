@@ -1933,6 +1933,7 @@ MonoBehaviour:
   redoPartyButton: {fileID: 647471468}
   finalizePartyButton: {fileID: 1030644184}
   HUDPanel: {fileID: 1803246505}
+  sceneChanger: {fileID: 1769608878}
   allyMenuToggleList: []
   partyMenuToggleList: []
   evolveMenuToggleList: []
@@ -8957,7 +8958,7 @@ PrefabInstance:
     - target: {fileID: 2248669228318400002, guid: 0b50d4710347272409157440d21def7d,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -264.6
+      value: -264.59998
       objectReference: {fileID: 0}
     - target: {fileID: 2248669228318400002, guid: 0b50d4710347272409157440d21def7d,
         type: 3}
