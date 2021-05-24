@@ -39,9 +39,6 @@ public class SimulationMenu : MonoBehaviour
     public List<GeneData> geneDataList; // 所持している遺伝子アイテムのリスト
 
     private int day, food, survivors, phase;
-    private int evolveDays; // 変異完了までにかかる日数
-    private int evolvingUnitID; // 変異中のユニットのID (evolveUnitIDはAllyMenuが更新されると更新される。evolvingUnitIDは次の変異を開始するまで変化しない)
-    private bool isEvolving; // 変異中フラグ
 
     private EventSystem eventSystem;
     private List<GameObject> btnList;
@@ -52,7 +49,12 @@ public class SimulationMenu : MonoBehaviour
     private int nMainBtns;
     private ToggleGroup allyToggleGroup, partyToggleGroup, evolveToggleGroup;
     private int activeToggleID, prevToggleID;
+    
     private int evolveUnitID, useGeneID; // 育成されるユニットID、使用する遺伝子アイテムID
+    private int evolveDays; // 変異完了までにかかる日数
+    private int evolvingUnitID; // 変異中のユニットのID (evolveUnitIDはAllyMenuが更新されると更新される。evolvingUnitIDは次の変異を開始するまで変化しない)
+    private bool isEvolving; // 変異中フラグ
+
     private List<int> partyMemberID;
     private GameObject skillDescObj;
     private DialogBox dialog;
@@ -294,19 +296,26 @@ public class SimulationMenu : MonoBehaviour
             dialog.SingleButtonMode(true);
             dialog.SetMessage("味方生物が選択されていない").SetOnOK("了解", () => { dialog.Hide(); });
             dialog.Show();
-            //ShowMessagePanel1(true, "味方生物が択されていない");
             return;
         }
 
         int toggleID = partyMenuToggleList.IndexOf(activeToggle);
-        
+
+        if (isEvolving && toggleID == evolvingUnitID)
+        {
+            //Debug.Log("変異中のキャラを追加しようとした");
+            dialog.SingleButtonMode(true);
+            dialog.SetMessage("変異中のキャラは編成できない").SetOnOK("了解", () => { dialog.Hide(); });
+            dialog.Show();
+            return;
+        }
+
         if (partyMemberID.IndexOf(toggleID) != -1)
         {
             //Debug.Log("そのキャラは既に追加されている");
             dialog.SingleButtonMode(true);
-            dialog.SetMessage("その生物は既に編成されている").SetOnOK("了解", ()=> { dialog.Hide(); });
+            dialog.SetMessage("その生物は既に編成されている").SetOnOK("了解", () => { dialog.Hide(); });
             dialog.Show();
-            //ShowMessagePanel1(true, "その生物は既に編成されている");
             return;
         }
 
@@ -407,7 +416,6 @@ public class SimulationMenu : MonoBehaviour
         CloseAllPanels();
         // 代わりに進化演出を入れる
 
-        // NEW //
         evolvingUnitID = evolveUnitID;
         GameController.instance.daysFromEvolve = 0;
         evolveDays = 2; // 本来はgenedataから取得
@@ -416,56 +424,6 @@ public class SimulationMenu : MonoBehaviour
         GameController.instance.evolveDays = evolveDays;
 
         activeToggleID = -1; // 初期化
-        // NEW END //
-
-        #region 原文
-        //CharacterData newData = allyDataList[evolveUnitID];
-        //GeneData gene = geneDataList[useGeneID];
-        //int riskPercent = gene.risk;
-
-        //// ステータス変化を反映
-        //if (riskPercent < 10)
-        //{
-        //    // リスク値10未満ならランダム要素なし
-        //    newData.Maxhp += gene.hp;
-        //    newData.atk += gene.atk;
-        //    newData.def += gene.def;
-        //    newData.spd += gene.spd;
-        //}
-
-        //else
-        //{
-        //    // ランダム要素あり。定数を計算
-        //    int[] paramArray = new int[] { newData.Maxhp, newData.atk, newData.def, newData.spd };
-        //    int[] growthArray = new int[] { gene.hp, gene.atk, gene.def, gene.spd };
-        //    for (int i = 0; i < growthArray.Length; i++)
-        //    {
-        //        int factor = ProbabilityCalculator.GrowthFactor(riskPercent);
-        //        //Debug.Log("Factor" + i + ": " + factor);
-        //        paramArray[i] = Mathf.RoundToInt((1 + (factor / 100f)) * paramArray[i]);
-        //    }
-
-        //    newData.Maxhp = paramArray[0];
-        //    newData.atk = paramArray[1];
-        //    newData.def = paramArray[2];
-        //    newData.spd = paramArray[3];
-        //}
-
-        //newData.skillList.Add(gene.skill);
-
-        //allyDataList[evolveUnitID] = newData; // 進化前の情報を上書きする
-        //geneDataList.RemoveAt(useGeneID); // アイテムリストから消費したアイテムを削除
-        //Destroy(evolveMenuToggleList[useGeneID]); // 消費されたアイテムのトグルを削除
-        //evolveMenuToggleList.RemoveAt(useGeneID); // トグルリストからトグルを削除
-
-        //if (evolveMenuToggleList.Count > 0)
-        //{
-        //    updateEvolveMenuFlg = true;
-        //}
-
-        //activeToggleID = -1; // 初期化
-        //updateStatusFlg = true;
-        #endregion
     }
 
     public void NextDayButtonPressed()
@@ -709,6 +667,7 @@ public class SimulationMenu : MonoBehaviour
     private void EvolveComplete()
     {
         Debug.Log("変異が完了した");
+        // ここに演出とステータス表示を追加
 
         int geneID = GameController.instance.usedGeneID;
         isEvolving = false;
