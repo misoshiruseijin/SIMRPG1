@@ -26,6 +26,7 @@ public class SimulationMenu : MonoBehaviour
     public GameObject HUDPanel;
 
     public ChangeScene sceneChanger;
+    public Text scDateText; // 1日の初めに表示する日付テキスト
     #endregion
 
     #region スクリプトで生成する項目
@@ -77,6 +78,8 @@ public class SimulationMenu : MonoBehaviour
         geneDataList.Add(ManageData.GeneDataFromSO("koumori"));
         geneDataList.Add(ManageData.GeneDataFromSO("usagi"));
         // FOR TESTING PURPOSES. DELETE WHEN UNNEEDED //
+
+        scDateText.text = $"{GameController.instance.day}日目";
     }
 
     private void Start()
