@@ -1902,17 +1902,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menuBtnList:
   - {fileID: 2756055375511771675}
+  - {fileID: 2083690809}
   - {fileID: 2111311630}
   - {fileID: 1091725812}
   - {fileID: 246071234}
-  - {fileID: 2083690809}
   - {fileID: 457800715}
   popupPanelList:
   - {fileID: 1305893153}
+  - {fileID: 775486370}
   - {fileID: 202151035}
   - {fileID: 666310467}
   - {fileID: 363235256}
-  - {fileID: 775486370}
   - {fileID: 425434951}
   togglePrefab: {fileID: 212855758899701893, guid: 84e91bdbf3b16954baedda730f8f92b1,
     type: 3}
