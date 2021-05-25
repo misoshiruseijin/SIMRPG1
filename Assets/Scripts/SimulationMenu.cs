@@ -21,23 +21,24 @@ public class SimulationMenu : MonoBehaviour
     public GameObject skillNameParent; // スキル名テキストオブジェクトの親。VerticalLayout持ち
     public GameObject allyStatusPanel, partyStatusPanel, evolveStatusPanel;
     public List<GameObject> memberImageList; // パーティーメンバー画像オブジェクト
-    public GameObject addUnitButton, redoPartyButton, finalizePartyButton; // パーティー編成画面のボタン
 
     public GameObject HUDPanel;
 
     public ChangeScene sceneChanger;
     public Text scDateText; // 1日の初めに表示する日付テキスト
+
+    public GameObject bulletinObj; // 掲示板オブジェクト
+    public GameObject evolvingPanelPrefab, trainingPanelPrefab, foodAlertPanelPrefab; // 掲載物プレハブ
     #endregion
 
     #region スクリプトで生成する項目
-    public List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
-    public List<GameObject> evolveMenuToggleList; // 育成画面の遺伝子アイテムトグルリスト
-
     public List<CharacterData> allyDataList; // 味方キャラのステータスデータ
     public List<CharacterData> partyDataList; // バトルシーンに渡すパーティーメンバーのデータ
     public List<GameObject> skillBtnList; // 各キャラのスキル名オブジェクトリスト
     public List<GeneData> geneDataList; // 所持している遺伝子アイテムのリスト
-
+    
+    private List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
+    private List<GameObject> evolveMenuToggleList; // 育成画面の遺伝子アイテムトグルリスト
     private int day, food, survivors, phase;
 
     private EventSystem eventSystem;
@@ -54,6 +55,7 @@ public class SimulationMenu : MonoBehaviour
     private int evolveDays; // 変異完了までにかかる日数
     private int evolvingUnitID; // 変異中のユニットのID (evolveUnitIDはAllyMenuが更新されると更新される。evolvingUnitIDは次の変異を開始するまで変化しない)
     private bool isEvolving; // 変異中フラグ
+    private bool isFoodShort; // 食料不足フラグ
 
     private List<int> partyMemberID;
     private GameObject skillDescObj;
@@ -88,6 +90,7 @@ public class SimulationMenu : MonoBehaviour
 
     private void Start()
     {
+        #region Initialization
         btnList = menuBtnList;
         nPanels = popupPanelList.Count;
         nMainBtns = 5; // 大元のメニューボタン数
@@ -100,12 +103,14 @@ public class SimulationMenu : MonoBehaviour
         dialog = DialogBox.Instance();
 
         activeToggleID = -1; // default value
-
-        // HUDの設定
+        
         day = GameController.instance.day;
         food = GameController.instance.food;
         survivors = GameController.instance.survivors;
+        isFoodShort = food < survivors + allyDataList.Count;
+        #endregion
 
+        #region HUDの設定
         Text infoText = HUDPanel.transform.Find("InfoText").gameObject.GetComponent<Text>();
         Text foodText = HUDPanel.transform.Find("FoodText").gameObject.GetComponent<Text>();
         Text survivorText = HUDPanel.transform.Find("SurvivorText").gameObject.GetComponent<Text>();
@@ -115,14 +120,18 @@ public class SimulationMenu : MonoBehaviour
         foodText.text = $"X {food}";
         survivorText.text = $"X {survivors}";
         dateText.text = $"{day} 日目";
-
+        #endregion
+        
         isEvolving = GameController.instance.isEvolving;
 
-        // 変異中なら、変異が完了したか確認
+        #region 変異の進行状況を確認
         if (isEvolving && GameController.instance.daysFromEvolve >= GameController.instance.evolveDays)
         {
             EvolveComplete();
         }
+        #endregion
+
+        SetBulletin(); // 掲示板を設定
     }
 
     public void ButtonPressed()
@@ -167,7 +176,6 @@ public class SimulationMenu : MonoBehaviour
         prevButton = null;
         button = null;
 
-        // NEW // 
         // いったん全部非表示
         if (btnID < nMainBtns)
         {
@@ -182,12 +190,14 @@ public class SimulationMenu : MonoBehaviour
         {
             case 0:
                 // 味方管理画面へ
-                // トグルオブジェクトを作成 (初期状態では全部オフ)
-                foreach(GameObject toggleObj in allyMenuToggleList)
+                // トグルオブジェクト再作成 (初期状態では全部オフ)
+                foreach(Transform child in allyMenuToggleParent.transform)
                 {
-                    Destroy(toggleObj, 0f);
+                    Destroy(child.gameObject);
                 }
+
                 allyMenuToggleList = ToggleListFromAllyData(allyMenuToggleParent, allyToggleGroup);
+
                 foreach (GameObject toggleObj in allyMenuToggleList)
                 {
                     toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => AllyMenuToggleStateChange());
@@ -197,9 +207,9 @@ public class SimulationMenu : MonoBehaviour
             case 1:
                 // パーティー編成へ
                 // トグルオブジェクトを作成 (初期状態では全部オフ)
-                foreach (GameObject toggleObj in partyMenuToggleList)
+                foreach (Transform child in partyMenuToggleParent.transform)
                 {
-                    Destroy(toggleObj, 0f);
+                    Destroy(child.gameObject);
                 }
                 partyMenuToggleList = ToggleListFromAllyData(partyMenuToggleParent, partyToggleGroup);
                 foreach (GameObject toggleObj in partyMenuToggleList)
@@ -211,9 +221,9 @@ public class SimulationMenu : MonoBehaviour
             case 5:
                 // 変異画面を重ねて表示
                 // トグルオブジェクトを作成 (初期状態では全部オフ)
-                foreach (GameObject toggleObj in evolveMenuToggleList)
+                foreach (Transform child in evolveMenuToggleParent.transform)
                 {
-                    Destroy(toggleObj, 0f);
+                    Destroy(child.gameObject);
                 }
                 evolveMenuToggleList = ToggleListFromGeneData(evolveMenuToggleParent, evolveToggleGroup);
                 foreach (GameObject toggleObj in evolveMenuToggleList)
@@ -226,7 +236,6 @@ public class SimulationMenu : MonoBehaviour
                 Debug.Log("会話、マップ、設定のどれかを表示");
                 break;
         }
-        // NEW END // 
     }
 
     public void AllyMenuToggleStateChange()
@@ -289,6 +298,15 @@ public class SimulationMenu : MonoBehaviour
     {
         // パーティー編成画面のパーティーに追加ボタンのコールバック
         GameObject activeToggle = partyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
+        
+        if (partyMemberID.Count == memberImageList.Count)
+        {
+            //Debug.Log("編成可能数の上限に到達している");
+            dialog.SingleButtonMode(true);
+            dialog.SetMessage("編成可能な生物は三体までだ").SetOnOK("了解", () => { dialog.Hide(); });
+            dialog.Show();
+            return;
+        }
 
         if (activeToggle == null)
         {
@@ -323,18 +341,6 @@ public class SimulationMenu : MonoBehaviour
         memberImageList[partyMemberID.Count].GetComponent<Image>().sprite = addedUnitData.unitSprite;
         
         partyMemberID.Add(toggleID); // 何番目のキャラがパーティーに追加されたか保存
-        
-        if (partyMemberID.Count == 1)
-        {
-            //Debug.Log("最初のメンバーが追加された。出撃ボタンのロックを解除");
-            finalizePartyButton.GetComponent<Button>().interactable = true;
-        }
-
-        if (partyMemberID.Count == memberImageList.Count)
-        {
-            //Debug.Log("編成可能数の上限に到達。追加ボタンをロック");
-            addUnitButton.GetComponent<Button>().interactable = false;
-        }
     }
 
     public void RedoPartyButtonPressed()
@@ -348,20 +354,29 @@ public class SimulationMenu : MonoBehaviour
         {
             img.GetComponent<Image>().sprite = null;
         }
-
-        // ボタンを初期化
-        addUnitButton.GetComponent<Button>().interactable = true;
-        finalizePartyButton.GetComponent<Button>().interactable = false;
     }
 
     public void FinalizePartyButtonPressed()
     {
-        //Debug.Log("確認メッセージを表示");
-        //ShowMessagePanel2(true, "本当に向かうか？");
-        dialog.SingleButtonMode(false);
-        dialog.SetMessage("本当に向かうか？");
-        dialog.SetOnAccept("はい", () => { StartBattle(); }).SetOnDecline("いいえ", () => { dialog.Hide(); });
-        dialog.Show();
+        if (partyMemberID.Count < 1)
+        {
+            Debug.Log("味方が編成されていない");
+            dialog.SingleButtonMode(true);
+            dialog.SetMessage("味方が一体も編成されていない").SetOnOK("了解", () => { dialog.Hide(); } );
+            dialog.Show();
+            return;
+        }
+
+        else
+        {
+            //Debug.Log("出撃条件を満たしている。確認メッセージを表示");
+            dialog.SingleButtonMode(false);
+            dialog.SetMessage("本当に向かうか？");
+            dialog.SetOnAccept("はい", () => { StartBattle(); }).SetOnDecline("いいえ", () => { dialog.Hide(); });
+            dialog.Show();
+            return;
+        }
+        
     }
 
     public void StartBattle()
@@ -424,6 +439,8 @@ public class SimulationMenu : MonoBehaviour
         GameController.instance.evolveDays = evolveDays;
 
         activeToggleID = -1; // 初期化
+
+        SetBulletin(); // 掲示板に掲載
     }
 
     public void NextDayButtonPressed()
@@ -713,6 +730,41 @@ public class SimulationMenu : MonoBehaviour
         //evolveMenuToggleList.RemoveAt(geneID); // トグルリストからトグルを削除
 
         activeToggleID = -1; // 初期化
+
+        SetBulletin(); // 掲示板を更新
+    }
+
+    private void SetBulletin()
+    {
+        GameObject leftCol = bulletinObj.transform.Find("LeftColumn").gameObject;
+        GameObject rightCol = bulletinObj.transform.Find("RightColumn").gameObject;
+
+        // 掲示物を削除
+        foreach (Transform child in leftCol.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in rightCol.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // 変異中のキャラがいる
+        if (isEvolving)
+        {
+            GameObject evolvingPanel = Instantiate(evolvingPanelPrefab, leftCol.transform);
+            evolvingPanel.transform.Find("UnitImage").GetComponent<Image>().sprite = allyDataList[evolvingUnitID].unitSprite;
+            evolvingPanel.GetComponentInChildren<Text>().text = $"安定まで{evolveDays+1}日";
+        }
+
+
+        // 訓練中のキャラがいる
+
+        // 食料が不足している
+        if (isFoodShort)
+        {
+            GameObject foodAlertPanel = Instantiate(foodAlertPanelPrefab, rightCol.transform);
+        }
     }
 
     public void TestOnClick()
