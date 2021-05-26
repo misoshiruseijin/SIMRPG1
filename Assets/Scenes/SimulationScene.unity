@@ -2563,13 +2563,14 @@ GameObject:
   - component: {fileID: 666310468}
   - component: {fileID: 666310470}
   - component: {fileID: 666310469}
+  - component: {fileID: 666310471}
   m_Layer: 5
   m_Name: MapPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &666310468
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2583,6 +2584,7 @@ RectTransform:
   m_Children:
   - {fileID: 27949287}
   - {fileID: 1283342522}
+  - {fileID: 1053413118}
   m_Father: {fileID: 255515292}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2628,6 +2630,32 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 666310467}
   m_CullTransparentMesh: 0
+--- !u!114 &666310471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666310467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4117ef20cf06cf345bca06b4c1d461e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  valley: {fileID: 3896126049056695232, guid: 87d535b473c4e9947bd12af0269e8824, type: 3}
+  hills: {fileID: 2353134979147814105, guid: dc57c05fb4a85f0499852b12c9f2ede8, type: 3}
+  desert: {fileID: 3991760729835104208, guid: 875215973ec710a4b91cc16662a6bb2a, type: 3}
+  lake: {fileID: 5366668946400765860, guid: 094c3c1f79c6e4e47a3d8fab881457fc, type: 3}
+  forest: {fileID: 1933007374348781950, guid: 5293e85973ec4014ca8ab5da9422d07c, type: 3}
+  swamp: {fileID: 1497014575101165915, guid: 41057367616e0af4981d027abab30e2b, type: 3}
+  island: {fileID: 4956674761633788778, guid: c05a72e699fc5ff4098cdf66b39ab9d1, type: 3}
+  grassland: {fileID: 8082286744030206178, guid: c80967f68b106e34ebf39a1ef85b1ffb,
+    type: 3}
+  mountain: {fileID: 239064355781985168, guid: e4d4bdbdf6b75d84085d83bb8a12ffae, type: 3}
+  river: {fileID: 9078389616738167336, guid: 769416593bd33644fb4b75084831ea55, type: 3}
+  shore: {fileID: 7890099035853197010, guid: 769a027166ce6f544a7058ea461c1864, type: 3}
+  glacier: {fileID: 1928278037537398574, guid: 92501edd8379de4479634636ae0bce48, type: 3}
+  mapBG: {fileID: 1053413117}
 --- !u!1 &666844914 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2248669228794677519, guid: 0b50d4710347272409157440d21def7d,
@@ -4203,6 +4231,80 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1030644184}
+  m_CullTransparentMesh: 0
+--- !u!1 &1053413117
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1053413118}
+  - component: {fileID: 1053413120}
+  - component: {fileID: 1053413119}
+  m_Layer: 5
+  m_Name: MapImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1053413118
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1053413117}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 666310468}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 1.4, y: -23}
+  m_SizeDelta: {x: 777.1166, y: 380.04547}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1053413119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1053413117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 3fa3079a7c6ce694d94b14ddc5e3463c, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1053413120
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1053413117}
   m_CullTransparentMesh: 0
 --- !u!1 &1075346226
 GameObject:
@@ -7704,7 +7806,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.00036621094, y: -26.100006}
+  m_AnchoredPosition: {x: -0.00036621094, y: -26.099976}
   m_SizeDelta: {x: 0, y: 52.264416}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1803246507
@@ -7941,7 +8043,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.00018310547, y: -208.9}
+  m_AnchoredPosition: {x: -0.00012207031, y: -208.90002}
   m_SizeDelta: {x: 0.00036621094, y: -435.87152}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1910936255

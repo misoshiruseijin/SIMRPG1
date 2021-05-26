@@ -218,6 +218,11 @@ public class SimulationMenu : MonoBehaviour
                 }
                 break;
 
+            case 3:
+                // マップ
+                //popupPanelList[btnID].GetComponent<MapMenu>().ShowMap();
+                break;
+
             case 5:
                 // 変異画面を重ねて表示
                 // トグルオブジェクトを作成 (初期状態では全部オフ)
