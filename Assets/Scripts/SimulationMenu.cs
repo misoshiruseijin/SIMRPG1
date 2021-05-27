@@ -29,6 +29,7 @@ public class SimulationMenu : MonoBehaviour
 
     public GameObject bulletinObj; // 掲示板オブジェクト
     public GameObject evolvingPanelPrefab, trainingPanelPrefab, foodAlertPanelPrefab; // 掲載物プレハブ
+    public Animator bulletinAnimator; // 掲示板アニメーター
     #endregion
 
     #region スクリプトで生成する項目
@@ -60,6 +61,8 @@ public class SimulationMenu : MonoBehaviour
     private List<int> partyMemberID;
     private GameObject skillDescObj;
     private DialogBox dialog;
+
+    private bool isBulletinShow; // 掲示板が表示状態か
     #endregion
     #endregion
 
@@ -131,6 +134,7 @@ public class SimulationMenu : MonoBehaviour
         }
         #endregion
 
+        isBulletinShow = false;
         SetBulletin(); // 掲示板を設定
     }
 
@@ -777,6 +781,21 @@ public class SimulationMenu : MonoBehaviour
         }
     }
 
+    public void BulletinButtonPressed()
+    {
+        // 掲示板の表示を切り替えるボタンコールバック
+        if (isBulletinShow)
+        {
+            bulletinAnimator.SetTrigger("Hide");
+        }
+
+        else
+        {
+            bulletinAnimator.SetTrigger("Show");
+        }
+
+        isBulletinShow = !isBulletinShow;
+    }
     public void TestOnClick()
     {
         Debug.Log("Object clicked");
