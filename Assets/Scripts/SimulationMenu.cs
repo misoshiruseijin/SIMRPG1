@@ -190,7 +190,7 @@ public class SimulationMenu : MonoBehaviour
         {
             case 0:
                 // 味方管理画面へ
-                // トグルオブジェクト再作成 (初期状態では全部オフ)
+                // トグルオブジェクト再作成 (初期状態では一番上のトグルがオン)
                 foreach(Transform child in allyMenuToggleParent.transform)
                 {
                     Destroy(child.gameObject);
@@ -202,11 +202,14 @@ public class SimulationMenu : MonoBehaviour
                 {
                     toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => AllyMenuToggleStateChange());
                 }
+
+                allyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
+
                 break;
 
             case 1:
                 // パーティー編成へ
-                // トグルオブジェクトを作成 (初期状態では全部オフ)
+                // トグルオブジェクトを作成 (初期状態では一番上のトグルがオン)
                 foreach (Transform child in partyMenuToggleParent.transform)
                 {
                     Destroy(child.gameObject);
@@ -216,16 +219,17 @@ public class SimulationMenu : MonoBehaviour
                 {
                     toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => PartyMenuToggleStateChange());
                 }
+                partyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
                 break;
 
             case 3:
                 // マップ
-                //popupPanelList[btnID].GetComponent<MapMenu>().ShowMap();
+                popupPanelList[btnID].GetComponent<MapMenu>().ShowMap();
                 break;
 
             case 5:
                 // 変異画面を重ねて表示
-                // トグルオブジェクトを作成 (初期状態では全部オフ)
+                // トグルオブジェクトを作成 (初期状態では一番上のトグルがオン)
                 foreach (Transform child in evolveMenuToggleParent.transform)
                 {
                     Destroy(child.gameObject);
@@ -235,6 +239,7 @@ public class SimulationMenu : MonoBehaviour
                 {
                     toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => EvolveMenuToggleStateChange());
                 }
+                evolveMenuToggleList[0].GetComponent<Toggle>().isOn = true;
                 break;
             
             default:
