@@ -577,6 +577,15 @@ public class SimulationMenu : MonoBehaviour
     }
     #endregion
 
+    public void TrainingButtonPressed()
+    {
+        buttonObj = EventSystem.current.currentSelectedGameObject;
+        btnID = btnList.IndexOf(buttonObj);
+
+        CharacterData evolveUnitData = allyDataList[evolveUnitID]; // 育成されるキャラのデータ
+
+    }
+
     public void EvolveButtonPressed()
     {
         // 育成画面を開く準備
