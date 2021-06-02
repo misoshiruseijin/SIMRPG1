@@ -16,12 +16,6 @@ public class SimulationMenu : MonoBehaviour
     public GameObject togglePrefab;
     public GameObject skillNameBtnPrefab;
 
-    public GameObject allyMenuToggleParent, partyMenuToggleParent; // トグルの親オブジェクト。ToggleGroupを持つ
-    public GameObject evolveMenuToggleParent;
-    public GameObject skillNameParent; // スキル名テキストオブジェクトの親。VerticalLayout持ち
-    public GameObject allyStatusPanel, partyStatusPanel, evolveStatusPanel;
-    public List<GameObject> memberImageList; // パーティーメンバー画像オブジェクト
-
     public GameObject HUDPanel;
 
     public ChangeScene sceneChanger;
@@ -29,7 +23,6 @@ public class SimulationMenu : MonoBehaviour
 
     public GameObject bulletinObj; // 掲示板オブジェクト
     public GameObject evolvingPanelPrefab, trainingPanelPrefab, foodAlertPanelPrefab; // 掲載物プレハブ
-    public Animator bulletinAnimator; // 掲示板アニメーター
     #endregion
 
     #region スクリプトで生成する項目
@@ -41,6 +34,12 @@ public class SimulationMenu : MonoBehaviour
     private List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
     private List<GameObject> evolveMenuToggleList; // 育成画面の遺伝子アイテムトグルリスト
     private int day, food, survivors, phase;
+
+    private GameObject allyStatusPanel, partyStatusPanel, evolveStatusPanel;
+    private GameObject allyMenuToggleParent, partyMenuToggleParent; // トグルの親オブジェクト。ToggleGroupを持つ
+    private GameObject evolveMenuToggleParent;
+    private GameObject skillNameParent; // スキル名テキストオブジェクトの親。VerticalLayout持ち
+    private List<GameObject> memberImageList; // パーティーメンバー画像オブジェクト
 
     private List<GameObject> btnList;
     private GameObject buttonObj;
@@ -60,6 +59,7 @@ public class SimulationMenu : MonoBehaviour
     private GameObject skillDescObj;
     private DialogBox dialog;
 
+    private Animator bulletinAnimator; // 掲示板アニメーター
     private bool isBulletinShow; // 掲示板が表示状態か
     #endregion
     #endregion
@@ -97,10 +97,37 @@ public class SimulationMenu : MonoBehaviour
         nMainBtns = 5; // 大元のメニューボタン数
         partyDataList = new List<CharacterData>();
         partyMemberID = new List<int>();
+
+        # region シーン上のオブジェクトを取得
+        GameObject manageAllyPanel, partyPanel, evolvePanel;
+        manageAllyPanel = popupPanelList[0];
+        partyPanel = popupPanelList[1];
+        evolvePanel = popupPanelList[5];
+        
+        allyStatusPanel = manageAllyPanel.transform.Find("AllyStatusPanel").gameObject;
+        allyMenuToggleParent = manageAllyPanel.transform.Find("AllyListPanel").Find("AllyMenuToggleGroup").gameObject;
         allyToggleGroup = allyMenuToggleParent.GetComponent<ToggleGroup>();
+
+        partyStatusPanel = partyPanel.transform.Find("PartyStatusPanel").gameObject;
+        partyMenuToggleParent = partyPanel.transform.Find("AllyListPanel").Find("PartyMenuToggleGroup").gameObject;
         partyToggleGroup = partyMenuToggleParent.GetComponent<ToggleGroup>();
+
+        evolveStatusPanel = evolvePanel.transform.Find("EvolveStatusPanel").gameObject;
+        evolveMenuToggleParent = evolvePanel.transform.Find("GeneListPanel").Find("EvolveMenuToggleGroup").gameObject;
         evolveToggleGroup = evolveMenuToggleParent.GetComponent<ToggleGroup>();
+        
+        skillNameParent = allyStatusPanel.transform.Find("UnitSkills").gameObject;
+
+        memberImageList = new List<GameObject>();
+        foreach (Transform child in partyPanel.transform.Find("MemberImgPanel").transform)
+        {
+            memberImageList.Add(child.gameObject);
+        }
+
         skillDescObj = allyStatusPanel.transform.Find("SkillDescText").gameObject;
+        bulletinAnimator = bulletinObj.GetComponent<Animator>();
+        #endregion
+
         dialog = DialogBox.Instance();
 
         activeToggleID = -1; // default value

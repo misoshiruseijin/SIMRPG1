@@ -2405,6 +2405,8 @@ MonoBehaviour:
   - {fileID: 1450323425}
   - {fileID: 1221824449}
   - {fileID: 457800715}
+  - {fileID: 1372988882}
+  - {fileID: 1585264835}
   popupPanelList:
   - {fileID: 1305893153}
   - {fileID: 775486370}
@@ -2412,6 +2414,8 @@ MonoBehaviour:
   - {fileID: 666310467}
   - {fileID: 363235256}
   - {fileID: 425434951}
+  - {fileID: 1024486150}
+  - {fileID: 1485941053}
   togglePrefab: {fileID: 212855758899701893, guid: 84e91bdbf3b16954baedda730f8f92b1,
     type: 3}
   skillNameBtnPrefab: {fileID: 2777483889549454199, guid: 6e980dd6bdb64a040b3bb0fcb8cb15f7,
@@ -3587,7 +3591,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.004211426, y: -110.000015}
+  m_AnchoredPosition: {x: -0.004211426, y: -110}
   m_SizeDelta: {x: -45.286865, y: -260.84833}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &719290207
@@ -4948,8 +4952,8 @@ CanvasGroup:
   m_GameObject: {fileID: 1024486150}
   m_Enabled: 1
   m_Alpha: 0
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!114 &1024486153
 MonoBehaviour:
@@ -5570,7 +5574,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.004211426, y: -110.000015}
+  m_AnchoredPosition: {x: -0.004211426, y: -110}
   m_SizeDelta: {x: -45.286865, y: -260.84833}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1076699137
@@ -6567,10 +6571,10 @@ RectTransform:
   m_Father: {fileID: 255515292}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.7483}
-  m_SizeDelta: {x: 0, y: 453.49652}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1305893155
 MonoBehaviour:
@@ -7126,6 +7130,12 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372121605}
   m_CullTransparentMesh: 0
+--- !u!1 &1372988882 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7207108441294474604, guid: 6722695421f2afd45888bba1d1ca66dc,
+    type: 3}
+  m_PrefabInstance: {fileID: 967561530}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1379307262
 GameObject:
   m_ObjectHideFlags: 0
@@ -8356,8 +8366,8 @@ CanvasGroup:
   m_GameObject: {fileID: 1485941053}
   m_Enabled: 1
   m_Alpha: 0
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!114 &1485941056
 MonoBehaviour:
@@ -9089,6 +9099,12 @@ PrefabInstance:
 --- !u!224 &1583740338 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 875603074975518833, guid: 6722695421f2afd45888bba1d1ca66dc,
+    type: 3}
+  m_PrefabInstance: {fileID: 1583740337}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1585264835 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7207108441294474604, guid: 6722695421f2afd45888bba1d1ca66dc,
     type: 3}
   m_PrefabInstance: {fileID: 1583740337}
   m_PrefabAsset: {fileID: 0}
