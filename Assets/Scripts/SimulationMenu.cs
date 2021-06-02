@@ -55,6 +55,8 @@ public class SimulationMenu : MonoBehaviour
     private bool isEvolving; // 変異中フラグ
     private bool isFoodShort; // 食料不足フラグ
 
+    private string[] courseNames, courseDescs; // 訓練メニューの名前と解説リスト
+
     private List<int> partyMemberID;
     private GameObject skillDescObj;
     private DialogBox dialog;
@@ -136,6 +138,7 @@ public class SimulationMenu : MonoBehaviour
         food = GameController.instance.food;
         survivors = GameController.instance.survivors;
         isFoodShort = food < survivors + allyDataList.Count;
+        (courseNames, courseDescs) = TrainingCourses.GetCourseInfo();
         #endregion
 
         #region HUDの設定
@@ -442,7 +445,7 @@ public class SimulationMenu : MonoBehaviour
                 break;
 
             default:
-                Debug.Log("会話、マップ、設定のどれかを表示");
+                Debug.Log("基本のパネル表示");
                 break;
         }
 
@@ -609,13 +612,22 @@ public class SimulationMenu : MonoBehaviour
         buttonObj = EventSystem.current.currentSelectedGameObject;
         btnID = btnList.IndexOf(buttonObj);
 
-        CharacterData evolveUnitData = allyDataList[evolveUnitID]; // 育成されるキャラのデータ
+        CharacterData trainUnitData = allyDataList[evolveUnitID]; // 育成されるキャラのデータ
 
+        // 訓練画面を準備
+        GameObject trainingPanel = popupPanelList[btnID];
+        GameObject originalParam = trainingPanel.transform.Find("UnitParam").Find("BeforeValue").gameObject;
+        GameObject unitImage = trainingPanel.transform.Find("UnitImage").gameObject;
+
+        originalParam.GetComponent<Text>().text = "\n" + string.Join("\n", trainUnitData.GetStatusList());
+        unitImage.GetComponent<Image>().sprite = trainUnitData.unitSprite;
+
+        TakeButtonAction(btnID);
     }
 
     public void EvolveButtonPressed()
     {
-        // 育成画面を開く準備
+        // 変異画面を開く準備
         buttonObj = EventSystem.current.currentSelectedGameObject;
         btnID = btnList.IndexOf(buttonObj);
 
@@ -628,8 +640,7 @@ public class SimulationMenu : MonoBehaviour
         unitName = evolveStatusPanel.transform.Find("UnitNameText").gameObject;
 
         unitName.GetComponent<Text>().text = evolveUnitData.jpName;
-        List<int> statusList = new List<int> { evolveUnitData.Maxhp, evolveUnitData.atk, evolveUnitData.def, evolveUnitData.spd };
-        originalParam.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+        originalParam.GetComponent<Text>().text = "\n" + string.Join("\n", evolveUnitData.GetStatusList());
 
         // 現在所持しているスキルを表示
         List<string> skillNameList = new List<string>();
@@ -684,7 +695,7 @@ public class SimulationMenu : MonoBehaviour
 
         return toggleList;
     }
-
+ 
     private List<GameObject> ToggleListFromGeneData(GameObject toggleParentObj, ToggleGroup toggleGroup)
     {
         List<GameObject> toggleList = new List<GameObject>();
@@ -743,8 +754,7 @@ public class SimulationMenu : MonoBehaviour
         unitName.GetComponent<Text>().text = allyDataList[activeToggleID].jpName;
         unitImage.GetComponent<Image>().sprite = allyDataList[activeToggleID].unitSprite;
 
-        List<int> statusList = new List<int> { allyDataList[activeToggleID].Maxhp, allyDataList[activeToggleID].atk, allyDataList[activeToggleID].def, allyDataList[activeToggleID].spd };
-        unitParam.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+        unitParam.GetComponent<Text>().text = "\n" + string.Join("\n", allyDataList[activeToggleID].GetStatusList());
 
         // 前のキャラのスキルボタンを消去
         foreach (GameObject obj in skillBtnList)
@@ -779,8 +789,7 @@ public class SimulationMenu : MonoBehaviour
         // ステータスパネルを設定
         //Debug.Log("Toggle changed from " + prevToggleID + " to " + activeToggleID);
 
-        List<int> statusList = new List<int> { allyDataList[activeToggleID].Maxhp, allyDataList[activeToggleID].atk, allyDataList[activeToggleID].def, allyDataList[activeToggleID].spd };
-        paramObj.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+        paramObj.GetComponent<Text>().text = "\n" + string.Join("\n", allyDataList[activeToggleID].GetStatusList());
 
         List<string> skillNames = new List<string>() { "特殊技能" };
 
@@ -805,8 +814,7 @@ public class SimulationMenu : MonoBehaviour
         GeneData activeGeneData = geneDataList[activeToggleID];
 
         // ステータスパネルを設定
-        List<int> statusList = new List<int> { activeGeneData.hp, activeGeneData.atk, activeGeneData.def, activeGeneData.spd };
-        paramChange.GetComponent<Text>().text = "\n" + string.Join("\n", statusList.ConvertAll<string>(x => x.ToString()));
+        paramChange.GetComponent<Text>().text = "\n" + string.Join("\n", activeGeneData.GetStatusList());
 
         // 追加スキルの表記を更新
         newSkillText.GetComponent<Text>().text = "追加される能力\n" + activeGeneData.skill.jpName + "\n" + activeGeneData.skill.desc;
