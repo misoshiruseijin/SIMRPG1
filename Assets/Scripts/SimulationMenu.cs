@@ -12,6 +12,7 @@ public class SimulationMenu : MonoBehaviour
     #region インスペクターで設定する項目
     public List<GameObject> menuBtnList;
     public List<GameObject> popupPanelList;
+    public GameObject evolvePanel, preTrainingPanel, trainingPanel;
 
     public GameObject togglePrefab;
     public GameObject skillNameBtnPrefab;
@@ -51,6 +52,10 @@ public class SimulationMenu : MonoBehaviour
     private int evolveUnitID, useGeneID; // 育成されるユニットID、使用する遺伝子アイテムID
     private int evolveDays; // 変異完了までにかかる日数
     private int evolvingUnitID; // 変異中のユニットのID (evolveUnitIDはAllyMenuが更新されると更新される。evolvingUnitIDは次の変異を開始するまで変化しない)
+    private int trainUnitID; // 強化するユニットのID
+    private int courseID; // 選択された訓練メニュー
+    private int[,] statusChange; // 選択された訓練メニューのステータス上昇値Array
+
     private bool isEvolving; // 変異中フラグ
     private bool isFoodShort; // 食料不足フラグ
 
@@ -62,7 +67,6 @@ public class SimulationMenu : MonoBehaviour
     private bool isBulletinShow; // 掲示板が表示状態か
     #endregion
     #endregion
-
 
     private void Awake()
     {
@@ -98,10 +102,9 @@ public class SimulationMenu : MonoBehaviour
         partyMemberID = new List<int>();
 
         # region シーン上のオブジェクトを取得
-        GameObject manageAllyPanel, partyPanel, evolvePanel;
+        GameObject manageAllyPanel, partyPanel;
         manageAllyPanel = popupPanelList[0];
         partyPanel = popupPanelList[1];
-        evolvePanel = popupPanelList[5];
         
         allyStatusPanel = manageAllyPanel.transform.Find("AllyStatusPanel").gameObject;
         allyMenuToggleParent = manageAllyPanel.transform.Find("AllyListPanel").Find("AllyMenuToggleGroup").gameObject;
@@ -161,198 +164,6 @@ public class SimulationMenu : MonoBehaviour
         isBulletinShow = false;
         SetBulletin(); // 掲示板を設定
     }
-
-    //public void ButtonPressed()
-    //{
-    //    eventSystem = EventSystem.current;
-    //    prevButton = button;
-    //    button = eventSystem.currentSelectedGameObject;
-    //    btnResp = button.GetComponent<ButtonResponseSize>();
-
-    //    prevBtnID = btnID;
-    //    btnID = btnList.IndexOf(button);
-
-    //    bool btnChanged = btnID != prevBtnID; // 前と違うボタンを押した
-    //    bool noPrevBtn = prevButton == null; // 前に押したボタンがない (今回初めてボタンを押した)
-
-    //    //Debug.Log(button);
-
-    //    // 同じパネル内で前と違うボタンを押した
-    //    if (!noPrevBtn && btnChanged)
-    //    {
-    //        //Debug.Log(noPrevBtn + ", " + btnChanged);
-    //        prevButton.GetComponent<ButtonResponseSize>().btnReady = false;
-    //    }
-
-    //    if (!btnResp.btnReady)
-    //    {
-    //        //Debug.Log("初めてクリックされた");
-    //        btnResp.btnReady = true;
-    //    }
-
-    //    else if (btnResp.btnReady)
-    //    {
-    //        //Debug.Log("二回目のクリック");
-    //        btnResp.btnReady = false;
-    //        TakeButtonAction(btnID);
-    //    }
-    //}
-
-    //private void TakeButtonAction(int btnID)
-    //{
-    //    activeToggleID = -1;
-    //    prevButton = null;
-    //    button = null;
-
-    //    // いったん全部非表示
-    //    if (btnID < nMainBtns)
-    //    {
-    //        for (int i = 0; i < nPanels; i++)
-    //        {
-    //            PanelController.DisablePanel(popupPanelList[i]);
-    //        }
-    //    }
-    //    PanelController.EnablePanel(popupPanelList[btnID]);
-
-    //    switch (btnID)
-    //    {
-    //        case 0:
-    //            // 味方管理画面へ
-    //            // トグルオブジェクト再作成 (初期状態では一番上のトグルがオン)
-    //            foreach(Transform child in allyMenuToggleParent.transform)
-    //            {
-    //                Destroy(child.gameObject);
-    //            }
-
-    //            allyMenuToggleList = ToggleListFromAllyData(allyMenuToggleParent, allyToggleGroup);
-
-    //            foreach (GameObject toggleObj in allyMenuToggleList)
-    //            {
-    //                toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => AllyMenuToggleStateChange());
-    //            }
-
-    //            allyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
-
-    //            break;
-
-    //        case 1:
-    //            // パーティー編成へ
-    //            // トグルオブジェクトを作成 (初期状態では一番上のトグルがオン)
-    //            foreach (Transform child in partyMenuToggleParent.transform)
-    //            {
-    //                Destroy(child.gameObject);
-    //            }
-    //            partyMenuToggleList = ToggleListFromAllyData(partyMenuToggleParent, partyToggleGroup);
-    //            foreach (GameObject toggleObj in partyMenuToggleList)
-    //            {
-    //                toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => PartyMenuToggleStateChange());
-    //            }
-    //            partyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
-    //            break;
-
-    //        case 3:
-    //            // マップ
-    //            popupPanelList[btnID].GetComponent<MapMenu>().ShowMap();
-    //            break;
-
-    //        case 5:
-    //            // 変異画面を重ねて表示
-    //            // トグルオブジェクトを作成 (初期状態では一番上のトグルがオン)
-    //            foreach (Transform child in evolveMenuToggleParent.transform)
-    //            {
-    //                Destroy(child.gameObject);
-    //            }
-    //            evolveMenuToggleList = ToggleListFromGeneData(evolveMenuToggleParent, evolveToggleGroup);
-    //            foreach (GameObject toggleObj in evolveMenuToggleList)
-    //            {
-    //                toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => EvolveMenuToggleStateChange());
-    //            }
-    //            evolveMenuToggleList[0].GetComponent<Toggle>().isOn = true;
-    //            break;
-            
-    //        default:
-    //            Debug.Log("会話、マップ、設定のどれかを表示");
-    //            break;
-    //    }
-    //}    
-    
-    //private void TakeButtonAction(int btnID)
-    //{
-    //    activeToggleID = -1;
-    //    prevButton = null;
-    //    button = null;
-
-    //    // いったん全部非表示
-    //    if (btnID < nMainBtns)
-    //    {
-    //        for (int i = 0; i < nPanels; i++)
-    //        {
-    //            PanelController.DisablePanel(popupPanelList[i]);
-    //        }
-    //    }
-    //    PanelController.EnablePanel(popupPanelList[btnID]);
-
-    //    switch (btnID)
-    //    {
-    //        case 0:
-    //            // 味方管理画面へ
-    //            // トグルオブジェクト再作成 (初期状態では一番上のトグルがオン)
-    //            foreach(Transform child in allyMenuToggleParent.transform)
-    //            {
-    //                Destroy(child.gameObject);
-    //            }
-
-    //            allyMenuToggleList = ToggleListFromAllyData(allyMenuToggleParent, allyToggleGroup);
-
-    //            foreach (GameObject toggleObj in allyMenuToggleList)
-    //            {
-    //                toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => AllyMenuToggleStateChange());
-    //            }
-
-    //            allyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
-
-    //            break;
-
-    //        case 1:
-    //            // パーティー編成へ
-    //            // トグルオブジェクトを作成 (初期状態では一番上のトグルがオン)
-    //            foreach (Transform child in partyMenuToggleParent.transform)
-    //            {
-    //                Destroy(child.gameObject);
-    //            }
-    //            partyMenuToggleList = ToggleListFromAllyData(partyMenuToggleParent, partyToggleGroup);
-    //            foreach (GameObject toggleObj in partyMenuToggleList)
-    //            {
-    //                toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => PartyMenuToggleStateChange());
-    //            }
-    //            partyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
-    //            break;
-
-    //        case 3:
-    //            // マップ
-    //            popupPanelList[btnID].GetComponent<MapMenu>().ShowMap();
-    //            break;
-
-    //        case 5:
-    //            // 変異画面を重ねて表示
-    //            // トグルオブジェクトを作成 (初期状態では一番上のトグルがオン)
-    //            foreach (Transform child in evolveMenuToggleParent.transform)
-    //            {
-    //                Destroy(child.gameObject);
-    //            }
-    //            evolveMenuToggleList = ToggleListFromGeneData(evolveMenuToggleParent, evolveToggleGroup);
-    //            foreach (GameObject toggleObj in evolveMenuToggleList)
-    //            {
-    //                toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => EvolveMenuToggleStateChange());
-    //            }
-    //            evolveMenuToggleList[0].GetComponent<Toggle>().isOn = true;
-    //            break;
-            
-    //        default:
-    //            Debug.Log("会話、マップ、設定のどれかを表示");
-    //            break;
-    //    }
-    //}
 
     public void MenuButtonPressed()
     {
@@ -423,21 +234,6 @@ public class SimulationMenu : MonoBehaviour
             case 3:
                 // マップ
                 popupPanelList[btnID].GetComponent<MapMenu>().ShowMap();
-                break;
-
-            case 5:
-                // 変異画面を重ねて表示
-                // トグルオブジェクトを作成 (初期状態では一番上のトグルがオン)
-                foreach (Transform child in evolveMenuToggleParent.transform)
-                {
-                    Destroy(child.gameObject);
-                }
-                evolveMenuToggleList = ToggleListFromGeneData(evolveMenuToggleParent, evolveToggleGroup);
-                foreach (GameObject toggleObj in evolveMenuToggleList)
-                {
-                    toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => EvolveMenuToggleStateChange());
-                }
-                evolveMenuToggleList[0].GetComponent<Toggle>().isOn = true;
                 break;
 
             default:
@@ -605,10 +401,8 @@ public class SimulationMenu : MonoBehaviour
 
     public void TrainingButtonPressed()
     {
-        buttonObj = EventSystem.current.currentSelectedGameObject;
-        btnID = btnList.IndexOf(buttonObj);
-
         CharacterData trainUnitData = allyDataList[evolveUnitID]; // 育成されるキャラのデータ
+        trainUnitID = evolveUnitID;
 
         // 訓練画面を準備
         GameObject trainingPanel = popupPanelList[btnID];
@@ -621,17 +415,36 @@ public class SimulationMenu : MonoBehaviour
         unitImage.GetComponent<Image>().sprite = trainUnitData.unitSprite; // キャラ絵設定
 
         // 各コースのボタンを作成
-        GenerateBtnList(btnParent, TrainingCourses.courseNameData, TrainingCourses.courseDescData, descTextObj);
+        ////// トグルに変更　//////
+        string[] courseNames, courseDescs;
+        (courseNames, courseDescs, statusChange) = TrainingCourses.GetCourseInfo();
+        GenerateBtnList(btnParent, courseNames, courseDescs, descTextObj);
+        // どのコースが選択されたかをcourseIDに記録
 
-        TakeButtonAction(btnID);
+        // パネルを表示
+        PanelController.EnablePanel(preTrainingPanel);
+    }
+
+    public void StartTrainingButtonPressed()
+    {
+        // キャラのステータスを上昇させる
+
+
+        // 訓練画面に移行
+        PanelController.EnablePanel(trainingPanel);
+        // キャラの絵を設定
+
+        // イベントテキストを設定
+        // 選択肢を表示(DialogBox)
+
+        // 性格パラメーターを記録
+
+
     }
 
     public void EvolveButtonPressed()
     {
         // 変異画面を開く準備
-        buttonObj = EventSystem.current.currentSelectedGameObject;
-        btnID = btnList.IndexOf(buttonObj);
-
         CharacterData evolveUnitData = allyDataList[evolveUnitID]; // 育成されるキャラのデータ
         GameObject unitName, originalParam;
         GameObject skillTextObj = evolveStatusPanel.transform.Find("SkillText").gameObject;
@@ -652,7 +465,19 @@ public class SimulationMenu : MonoBehaviour
 
         skillTextObj.GetComponent<Text>().text = "特殊能力\n" + string.Join("\n", skillNameList);
 
-        TakeButtonAction(btnID);
+        // 遺伝子アイテムのトグルを作成
+        foreach (Transform child in evolveMenuToggleParent.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        evolveMenuToggleList = ToggleListFromGeneData(evolveMenuToggleParent, evolveToggleGroup);
+        foreach (GameObject toggleObj in evolveMenuToggleList)
+        {
+            toggleObj.GetComponent<Toggle>().onValueChanged.AddListener((bool value) => EvolveMenuToggleStateChange());
+        }
+        evolveMenuToggleList[0].GetComponent<Toggle>().isOn = true;
+
+        PanelController.EnablePanel(evolvePanel);
     }
 
     public void StartEvolveButtonPressed()
@@ -696,7 +521,7 @@ public class SimulationMenu : MonoBehaviour
 
         return toggleList;
     }
- 
+
     private List<GameObject> ToggleListFromGeneData(GameObject toggleParentObj, ToggleGroup toggleGroup)
     {
         List<GameObject> toggleList = new List<GameObject>();
@@ -1006,6 +831,7 @@ public class SimulationMenu : MonoBehaviour
 
         isBulletinShow = !isBulletinShow;
     }
+    
     public void TestOnClick()
     {
         Debug.Log("Object clicked");

@@ -2357,12 +2357,6 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
---- !u!1 &457800715 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7207108441294474604, guid: 6722695421f2afd45888bba1d1ca66dc,
-    type: 3}
-  m_PrefabInstance: {fileID: 1398805202}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &463223037
 GameObject:
   m_ObjectHideFlags: 0
@@ -2398,18 +2392,15 @@ MonoBehaviour:
   - {fileID: 2058125974}
   - {fileID: 1450323425}
   - {fileID: 1221824449}
-  - {fileID: 457800715}
-  - {fileID: 1372988882}
-  - {fileID: 1585264835}
   popupPanelList:
   - {fileID: 1305893153}
   - {fileID: 775486370}
   - {fileID: 202151035}
   - {fileID: 666310467}
   - {fileID: 363235256}
-  - {fileID: 425434951}
-  - {fileID: 1024486150}
-  - {fileID: 1485941053}
+  evolvePanel: {fileID: 425434951}
+  preTrainingPanel: {fileID: 1024486150}
+  trainingPanel: {fileID: 1485941053}
   togglePrefab: {fileID: 212855758899701893, guid: 84e91bdbf3b16954baedda730f8f92b1,
     type: 3}
   skillNameBtnPrefab: {fileID: 2777483889549454199, guid: 6e980dd6bdb64a040b3bb0fcb8cb15f7,
@@ -2424,7 +2415,6 @@ MonoBehaviour:
     type: 3}
   foodAlertPanelPrefab: {fileID: 1555886318383016492, guid: aac07c1c961ebbc4499286a59ccc9a4b,
     type: 3}
-  skillBtnList: []
 --- !u!4 &463223039
 Transform:
   m_ObjectHideFlags: 0
@@ -7230,12 +7220,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372121605}
   m_CullTransparentMesh: 0
---- !u!1 &1372988882 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7207108441294474604, guid: 6722695421f2afd45888bba1d1ca66dc,
-    type: 3}
-  m_PrefabInstance: {fileID: 967561530}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1379307262
 GameObject:
   m_ObjectHideFlags: 0
@@ -9161,7 +9145,7 @@ PrefabInstance:
     - target: {fileID: 5775559865278697781, guid: 6722695421f2afd45888bba1d1ca66dc,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5775559865278697781, guid: 6722695421f2afd45888bba1d1ca66dc,
         type: 3}
@@ -9171,7 +9155,12 @@ PrefabInstance:
     - target: {fileID: 5775559865278697781, guid: 6722695421f2afd45888bba1d1ca66dc,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: StartEvolveButtonPressed
+      value: StartTrainingButtonPressed
+      objectReference: {fileID: 0}
+    - target: {fileID: 5775559865278697781, guid: 6722695421f2afd45888bba1d1ca66dc,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5893419807582957368, guid: 6722695421f2afd45888bba1d1ca66dc,
         type: 3}
@@ -9204,12 +9193,6 @@ PrefabInstance:
 --- !u!224 &1583740338 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 875603074975518833, guid: 6722695421f2afd45888bba1d1ca66dc,
-    type: 3}
-  m_PrefabInstance: {fileID: 1583740337}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1585264835 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7207108441294474604, guid: 6722695421f2afd45888bba1d1ca66dc,
     type: 3}
   m_PrefabInstance: {fileID: 1583740337}
   m_PrefabAsset: {fileID: 0}
