@@ -28,9 +28,8 @@ public class SimulationMenu : MonoBehaviour
     #region スクリプトで生成する項目
     public List<CharacterData> allyDataList; // 味方キャラのステータスデータ
     public List<CharacterData> partyDataList; // バトルシーンに渡すパーティーメンバーのデータ
-    public List<GameObject> skillBtnList; // 各キャラのスキル名オブジェクトリスト
     public List<GeneData> geneDataList; // 所持している遺伝子アイテムのリスト
-    
+
     private List<GameObject> allyMenuToggleList, partyMenuToggleList; // 味方管理画面のトグルリスト、パーティー編成画面のトグルリスト
     private List<GameObject> evolveMenuToggleList; // 育成画面の遺伝子アイテムトグルリスト
     private int day, food, survivors, phase;
@@ -54,8 +53,6 @@ public class SimulationMenu : MonoBehaviour
     private int evolvingUnitID; // 変異中のユニットのID (evolveUnitIDはAllyMenuが更新されると更新される。evolvingUnitIDは次の変異を開始するまで変化しない)
     private bool isEvolving; // 変異中フラグ
     private bool isFoodShort; // 食料不足フラグ
-
-    private string[] courseNames, courseDescs; // 訓練メニューの名前と解説リスト
 
     private List<int> partyMemberID;
     private GameObject skillDescObj;
@@ -138,7 +135,6 @@ public class SimulationMenu : MonoBehaviour
         food = GameController.instance.food;
         survivors = GameController.instance.survivors;
         isFoodShort = food < survivors + allyDataList.Count;
-        (courseNames, courseDescs) = TrainingCourses.GetCourseInfo();
         #endregion
 
         #region HUDの設定
@@ -618,9 +614,14 @@ public class SimulationMenu : MonoBehaviour
         GameObject trainingPanel = popupPanelList[btnID];
         GameObject originalParam = trainingPanel.transform.Find("UnitParam").Find("BeforeValue").gameObject;
         GameObject unitImage = trainingPanel.transform.Find("UnitImage").gameObject;
+        GameObject descTextObj = trainingPanel.transform.Find("CourseSelectPanel").Find("CourseDescText").gameObject;
+        GameObject btnParent = trainingPanel.transform.Find("CourseSelectPanel").Find("CourseButtonParent").gameObject;
 
-        originalParam.GetComponent<Text>().text = "\n" + string.Join("\n", trainUnitData.GetStatusList());
-        unitImage.GetComponent<Image>().sprite = trainUnitData.unitSprite;
+        originalParam.GetComponent<Text>().text = "\n" + string.Join("\n", trainUnitData.GetStatusList()); // 元のステータス表示
+        unitImage.GetComponent<Image>().sprite = trainUnitData.unitSprite; // キャラ絵設定
+
+        // 各コースのボタンを作成
+        GenerateBtnList(btnParent, TrainingCourses.courseNameData, TrainingCourses.courseDescData, descTextObj);
 
         TakeButtonAction(btnID);
     }
@@ -711,31 +712,28 @@ public class SimulationMenu : MonoBehaviour
         return toggleList;
     }
 
-    private List<GameObject> GenerateSkillBtnList(List<string> nameList)
+    private void GenerateBtnList(GameObject parentObj, string[] btnNames, string[] descs, GameObject descTextObj)
     {
-        List<GameObject> btnObjList = new List<GameObject>();
-
-        for (int i = 0; i < nameList.Count; i++)
+        // 既存のボタンを消去
+        foreach (Transform buttons in parentObj.transform)
         {
-            GameObject btnObj = Instantiate(skillNameBtnPrefab, skillNameParent.transform) as GameObject;
-            btnObj.GetComponent<Button>().onClick.AddListener(delegate { ShowSkillDesc(); });
-
-            btnObj.GetComponentInChildren<Text>().text = nameList[i];
-            btnObjList.Add(btnObj);
+            Destroy(buttons.gameObject);
         }
 
-        return btnObjList;
+        // ボタンを作成
+        for (int i = 0; i < btnNames.Length; i++)
+        {
+            GameObject btnObj = Instantiate(skillNameBtnPrefab, parentObj.transform) as GameObject;
+            btnObj.GetComponentInChildren<Text>().text = btnNames[i];
+            string descString = descs[i];
+            btnObj.GetComponent<Button>().onClick.AddListener(delegate { ShowDescription(descString, descTextObj); });
+        }
     }
     #endregion
 
-    private void ShowSkillDesc()
+    private void ShowDescription(string descString, GameObject TextObj)
     {
-        //Debug.Log("ShowSkillDesc");
-        GameObject clickedBtnObj = EventSystem.current.currentSelectedGameObject;
-        int skillTextID = skillBtnList.IndexOf(clickedBtnObj);
-        string skillName = allyDataList[activeToggleID].skillList[skillTextID].jpName;
-        string skillDesc = allyDataList[activeToggleID].skillList[skillTextID].desc;
-        skillDescObj.GetComponent<Text>().text = skillName + "\n" + skillDesc;
+        TextObj.GetComponent<Text>().text = descString;
     }
 
     private void UpdateAllyMenu()
@@ -756,19 +754,18 @@ public class SimulationMenu : MonoBehaviour
 
         unitParam.GetComponent<Text>().text = "\n" + string.Join("\n", allyDataList[activeToggleID].GetStatusList());
 
-        // 前のキャラのスキルボタンを消去
-        foreach (GameObject obj in skillBtnList)
-        {
-            Destroy(obj, 0f);
-        }
-
         List<string> skillNames = new List<string>();
+        List<string> skillDescs = new List<string>();
         foreach (SkillStatus skill in allyDataList[activeToggleID].skillList)
         {
             skillNames.Add(skill.jpName);
+            skillDescs.Add(skill.desc);
         }
+        skillNames.ToArray();
+        skillDescs.ToArray();
 
-        skillBtnList = GenerateSkillBtnList(skillNames);
+        //skillBtnList = GenerateBtnList(skillNameParent, skillNames.ToArray(), skillDescs.ToArray(), skillDescObj);
+        GenerateBtnList(skillNameParent, skillNames.ToArray(), skillDescs.ToArray(), skillDescObj);
 
         unitDesc.GetComponent<Text>().text = "キャラ説明文";
 
