@@ -11,8 +11,11 @@ public static class TrainingCourses
     /// 各コースのステータス上昇
     /// statusChangeData = { course1{hp, atk, def...}, course2{hp, atk, def...}, course3... }
     /// </summary>
-    public static int[,] statusChangeData = new int[,] { { 0, 3, 0, 2}, { 5, 0, 2, 0 }, { 0, 0, 0, 0 } };
-    public static (string[] courseNames, string[] courseDescs, int[,] statusChange) GetCourseInfo()
+    public static int[][] statusChangeData = new int[][] {
+        new int[]{ 0, 3, 0, 2},
+        new int[]{ 5, 0, 2, 0 },
+        new int[] { 0, 0, 0, 0 } };
+    public static (string[] courseNames, string[] courseDescs, int[][] statusChange) GetCourseInfo()
     {
         return (courseNameData, courseDescData, statusChangeData);
     }

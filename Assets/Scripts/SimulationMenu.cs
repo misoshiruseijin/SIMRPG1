@@ -48,13 +48,14 @@ public class SimulationMenu : MonoBehaviour
     private int nMainBtns;
     private ToggleGroup allyToggleGroup, partyToggleGroup, evolveToggleGroup;
     private int activeToggleID, prevToggleID;
-    
+
     private int evolveUnitID, useGeneID; // 育成されるユニットID、使用する遺伝子アイテムID
     private int evolveDays; // 変異完了までにかかる日数
     private int evolvingUnitID; // 変異中のユニットのID (evolveUnitIDはAllyMenuが更新されると更新される。evolvingUnitIDは次の変異を開始するまで変化しない)
     private int trainUnitID; // 強化するユニットのID
     private int courseID; // 選択された訓練メニュー
-    private int[,] statusChange; // 選択された訓練メニューのステータス上昇値Array
+    private int tempID; // 一時的にどのボタンが押されたか記録する
+    private int[][] statusChange; // 選択された訓練メニューのステータス上昇値Array
 
     private bool isEvolving; // 変異中フラグ
     private bool isFoodShort; // 食料不足フラグ
@@ -105,7 +106,7 @@ public class SimulationMenu : MonoBehaviour
         GameObject manageAllyPanel, partyPanel;
         manageAllyPanel = popupPanelList[0];
         partyPanel = popupPanelList[1];
-        
+
         allyStatusPanel = manageAllyPanel.transform.Find("AllyStatusPanel").gameObject;
         allyMenuToggleParent = manageAllyPanel.transform.Find("AllyListPanel").Find("AllyMenuToggleGroup").gameObject;
         allyToggleGroup = allyMenuToggleParent.GetComponent<ToggleGroup>();
@@ -117,7 +118,7 @@ public class SimulationMenu : MonoBehaviour
         evolveStatusPanel = evolvePanel.transform.Find("EvolveStatusPanel").gameObject;
         evolveMenuToggleParent = evolvePanel.transform.Find("GeneListPanel").Find("EvolveMenuToggleGroup").gameObject;
         evolveToggleGroup = evolveMenuToggleParent.GetComponent<ToggleGroup>();
-        
+
         skillNameParent = allyStatusPanel.transform.Find("UnitSkills").gameObject;
 
         memberImageList = new List<GameObject>();
@@ -133,7 +134,7 @@ public class SimulationMenu : MonoBehaviour
         dialog = DialogBox.Instance();
 
         activeToggleID = -1; // default value
-        
+
         day = GameController.instance.day;
         food = GameController.instance.food;
         survivors = GameController.instance.survivors;
@@ -151,7 +152,7 @@ public class SimulationMenu : MonoBehaviour
         survivorText.text = $"X {survivors}";
         dateText.text = $"{day} 日目";
         #endregion
-        
+
         isEvolving = GameController.instance.isEvolving;
 
         #region 変異の進行状況を確認
@@ -231,6 +232,11 @@ public class SimulationMenu : MonoBehaviour
                 partyMenuToggleList[0].GetComponent<Toggle>().isOn = true;
                 break;
 
+            case 2:
+                // 会話画面へ
+                popupPanelList[btnID].GetComponent<TextController2>().StartText("一時的なサンプル会話文\n会話文を1つのスクリプトにまとめて\n<>進行状況に合った内容を持ってくるべし");
+                break;
+
             case 3:
                 // マップ
                 popupPanelList[btnID].GetComponent<MapMenu>().ShowMap();
@@ -265,7 +271,7 @@ public class SimulationMenu : MonoBehaviour
     {
         //Debug.Log("Party Menu Toggle State Changed");
         GameObject activeToggle = partyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
-        
+
         prevToggleID = activeToggleID;
         activeToggleID = partyMenuToggleList.IndexOf(activeToggle);
         bool toggleChanged = prevToggleID != activeToggleID;
@@ -280,7 +286,7 @@ public class SimulationMenu : MonoBehaviour
     {
         //Debug.Log("Evolve Menu Toggle State Change");
         GameObject activeToggle = evolveToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
-        
+
         prevToggleID = activeToggleID;
         activeToggleID = evolveMenuToggleList.IndexOf(activeToggle);
         bool toggleChanged = prevToggleID != activeToggleID;
@@ -303,7 +309,7 @@ public class SimulationMenu : MonoBehaviour
     {
         // パーティー編成画面のパーティーに追加ボタンのコールバック
         GameObject activeToggle = partyToggleGroup.ActiveToggles().FirstOrDefault().gameObject;
-        
+
         if (partyMemberID.Count == memberImageList.Count)
         {
             //Debug.Log("編成可能数の上限に到達している");
@@ -344,7 +350,7 @@ public class SimulationMenu : MonoBehaviour
 
         CharacterData addedUnitData = allyDataList[toggleID];
         memberImageList[partyMemberID.Count].GetComponent<Image>().sprite = addedUnitData.unitSprite;
-        
+
         partyMemberID.Add(toggleID); // 何番目のキャラがパーティーに追加されたか保存
     }
 
@@ -367,7 +373,7 @@ public class SimulationMenu : MonoBehaviour
         {
             Debug.Log("味方が編成されていない");
             dialog.SingleButtonMode(true);
-            dialog.SetMessage("味方が一体も編成されていない").SetOnOK("了解", () => { dialog.Hide(); } );
+            dialog.SetMessage("味方が一体も編成されていない").SetOnOK("了解", () => { dialog.Hide(); });
             dialog.Show();
             return;
         }
@@ -381,7 +387,7 @@ public class SimulationMenu : MonoBehaviour
             dialog.Show();
             return;
         }
-        
+
     }
 
     public void StartBattle()
@@ -401,25 +407,24 @@ public class SimulationMenu : MonoBehaviour
 
     public void TrainingButtonPressed()
     {
+        //Debug.Log("TrainingButtonPressed");
+
         CharacterData trainUnitData = allyDataList[evolveUnitID]; // 育成されるキャラのデータ
         trainUnitID = evolveUnitID;
 
         // 訓練画面を準備
-        GameObject trainingPanel = popupPanelList[btnID];
-        GameObject originalParam = trainingPanel.transform.Find("UnitParam").Find("BeforeValue").gameObject;
-        GameObject unitImage = trainingPanel.transform.Find("UnitImage").gameObject;
-        GameObject descTextObj = trainingPanel.transform.Find("CourseSelectPanel").Find("CourseDescText").gameObject;
-        GameObject btnParent = trainingPanel.transform.Find("CourseSelectPanel").Find("CourseButtonParent").gameObject;
+        GameObject originalParam = preTrainingPanel.transform.Find("UnitParam").Find("BeforeValue").gameObject;
+        GameObject unitImage = preTrainingPanel.transform.Find("UnitImage").gameObject;
+        GameObject descTextObj = preTrainingPanel.transform.Find("CourseSelectPanel").Find("CourseDescText").gameObject;
+        GameObject btnParent = preTrainingPanel.transform.Find("CourseSelectPanel").Find("CourseButtonParent").gameObject;
 
         originalParam.GetComponent<Text>().text = "\n" + string.Join("\n", trainUnitData.GetStatusList()); // 元のステータス表示
         unitImage.GetComponent<Image>().sprite = trainUnitData.unitSprite; // キャラ絵設定
 
         // 各コースのボタンを作成
-        ////// トグルに変更　//////
         string[] courseNames, courseDescs;
         (courseNames, courseDescs, statusChange) = TrainingCourses.GetCourseInfo();
-        GenerateBtnList(btnParent, courseNames, courseDescs, descTextObj);
-        // どのコースが選択されたかをcourseIDに記録
+        GenerateBtnList(btnParent, courseNames, courseDescs, descTextObj, true);
 
         // パネルを表示
         PanelController.EnablePanel(preTrainingPanel);
@@ -427,19 +432,49 @@ public class SimulationMenu : MonoBehaviour
 
     public void StartTrainingButtonPressed()
     {
+        // 選択中のコース情報
+        courseID = tempID;
+        int[] growthArray = statusChange[courseID];
+
         // キャラのステータスを上昇させる
+        int[] newParam = allyDataList[trainUnitID].GetStatusIntArray();
+        for (int i = 0; i < growthArray.Length; i++)
+        {
+            newParam[i] += growthArray[i];
+        }
 
+        allyDataList[trainUnitID].UpdateStatus(newParam);
 
+        // キャラの絵を設定
+        GameObject unitImgObj = trainingPanel.transform.Find("UnitImage").gameObject;
+        unitImgObj.GetComponent<Image>().sprite = allyDataList[trainUnitID].unitSprite;
+        
         // 訓練画面に移行
         PanelController.EnablePanel(trainingPanel);
-        // キャラの絵を設定
+        StartCoroutine("TrainingEventCoroutine");
+    }
 
+    IEnumerator TrainingEventCoroutine()
+    {
+        Debug.Log("TrainingEventCoroutine");
         // イベントテキストを設定
+        TextController2 eventTextController = trainingPanel.transform.Find("EventTextPanel").GetComponent<TextController2>();
+        eventTextController.StartText("テスト文章：イベント内容をここに表示<>プレイヤーが文章を読み終わったら\n選択肢を表示する", false);
+
+        // プレイヤーがメッセージを読み終わるまで待つ
+        yield return StartCoroutine("WaitForMessageDoneCoroutine");
+
         // 選択肢を表示(DialogBox)
+        Debug.Log("メッセージを読み終わった");
+        
+    }
 
-        // 性格パラメーターを記録
+    IEnumerator WaitForMessageDoneCoroutine()
+    {
+        Debug.Log("WaitCoroutine");
+        TextController2 eventTextController = trainingPanel.transform.Find("EventTextPanel").GetComponent<TextController2>();
 
-
+        yield return new WaitUntil(() => eventTextController.isControllerActive==false);
     }
 
     public void EvolveButtonPressed()
@@ -537,7 +572,7 @@ public class SimulationMenu : MonoBehaviour
         return toggleList;
     }
 
-    private void GenerateBtnList(GameObject parentObj, string[] btnNames, string[] descs, GameObject descTextObj)
+    private void GenerateBtnList(GameObject parentObj, string[] btnNames, string[] descs, GameObject descTextObj, bool recordID = false)
     {
         // 既存のボタンを消去
         foreach (Transform buttons in parentObj.transform)
@@ -551,14 +586,42 @@ public class SimulationMenu : MonoBehaviour
             GameObject btnObj = Instantiate(skillNameBtnPrefab, parentObj.transform) as GameObject;
             btnObj.GetComponentInChildren<Text>().text = btnNames[i];
             string descString = descs[i];
-            btnObj.GetComponent<Button>().onClick.AddListener(delegate { ShowDescription(descString, descTextObj); });
+            btnObj.GetComponent<Button>().onClick.AddListener(delegate { ShowDescription(descString, descTextObj, parentObj, recordID); });
         }
     }
     #endregion
 
-    private void ShowDescription(string descString, GameObject TextObj)
+    private void ShowDescription(string descString, GameObject TextObj, GameObject parentObj, bool recordID)
     {
+        foreach (Transform child in parentObj.transform)
+        {
+            Image image = child.gameObject.GetComponent<Image>();
+            image.color = new Color(image.color.r, image.color.g, image.color.b, 0f);
+        }
+
+        Image btnImg = EventSystem.current.currentSelectedGameObject.GetComponent<Button>().GetComponent<Image>();
+        btnImg.color = Color.gray;
+
         TextObj.GetComponent<Text>().text = descString;
+
+        // ID記録モードがオンなら、どのボタンが押されたかをtempIDに記録
+        if (recordID)
+        {
+            int i = 0;
+            GameObject pressedBtn = EventSystem.current.currentSelectedGameObject;
+            foreach (Transform child in parentObj.transform)
+            {
+                if (Object.ReferenceEquals(child.gameObject, pressedBtn))
+                {
+                    tempID = i;
+                    break;
+                }
+
+                i++;
+            }
+
+            Debug.Log(tempID);
+        }
     }
 
     private void UpdateAllyMenu()
@@ -774,8 +837,6 @@ public class SimulationMenu : MonoBehaviour
 
         allyDataList[evolveUnitID] = newData; // 進化前の情報を上書きする
         geneDataList.RemoveAt(geneID); // アイテムリストから消費したアイテムを削除
-        //Destroy(evolveMenuToggleList[geneID]); // 消費されたアイテムのトグルを削除
-        //evolveMenuToggleList.RemoveAt(geneID); // トグルリストからトグルを削除
 
         activeToggleID = -1; // 初期化
 

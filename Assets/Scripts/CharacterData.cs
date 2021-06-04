@@ -21,4 +21,18 @@ public class CharacterData
 
         return statusList;
     }
+
+    public int[] GetStatusIntArray()
+    {
+        int[] intArray = new int[] { Maxhp, atk, def, spd };
+        return intArray;
+    }
+
+    public void UpdateStatus(int[] newStatusArray)
+    {
+        Maxhp = newStatusArray[0];
+        atk = newStatusArray[1];
+        def = newStatusArray[2];
+        spd = newStatusArray[3];
+    }
 }
