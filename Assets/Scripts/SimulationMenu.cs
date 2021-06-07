@@ -15,7 +15,7 @@ public class SimulationMenu : MonoBehaviour
     public GameObject evolvePanel, preTrainingPanel, trainingPanel;
 
     public GameObject togglePrefab;
-    public GameObject skillNameBtnPrefab;
+    public GameObject descBtnPrefab;
 
     public GameObject HUDPanel;
 
@@ -63,6 +63,7 @@ public class SimulationMenu : MonoBehaviour
     private List<int> partyMemberID;
     private GameObject skillDescObj;
     private DialogBox dialog;
+    private DialogBox_Choices dialogChoice;
 
     private Animator bulletinAnimator; // 掲示板アニメーター
     private bool isBulletinShow; // 掲示板が表示状態か
@@ -132,6 +133,7 @@ public class SimulationMenu : MonoBehaviour
         #endregion
 
         dialog = DialogBox.Instance();
+        dialogChoice = DialogBox_Choices.Instance();
 
         activeToggleID = -1; // default value
 
@@ -466,7 +468,12 @@ public class SimulationMenu : MonoBehaviour
 
         // 選択肢を表示(DialogBox)
         Debug.Log("メッセージを読み終わった");
-        
+
+        GameObject choiceBtnParent = dialogChoice.transform.Find("Panel1").Find("Panel2").Find("ChoiceButtonParent").gameObject;
+
+        dialogChoice.NewButtons(new string[] { "ボタン1", "ボタン2", "ボタン3" }, new System.Action[] { TestAction, TestAction, TestAction });
+        dialogChoice.SetButtons(choiceBtnParent, descBtnPrefab);
+        dialogChoice.Show();
     }
 
     IEnumerator WaitForMessageDoneCoroutine()
@@ -583,7 +590,7 @@ public class SimulationMenu : MonoBehaviour
         // ボタンを作成
         for (int i = 0; i < btnNames.Length; i++)
         {
-            GameObject btnObj = Instantiate(skillNameBtnPrefab, parentObj.transform) as GameObject;
+            GameObject btnObj = Instantiate(descBtnPrefab, parentObj.transform) as GameObject;
             btnObj.GetComponentInChildren<Text>().text = btnNames[i];
             string descString = descs[i];
             btnObj.GetComponent<Button>().onClick.AddListener(delegate { ShowDescription(descString, descTextObj, parentObj, recordID); });
@@ -896,5 +903,10 @@ public class SimulationMenu : MonoBehaviour
     public void TestOnClick()
     {
         Debug.Log("Object clicked");
+    }
+
+    public void TestAction()
+    {
+        Debug.Log($"Test Action");
     }
 }

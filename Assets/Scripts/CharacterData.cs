@@ -8,6 +8,8 @@ public class CharacterData
     public string jpName;
     public List<SkillStatus> skillList;
     public Sprite unitSprite;
+    
+    public int[] personaArray; // 性格を決める隠しパラメータ
 
     public List<string> GetStatusList()
     {

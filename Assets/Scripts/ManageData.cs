@@ -21,6 +21,7 @@ public static class ManageData
             data.spd = SO.spd;
             data.skillList = SO.skillList;
             data.unitSprite = SO.unitImg;
+            data.personaArray = new int[] { 0, 0, 0, 0 };
         }
 
         else
