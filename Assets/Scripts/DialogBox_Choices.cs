@@ -12,21 +12,23 @@ using UnityEngine.UI;
 [RequireComponent (typeof(CanvasGroup))]
 public class DialogBox_Choices : MonoBehaviour
 {
-    //public GameObject buttonPrefab;
+    public GameObject buttonPrefab;
+    public GameObject buttonParent;
+    public Text eventMsgText;
 
     private CanvasGroup cg;
     private List<Choice> choiceList;
 
     private void Awake()
     {
-        cg = this.GetComponent<CanvasGroup>();        
+        cg = this.GetComponent<CanvasGroup>();
+        
     }
 
     public class Choice
     {
         public string btnText;
         public Action btnAction;
-
     }
 
 
@@ -43,21 +45,26 @@ public class DialogBox_Choices : MonoBehaviour
         }        
     }
 
-    public void SetButtons(GameObject parentObj, GameObject buttonPrefab)
+    public void SetButtons()
     {
-        foreach (Transform child in parentObj.transform)
+        foreach (Transform child in buttonParent.transform)
         {
             Destroy(child.gameObject);
         }
 
         foreach (Choice choice in choiceList)
         {
-            GameObject buttonObj = Instantiate(buttonPrefab, parentObj.transform);
+            GameObject buttonObj = Instantiate(buttonPrefab, buttonParent.transform);
             buttonObj.GetComponentInChildren<Text>().text = choice.btnText;
             Button button = buttonObj.GetComponent<Button>();
             button.onClick.AddListener(() => choice.btnAction());
             button.onClick.AddListener(() => Hide());            
         }
+    }
+
+    public void SetMessage(string msgString)
+    {
+        eventMsgText.text = msgString;
     }
 
 

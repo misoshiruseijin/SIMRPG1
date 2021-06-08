@@ -5,6 +5,8 @@ using UnityEngine;
 
 public static class TrainingCourses
 {
+    private static int n_choices = 4; // 選択肢の数
+
     public static string[] courseNameData = new string[] { "戦闘訓練・初級", "精神強化・初級", "座学・初級" };
     public static string[] courseDescData = new string[] { "模擬戦闘を行い生物の攻撃能力および俊敏性を高める", "生物の精神力を鍛え体力、強靭さを強化する", "講義を行い生物の知性を高める" };
 
@@ -49,11 +51,11 @@ public static class TrainingCourses
         return (courseNameData, courseDescData, statusChangeData);
     }
 
-    public static (string eventMessage, string[] choicesMsgs, int[][] statusChange) GetChoicesAndEffects()
+    public static (string eventMessage, string[] choicesMsgs, int[][] statusChange) GetRandomEvent()
     {
         string eventMessage;
         List<string> choiceMsgs = new List<string>();
-        int[][] status = new int[][] { };
+        int[][] status = new int[n_choices][];
 
         // ランダムにイベントを1つ選ぶ
         int eventID = Random.Range(0, eventText.Length);
@@ -66,6 +68,7 @@ public static class TrainingCourses
         for (int i = 0; i < choiceIDList.Count; i++)
         {
             int choiceID = choiceIDList[i];
+
             choiceMsgs.Add(choiceText[choiceID]);
             status[i] = statusChange_choice[choiceID];
         }

@@ -459,9 +459,12 @@ public class SimulationMenu : MonoBehaviour
     IEnumerator TrainingEventCoroutine()
     {
         Debug.Log("TrainingEventCoroutine");
+        
+        (string eventMsg, string[] choices, int[][] statusChange) = TrainingCourses.GetRandomEvent();
+
         // イベントテキストを設定
         TextController2 eventTextController = trainingPanel.transform.Find("EventTextPanel").GetComponent<TextController2>();
-        eventTextController.StartText("テスト文章：イベント内容をここに表示<>プレイヤーが文章を読み終わったら\n選択肢を表示する", false);
+        eventTextController.StartText(allyDataList[trainUnitID].jpName + eventMsg, false);
 
         // プレイヤーがメッセージを読み終わるまで待つ
         yield return StartCoroutine("WaitForMessageDoneCoroutine");
@@ -469,11 +472,14 @@ public class SimulationMenu : MonoBehaviour
         // 選択肢を表示(DialogBox)
         Debug.Log("メッセージを読み終わった");
 
-        GameObject choiceBtnParent = dialogChoice.transform.Find("Panel1").Find("Panel2").Find("ChoiceButtonParent").gameObject;
-
-        dialogChoice.NewButtons(new string[] { "ボタン1", "ボタン2", "ボタン3" }, new System.Action[] { TestAction, TestAction, TestAction });
-        dialogChoice.SetButtons(choiceBtnParent, descBtnPrefab);
+        dialogChoice.SetMessage("どうする？");
+        dialogChoice.NewButtons(choices, new System.Action[] { TestAction, TestAction, TestAction, TestAction });
+        dialogChoice.SetButtons();
         dialogChoice.Show();
+
+        // 選択肢によって異なる生物の反応をテキストボックスに表示
+
+        // 訓練が終了。ステータス上昇を見せる
     }
 
     IEnumerator WaitForMessageDoneCoroutine()

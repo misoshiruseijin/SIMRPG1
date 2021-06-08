@@ -5068,6 +5068,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0ca168a4cc331942a07ad27ca3b4530, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buttonPrefab: {fileID: 2777483889549454199, guid: 6e980dd6bdb64a040b3bb0fcb8cb15f7,
+    type: 3}
+  buttonParent: {fileID: 210602255}
+  eventMsgText: {fileID: 1211323459}
 --- !u!225 &1017757063
 CanvasGroup:
   m_ObjectHideFlags: 0
