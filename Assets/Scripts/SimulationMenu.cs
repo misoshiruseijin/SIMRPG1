@@ -458,9 +458,9 @@ public class SimulationMenu : MonoBehaviour
 
     IEnumerator TrainingEventCoroutine()
     {
-        Debug.Log("TrainingEventCoroutine");
+        //Debug.Log("TrainingEventCoroutine");
         
-        (string eventMsg, string[] choices, int[][] statusChange) = TrainingCourses.GetRandomEvent();
+        (string eventMsg, string[] choiceTitles, string[] choiceMsgs, int[][] statusChange) = TrainingCourses.GetRandomEvent();
 
         // イベントテキストを設定
         TextController2 eventTextController = trainingPanel.transform.Find("EventTextPanel").GetComponent<TextController2>();
@@ -473,7 +473,7 @@ public class SimulationMenu : MonoBehaviour
         Debug.Log("メッセージを読み終わった");
 
         dialogChoice.SetMessage("どうする？");
-        dialogChoice.NewButtons(choices, new System.Action[] { TestAction, TestAction, TestAction, TestAction });
+        dialogChoice.NewButtons(choiceTitles, new System.Action[] { TestAction, TestAction, TestAction, TestAction }); // TESTACTION書き直す！
         dialogChoice.SetButtons();
         dialogChoice.Show();
 
@@ -633,7 +633,7 @@ public class SimulationMenu : MonoBehaviour
                 i++;
             }
 
-            Debug.Log(tempID);
+            //Debug.Log(tempID);
         }
     }
 
