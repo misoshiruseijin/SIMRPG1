@@ -89,8 +89,9 @@ public static class TrainingCourses
         n_events = File.ReadLines(Application.dataPath + eventCSVPath).Count() - 1; // subtract header line
 
         // ランダムなイベントを取得
-        int eventID = Random.Range(0, n_events-1);
-        string eventString = File.ReadLines(Application.dataPath + eventCSVPath).Skip(eventID).First();
+        int eventID = Random.Range(0, n_events);
+        Debug.Log($"EventID: {eventID}");
+        string eventString = File.ReadLines(Application.dataPath + eventCSVPath).Skip(eventID+1).First();
         string[] eventSplitData = eventString.Split(',');
         string eventMessage = eventSplitData[1];
         
@@ -101,7 +102,7 @@ public static class TrainingCourses
         for (int i = 0; i < 4; i++)
         {
             int choiceID = int.Parse(eventSplitData[i + 2]);
-            string choiceString = File.ReadLines(Application.dataPath + choicesCSVPath).Skip(choiceID).First();
+            string choiceString = File.ReadLines(Application.dataPath + choicesCSVPath).Skip(choiceID+1).First();
             string[] choiceSplitData = choiceString.Split(',');
             choiceTitles[i] = choiceSplitData[1];
             choiceMessages[i] = choiceSplitData[2];

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using System.Linq;
 
 public class SimulationMenu : MonoBehaviour
@@ -54,7 +55,6 @@ public class SimulationMenu : MonoBehaviour
     private int evolvingUnitID; // 変異中のユニットのID (evolveUnitIDはAllyMenuが更新されると更新される。evolvingUnitIDは次の変異を開始するまで変化しない)
     private int trainUnitID; // 強化するユニットのID
     private int courseID; // 選択された訓練メニュー
-    private int tempID; // 一時的にどのボタンが押されたか記録する
     private int[][] statusChange; // 選択された訓練メニューのステータス上昇値Array
 
     private bool isEvolving; // 変異中フラグ
@@ -67,6 +67,11 @@ public class SimulationMenu : MonoBehaviour
 
     private Animator bulletinAnimator; // 掲示板アニメーター
     private bool isBulletinShow; // 掲示板が表示状態か
+
+    private bool isChoiceSelected; // 選択肢を選んだか
+
+    private int tempID; // 一時的にどのボタンが押されたか記録する
+    private string tempString; // 
     #endregion
     #endregion
 
@@ -141,6 +146,8 @@ public class SimulationMenu : MonoBehaviour
         food = GameController.instance.food;
         survivors = GameController.instance.survivors;
         isFoodShort = food < survivors + allyDataList.Count;
+
+        isChoiceSelected = false;
         #endregion
 
         #region HUDの設定
@@ -461,6 +468,13 @@ public class SimulationMenu : MonoBehaviour
         //Debug.Log("TrainingEventCoroutine");
         
         (string eventMsg, string[] choiceTitles, string[] choiceMsgs, int[][] statusChange) = TrainingCourses.GetRandomEvent();
+        
+        // コールバックメソッドのリストを作る
+        List<UnityAction> choiceCallbacks = new List<UnityAction>();
+        foreach (string s in choiceMsgs)
+        {
+            choiceCallbacks.Add(delegate { ChoiceSelected(s); });
+        }
 
         // イベントテキストを設定
         TextController2 eventTextController = trainingPanel.transform.Find("EventTextPanel").GetComponent<TextController2>();
@@ -470,15 +484,17 @@ public class SimulationMenu : MonoBehaviour
         yield return StartCoroutine("WaitForMessageDoneCoroutine");
 
         // 選択肢を表示(DialogBox)
-        Debug.Log("メッセージを読み終わった");
-
+        //Debug.Log("メッセージを読み終わった");
         dialogChoice.SetMessage("どうする？");
-        dialogChoice.NewButtons(choiceTitles, new System.Action[] { TestAction, TestAction, TestAction, TestAction }); // TESTACTION書き直す！
+        dialogChoice.NewButtons(choiceTitles, choiceCallbacks.ToArray());
         dialogChoice.SetButtons();
         dialogChoice.Show();
 
         // 選択肢によって異なる生物の反応をテキストボックスに表示
+        yield return StartCoroutine("WaitForChoiceSelectCoroutine"); // 選択肢を選ぶまで待つ
+        isChoiceSelected = false;
 
+        eventTextController.StartText(allyDataList[trainUnitID].jpName + tempString); // tempStringは押したボタンによってChocieSelected内で設定される
         // 訓練が終了。ステータス上昇を見せる
     }
 
@@ -487,7 +503,13 @@ public class SimulationMenu : MonoBehaviour
         Debug.Log("WaitCoroutine");
         TextController2 eventTextController = trainingPanel.transform.Find("EventTextPanel").GetComponent<TextController2>();
 
-        yield return new WaitUntil(() => eventTextController.isControllerActive==false);
+        yield return new WaitUntil(() => eventTextController.isControllerActive == false);
+    }
+
+    IEnumerator WaitForChoiceSelectCoroutine()
+    {
+        Debug.Log("Wait for choice coroutine");
+        yield return new WaitUntil(() => isChoiceSelected == true);
     }
 
     public void EvolveButtonPressed()
@@ -906,6 +928,12 @@ public class SimulationMenu : MonoBehaviour
         isBulletinShow = !isBulletinShow;
     }
     
+    public void ChoiceSelected(string msgString)
+    {
+        tempString = msgString;
+        isChoiceSelected = true;
+    }
+
     public void TestOnClick()
     {
         Debug.Log("Object clicked");
@@ -914,5 +942,6 @@ public class SimulationMenu : MonoBehaviour
     public void TestAction()
     {
         Debug.Log($"Test Action");
+        isChoiceSelected = true;
     }
 }

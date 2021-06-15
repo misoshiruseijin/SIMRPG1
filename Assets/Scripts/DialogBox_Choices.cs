@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 /// <summary>
@@ -28,11 +29,11 @@ public class DialogBox_Choices : MonoBehaviour
     public class Choice
     {
         public string btnText;
-        public Action btnAction;
+        public UnityAction btnAction;
     }
 
 
-    public void NewButtons(string[] textArray, Action[] actionArray)
+    public void NewButtons(string[] textArray, UnityAction[] actionArray)
     {
         choiceList = new List<Choice>();
 
