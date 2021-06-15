@@ -457,8 +457,9 @@ public class SimulationMenu : MonoBehaviour
         // キャラの絵を設定
         GameObject unitImgObj = trainingPanel.transform.Find("UnitImage").gameObject;
         unitImgObj.GetComponent<Image>().sprite = allyDataList[trainUnitID].unitSprite;
-        
+
         // 訓練画面に移行
+        // 画面移行アニメーション
         PanelController.EnablePanel(trainingPanel);
         StartCoroutine("TrainingEventCoroutine");
     }
@@ -480,11 +481,9 @@ public class SimulationMenu : MonoBehaviour
         TextController2 eventTextController = trainingPanel.transform.Find("EventTextPanel").GetComponent<TextController2>();
         eventTextController.StartText(allyDataList[trainUnitID].jpName + eventMsg, false);
 
-        // プレイヤーがメッセージを読み終わるまで待つ
-        yield return StartCoroutine("WaitForMessageDoneCoroutine");
+        yield return StartCoroutine("WaitForMessageDoneCoroutine"); // メッセージを読み終わるまで待つ
 
-        // 選択肢を表示(DialogBox)
-        //Debug.Log("メッセージを読み終わった");
+        // 選択肢を表示
         dialogChoice.SetMessage("どうする？");
         dialogChoice.NewButtons(choiceTitles, choiceCallbacks.ToArray());
         dialogChoice.SetButtons();
@@ -495,6 +494,8 @@ public class SimulationMenu : MonoBehaviour
         isChoiceSelected = false;
 
         eventTextController.StartText(allyDataList[trainUnitID].jpName + tempString); // tempStringは押したボタンによってChocieSelected内で設定される
+        
+        // 画面移行アニメーション
         // 訓練が終了。ステータス上昇を見せる
     }
 

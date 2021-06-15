@@ -90,7 +90,6 @@ public static class TrainingCourses
 
         // ランダムなイベントを取得
         int eventID = Random.Range(0, n_events);
-        Debug.Log($"EventID: {eventID}");
         string eventString = File.ReadLines(Application.dataPath + eventCSVPath).Skip(eventID+1).First();
         string[] eventSplitData = eventString.Split(',');
         string eventMessage = eventSplitData[1];
