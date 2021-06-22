@@ -13,13 +13,14 @@ public class SimulationMenu : MonoBehaviour
     #region インスペクターで設定する項目
     public List<GameObject> menuBtnList;
     public List<GameObject> popupPanelList;
-    public GameObject evolvePanel, preTrainingPanel, trainingPanel;
+    public GameObject evolvePanel, preTrainingPanel, trainingPanel, trainResultPanel;
 
     public GameObject togglePrefab;
     public GameObject descBtnPrefab;
 
     public GameObject HUDPanel;
 
+    public Animator fadeAnimator;
     public ChangeScene sceneChanger;
     public Text scDateText; // 1日の初めに表示する日付テキスト
 
@@ -72,6 +73,8 @@ public class SimulationMenu : MonoBehaviour
 
     private int tempID; // 一時的にどのボタンが押されたか記録する
     private string tempString; // 
+
+    private float transitionTime; // メニュー移行演出の時間
     #endregion
     #endregion
 
@@ -108,6 +111,7 @@ public class SimulationMenu : MonoBehaviour
         partyDataList = new List<CharacterData>();
         partyMemberID = new List<int>();
 
+        transitionTime = 0.8f;
         # region シーン上のオブジェクトを取得
         GameObject manageAllyPanel, partyPanel;
         manageAllyPanel = popupPanelList[0];
@@ -445,7 +449,14 @@ public class SimulationMenu : MonoBehaviour
         courseID = tempID;
         int[] growthArray = statusChange[courseID];
 
-        // キャラのステータスを上昇させる
+        // キャラのステータスを書き換える前に結果画面の元ステータスを設定
+        GameObject statusPanel = trainResultPanel.transform.Find("Panel").Find("UnitParam").gameObject;
+        Text beforeText = statusPanel.transform.Find("UnitParamBefore").GetComponent<Text>();
+        Text afterText = statusPanel.transform.Find("UnitParamAfter").GetComponent<Text>();
+
+        beforeText.text = "\n" + string.Join("\n", allyDataList[trainUnitID].GetStatusList());
+
+        // キャラのステータスを更新する
         int[] newParam = allyDataList[trainUnitID].GetStatusIntArray();
         for (int i = 0; i < growthArray.Length; i++)
         {
@@ -454,20 +465,22 @@ public class SimulationMenu : MonoBehaviour
 
         allyDataList[trainUnitID].UpdateStatus(newParam);
 
+        // 結果画面の新ステータスを設定
+        afterText.text = "\n" + string.Join("\n", allyDataList[trainUnitID].GetStatusList());
+
         // キャラの絵を設定
         GameObject unitImgObj = trainingPanel.transform.Find("UnitImage").gameObject;
         unitImgObj.GetComponent<Image>().sprite = allyDataList[trainUnitID].unitSprite;
 
         // 訓練画面に移行
-        // 画面移行アニメーション
-        PanelController.EnablePanel(trainingPanel);
-        StartCoroutine("TrainingEventCoroutine");
+        StartCoroutine(TrainingEventCoroutine());
     }
 
     IEnumerator TrainingEventCoroutine()
     {
         //Debug.Log("TrainingEventCoroutine");
-        
+        StartCoroutine(MenuTransitionCoroutine(trainingPanel, preTrainingPanel)); // 画面切り替え
+
         (string eventMsg, string[] choiceTitles, string[] choiceMsgs, int[][] statusChange) = TrainingCourses.GetRandomEvent();
         
         // コールバックメソッドのリストを作る
@@ -481,7 +494,7 @@ public class SimulationMenu : MonoBehaviour
         TextController2 eventTextController = trainingPanel.transform.Find("EventTextPanel").GetComponent<TextController2>();
         eventTextController.StartText(allyDataList[trainUnitID].jpName + eventMsg, false);
 
-        yield return StartCoroutine("WaitForMessageDoneCoroutine"); // メッセージを読み終わるまで待つ
+        yield return StartCoroutine(WaitForMessageDoneCoroutine()); // メッセージを読み終わるまで待つ
 
         // 選択肢を表示
         dialogChoice.SetMessage("どうする？");
@@ -490,13 +503,14 @@ public class SimulationMenu : MonoBehaviour
         dialogChoice.Show();
 
         // 選択肢によって異なる生物の反応をテキストボックスに表示
-        yield return StartCoroutine("WaitForChoiceSelectCoroutine"); // 選択肢を選ぶまで待つ
+        yield return StartCoroutine(WaitForChoiceSelectCoroutine()); // 選択肢を選ぶまで待つ
         isChoiceSelected = false;
 
         eventTextController.StartText(allyDataList[trainUnitID].jpName + tempString); // tempStringは押したボタンによってChocieSelected内で設定される
+        yield return StartCoroutine(WaitForMessageDoneCoroutine());
         
-        // 画面移行アニメーション
         // 訓練が終了。ステータス上昇を見せる
+        StartCoroutine(MenuTransitionCoroutine(trainResultPanel, trainingPanel));
     }
 
     IEnumerator WaitForMessageDoneCoroutine()
@@ -511,6 +525,19 @@ public class SimulationMenu : MonoBehaviour
     {
         Debug.Log("Wait for choice coroutine");
         yield return new WaitUntil(() => isChoiceSelected == true);
+    }
+
+    IEnumerator MenuTransitionCoroutine(GameObject openPanel, GameObject closePanel = null)
+    {
+        fadeAnimator.SetTrigger("start");
+        
+        yield return new WaitForSeconds(transitionTime / 2);
+        
+        PanelController.EnablePanel(openPanel);
+        if(closePanel != null)
+        {
+            PanelController.DisablePanel(closePanel);
+        }
     }
 
     public void EvolveButtonPressed()
