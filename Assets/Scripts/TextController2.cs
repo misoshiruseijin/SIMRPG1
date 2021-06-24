@@ -16,6 +16,7 @@ public class TextController2 : MonoBehaviour
     public string message; // 1会話内の全文章
 
     private Text messageText;
+    private CanvasGroup cg;
     
     private string[] segments; // 一度に表示する文章のArray
     private string splitPattern; // セグメントを区切るのに使うキー
@@ -36,8 +37,7 @@ public class TextController2 : MonoBehaviour
         messageText = this.GetComponentInChildren<Text>();
         splitPattern = "<>";
         textSpeed = GameController.instance.messaegSpeed;
-
-        //SetMessage(message);
+        cg = this.GetComponent<CanvasGroup>();
     }
 
     void Update()
@@ -137,6 +137,9 @@ public class TextController2 : MonoBehaviour
 
     public void StartText(string fullMessage, bool hideWhenDone = true)
     {
+        cg.alpha = 1f;
+        cg.interactable = true;
+        cg.blocksRaycasts = true;
         message = fullMessage;
         SetMessage(message);
         hidePanel = hideWhenDone;

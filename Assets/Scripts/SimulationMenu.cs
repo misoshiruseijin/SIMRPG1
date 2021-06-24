@@ -73,6 +73,7 @@ public class SimulationMenu : MonoBehaviour
 
     private int tempID; // 一時的にどのボタンが押されたか記録する
     private string tempString; // 
+    private List<int> tempList;
 
     private float transitionTime; // メニュー移行演出の時間
     #endregion
@@ -482,12 +483,15 @@ public class SimulationMenu : MonoBehaviour
         StartCoroutine(MenuTransitionCoroutine(trainingPanel, preTrainingPanel)); // 画面切り替え
 
         (string eventMsg, string[] choiceTitles, string[] choiceMsgs, int[][] statusChange) = TrainingCourses.GetRandomEvent();
-        
+
         // コールバックメソッドのリストを作る
         List<UnityAction> choiceCallbacks = new List<UnityAction>();
-        foreach (string s in choiceMsgs)
+
+        for (int i = 0; i < choiceMsgs.Length; i++)
         {
-            choiceCallbacks.Add(delegate { ChoiceSelected(s); });
+            List<int> statusChangeList = statusChange[i].ToList();
+            string msgString = choiceMsgs[i];
+            choiceCallbacks.Add(delegate { ChoiceSelected(msgString, statusChangeList); });
         }
 
         // イベントテキストを設定
@@ -505,6 +509,14 @@ public class SimulationMenu : MonoBehaviour
         // 選択肢によって異なる生物の反応をテキストボックスに表示
         yield return StartCoroutine(WaitForChoiceSelectCoroutine()); // 選択肢を選ぶまで待つ
         isChoiceSelected = false;
+
+        // 性格ステータスを反映
+        for (int i = 0; i < tempList.Count; i++)
+        {
+            allyDataList[trainUnitID].personaArray[i] += tempList[i];
+        }
+
+        Debug.Log($"性格ステータス：{string.Join(",", allyDataList[trainUnitID].personaArray.Select(x => x.ToString()))}");
 
         eventTextController.StartText(allyDataList[trainUnitID].jpName + tempString); // tempStringは押したボタンによってChocieSelected内で設定される
         yield return StartCoroutine(WaitForMessageDoneCoroutine());
@@ -956,8 +968,10 @@ public class SimulationMenu : MonoBehaviour
         isBulletinShow = !isBulletinShow;
     }
     
-    public void ChoiceSelected(string msgString)
+    public void ChoiceSelected(string msgString, List<int> personaList)
     {
+        //Debug.Log("Choice Selected");
+        tempList = new List<int>(personaList);
         tempString = msgString;
         isChoiceSelected = true;
     }
