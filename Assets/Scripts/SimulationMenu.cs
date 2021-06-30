@@ -98,6 +98,7 @@ public class SimulationMenu : MonoBehaviour
         geneDataList = new List<GeneData>();
         geneDataList.Add(ManageData.GeneDataFromSO("koumori"));
         geneDataList.Add(ManageData.GeneDataFromSO("usagi"));
+        geneDataList.Add(ManageData.GeneDataFromSO("kame"));
         // FOR TESTING PURPOSES. DELETE WHEN UNNEEDED //
 
         scDateText.text = $"{GameController.instance.day}日目";
@@ -590,6 +591,7 @@ public class SimulationMenu : MonoBehaviour
         evolveMenuToggleList[0].GetComponent<Toggle>().isOn = true;
 
         PanelController.EnablePanel(evolvePanel);
+        UpdateEvolveMenu();
     }
 
     public void StartEvolveButtonPressed()

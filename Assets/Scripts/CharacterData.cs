@@ -5,7 +5,7 @@ using UnityEngine;
 public class CharacterData
 {
     #region 初期設定はCSVから
-    public int Maxhp, atk, def, spd;
+    public int Maxhp, atk, def, mat, mde, spd;
     public string jpName;
     public List<SkillStatus> skillList;
     public Sprite unitSprite;
@@ -16,7 +16,7 @@ public class CharacterData
 
     public List<string> GetStatusList()
     {
-        List<int> intList = new List<int> { Maxhp, atk, def, spd };
+        List<int> intList = new List<int> { Maxhp, atk, def, mat, mde, spd };
         List<string> statusList = new List<string>();
 
         foreach (int status in intList)
@@ -29,7 +29,7 @@ public class CharacterData
 
     public int[] GetStatusIntArray()
     {
-        int[] intArray = new int[] { Maxhp, atk, def, spd };
+        int[] intArray = new int[] { Maxhp, atk, def, mat, mde, spd };
         return intArray;
     }
 
@@ -38,6 +38,8 @@ public class CharacterData
         Maxhp = newStatusArray[0];
         atk = newStatusArray[1];
         def = newStatusArray[2];
-        spd = newStatusArray[3];
+        mat = newStatusArray[3];
+        mde = newStatusArray[4];
+        spd = newStatusArray[5];
     }
 }

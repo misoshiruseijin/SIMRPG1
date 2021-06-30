@@ -17,7 +17,7 @@ MonoBehaviour:
   jpName: "\u30A6\u30B5\u30AE\u907A\u4F1D\u5B50"
   hp: 5
   atk: 2
-  def: 5
+  def: 2
   spd: 8
   skill: {fileID: 11400000, guid: 80e1d84a2d6e8bd4a98abf302c41fc28, type: 2}
-  risk: 2
+  risk: 8

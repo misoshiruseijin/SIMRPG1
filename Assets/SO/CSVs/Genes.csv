@@ -1,3 +1,4 @@
-id,engName,jpName,hp,atk,def,spd,skill,risk(%)
-G_00,koumoriDNA,コウモリ遺伝子,5,5,-1,5,S_02,50
-G_01,usagiDNA,ウサギ遺伝子,5,2,5,8,S_00,2
+id,engName,jpName,hp,atk,def,mat,mde,spd,skill,risk
+G_00,koumoriDNA,コウモリ遺伝子,5,5,-1,2,5,5,S_02,10
+G_01,usagiDNA,ウサギ遺伝子,5,2,5,0,2,8,S_00,30
+G_02,kameDNA,カメ遺伝子,5,5,10,0,7,-5,S_00,60
