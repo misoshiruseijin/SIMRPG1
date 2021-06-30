@@ -94,7 +94,7 @@ public class TextController2 : MonoBehaviour
 
                     if (segmentIndex >= segments.Length)
                     {
-                        Debug.Log("メッセージを表示しきった");
+                        //Debug.Log("メッセージを表示しきった");
                         isMsgDone = true;
                         
                         if (hidePanel)

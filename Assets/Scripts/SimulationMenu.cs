@@ -523,6 +523,8 @@ public class SimulationMenu : MonoBehaviour
         
         // 訓練が終了。ステータス上昇を見せる
         StartCoroutine(MenuTransitionCoroutine(trainResultPanel, trainingPanel));
+        allyDataList[trainUnitID].trainingCnt++; // 訓練回数をカウント
+        Debug.Log($"{allyDataList[trainUnitID].jpName}の訓練回数：{allyDataList[trainUnitID].trainingCnt}");
     }
 
     IEnumerator WaitForMessageDoneCoroutine()
@@ -981,9 +983,4 @@ public class SimulationMenu : MonoBehaviour
         Debug.Log("Object clicked");
     }
 
-    public void TestAction()
-    {
-        Debug.Log($"Test Action");
-        isChoiceSelected = true;
-    }
 }
