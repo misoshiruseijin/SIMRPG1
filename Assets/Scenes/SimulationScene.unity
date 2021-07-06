@@ -11227,6 +11227,12 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: MenuButtonPressed
       objectReference: {fileID: 0}
+    - target: {fileID: 5588424626909495155, guid: b82de03aaf75c6b4c93f984c186b395f,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 487c6db83002458498fa8486902ebd95,
+        type: 3}
     - target: {fileID: 5588424626909495167, guid: b82de03aaf75c6b4c93f984c186b395f,
         type: 3}
       propertyPath: m_Name
