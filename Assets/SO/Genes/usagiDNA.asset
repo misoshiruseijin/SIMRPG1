@@ -18,6 +18,8 @@ MonoBehaviour:
   hp: 5
   atk: 2
   def: 5
+  mat: 0
+  mde: 2
   spd: 8
   skill: {fileID: 11400000, guid: 80e1d84a2d6e8bd4a98abf302c41fc28, type: 2}
-  risk: 2
+  risk: 30

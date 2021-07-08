@@ -1,5 +1,5 @@
 id,engName,jpName,target1,type1,mult1,target2,type2,mult2,target3,type3,mult3,effect0,effect1,effect2,effect3,message1,desc
 S_00,00_kamituki,かみつき,0,0,2,,,,,,,spell,bite1,,,の噛みつき！,敵単体にダメージ
 S_01,01_hikkaki,ひっかき,0,0,2,,,,,,,spell,scratch1,,,は鋭い爪でひっかいた！,敵単体にダメージ
-S_02,02_kyuuketu,吸血,0,0,2,4,1,5,,,,spell,bite1,healHP,,の吸血攻撃！,敵単体を攻撃しHPを吸収
+S_02,02_kyuuketu,吸血,0,0,2,4.00,2.00,5.00,,,,spell,bite1,healHP,,の吸血攻撃！,敵単体を攻撃しHPを吸収
 S_03,03_nagiharai,なぎはらい,1,0,2,,,,,,,spell,scratch1,,,は勢いよくなぎはらった！,敵全体にダメージ

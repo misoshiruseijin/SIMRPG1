@@ -5,7 +5,7 @@ using UnityEngine;
 public class GeneStatus : ScriptableObject
 {
     public string id, engName, jpName;
-    public int hp, atk, def, spd;
+    public int hp, atk, def, mat, mde, spd;
     public SkillStatus skill;
     public int risk;
 }
