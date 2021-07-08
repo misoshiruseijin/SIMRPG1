@@ -11,8 +11,12 @@ public class CharacterData
     public Sprite unitSprite;
     #endregion
 
+    public int personaID; // 性格ID
+    public string personaName; // 性格名
     public int[] personaArray; // 性格を決める隠しパラメータ
     public int trainingCnt; // 訓練回数。性格付与条件の一つ
+    public float[] statusMults; // 性格によるステータス補正倍率
+    public int personaStep; // 何段階目の性格を持っているか
 
     public List<string> GetStatusList()
     {
