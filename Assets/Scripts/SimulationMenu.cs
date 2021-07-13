@@ -525,6 +525,8 @@ public class SimulationMenu : MonoBehaviour
         StartCoroutine(MenuTransitionCoroutine(trainResultPanel, trainingPanel));
         allyDataList[trainUnitID].trainingCnt++; // 訓練回数をカウント
         Debug.Log($"{allyDataList[trainUnitID].jpName}の訓練回数：{allyDataList[trainUnitID].trainingCnt}");
+
+        PersonalityData.ChangePersona(allyDataList[trainUnitID]);
     }
 
     IEnumerator WaitForMessageDoneCoroutine()

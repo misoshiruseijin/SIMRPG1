@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
+using System.Globalization;
 
 public static class PersonalityData
 {
@@ -17,7 +18,7 @@ public static class PersonalityData
 
     private static string personaCSVPath = "/TextData/Persona.csv";
 
-    private static int[] n_training = new int[] { 2, 5 }; // 性格付与に必要な訓練回数
+    private static int[] n_training = new int[] { 1, 5 }; // 性格付与に必要な訓練回数
 
     // 初回性格付与時に使う条件
     private static int[] minStatusTypes = new int[] { 1, 0, 3, 2 };
@@ -31,6 +32,7 @@ public static class PersonalityData
         // 訓練回数の条件を満たしていない
         if(character.trainingCnt < n_training[character.personaStep])
         {
+            Debug.Log("性格付与の条件を満たしていない");
             return false;
         }
 
@@ -45,7 +47,7 @@ public static class PersonalityData
             int maxValue = statusArray[0];
             int minValue = statusArray[0];
             int id = -1;
-
+             
             for (int i = 1; i < statusArray.Length; i++)
             {
                 if (statusArray[i] > maxValue)
@@ -84,23 +86,27 @@ public static class PersonalityData
 
             // CSVから決まった性格の情報を読み込む
             StreamReader reader = new StreamReader(Application.dataPath + personaCSVPath);
-            reader.ReadLine(); // skip header
-            for (int i = 0; i < id; i++)
+            for (int i = 0; i < id + 2; i++)
             {
                 reader.ReadLine();
             }
             string line = reader.ReadLine(); // ほしい情報が書かれている行
+            Debug.Log(line);
             string[] splitline = line.Split(',');
-            
+
             string name = splitline[1];
             //int skillID = int.Parse(splitline[splitline.Length - 1]);
 
-            // 倍率だけint[]に変換
+            // 倍率だけfloat[]に変換
             List<string> splitlineList = splitline.ToList();
-            splitlineList.RemoveAt(0); // ID部分削除
-            splitlineList.RemoveAt(1); // 名前部分削除
-            splitlineList.RemoveAt(splitlineList.Count - 1); // スキルID部分削除
-            float[] multArray = splitlineList.ToArray().Select(float.Parse).ToArray();
+            List<float> tempList = new List<float>();
+            for (int i = 2; i < splitlineList.Count -1; i++ )
+            {
+                float f = float.Parse(splitlineList[i]);
+                tempList.Add(f);
+            }
+
+            float[] multArray = tempList.ToArray();
 
             // CharacterDataを更新
             character.personaID = id;
@@ -109,75 +115,10 @@ public static class PersonalityData
             character.personaStep++;
             character.trainingCnt = 0;
 
-            Debug.Log($"性格：{splitline[1]}");
+            Debug.Log($"性格：{splitline[1]}が付与された");
 
             return true;
         }
-
-    }
-
-    private static int GetPersona()
-    {
-        if (!isReady)
-        {
-
-        }
-        // どの性格ステータスが最大、最小か確認
-        int maxIndex = 0;
-        int minIndex = 0;
-        int maxValue = statusArray[0];
-        int minValue = statusArray[0];
-        int personaID = -1; // 性格タイプID
-
-        for (int i = 1; i < statusArray.Length; i++)
-        {
-            if (statusArray[i] > maxValue)
-            {
-                maxIndex = i;
-                maxValue = statusArray[i];
-            }
-
-            if (statusArray[i] < minValue)
-            {
-                minIndex = i;
-                minValue = statusArray[i];
-            }
-        }
-
-        // 性格IDを決める
-        switch (step)
-        {
-            // 1段階目
-            case 0:
-                // 最大値と最小値、どちらが顕著かチェック            
-                if (Mathf.Abs(maxValue) >= Mathf.Abs(minValue))
-                {
-                    // 最大値条件を適用
-                    personaID = maxStatusTypes[maxIndex];
-                }
-
-                else
-                {
-                    // 最小値条件を適用
-                    personaID = minStatusTypes[minIndex];
-                }
-
-                break;
-        }
-        
-        // CSVから決まった性格の情報を読み込む
-        StreamReader reader = new StreamReader(Application.dataPath + personaCSVPath);
-        reader.ReadLine(); // skip header
-        for (int i = 0; i < id; i++)
-        {
-            reader.ReadLine();
-        }
-
-        string line = reader.ReadLine();
-        string[] splitline = line.Split(',');
-        Debug.Log($"性格：{splitline[1]}");
-       
-        return personaID;
 
     }
 
