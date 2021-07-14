@@ -25,7 +25,6 @@ public static class PersonalityData
     private static int[] maxStatusTypes = new int[] { 0, 1, 2, 3 };
 
     private static int[] statusArray; // personaArrayを一時保存
-    private static bool isReady; // 訓練回数条件を満たしているか
 
     public static bool ChangePersona(CharacterData character)
     {
@@ -114,6 +113,15 @@ public static class PersonalityData
             character.statusMults = multArray;
             character.personaStep++;
             character.trainingCnt = 0;
+
+            // 性格倍率を適用
+            int[] newStatus = new int[multArray.Length];
+            int[] oldStatus = character.GetStatusIntArray();
+            for (int i = 0; i < multArray.Length; i++)
+            {
+                newStatus[i] = oldStatus[i] + Mathf.RoundToInt(oldStatus[i] * multArray[i]);
+            }
+            character.UpdateStatus(newStatus);
 
             Debug.Log($"性格：{splitline[1]}が付与された");
 

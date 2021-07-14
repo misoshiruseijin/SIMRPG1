@@ -510,7 +510,7 @@ public class SimulationMenu : MonoBehaviour
         yield return StartCoroutine(WaitForChoiceSelectCoroutine()); // 選択肢を選ぶまで待つ
         isChoiceSelected = false;
 
-        // 性格ステータスを反映
+        // 性格隠しパラメータを更新
         for (int i = 0; i < tempList.Count; i++)
         {
             allyDataList[trainUnitID].personaArray[i] += tempList[i];
@@ -520,13 +520,15 @@ public class SimulationMenu : MonoBehaviour
 
         eventTextController.StartText(allyDataList[trainUnitID].jpName + tempString); // tempStringは押したボタンによってChocieSelected内で設定される
         yield return StartCoroutine(WaitForMessageDoneCoroutine());
-        
+
         // 訓練が終了。ステータス上昇を見せる
         StartCoroutine(MenuTransitionCoroutine(trainResultPanel, trainingPanel));
         allyDataList[trainUnitID].trainingCnt++; // 訓練回数をカウント
         Debug.Log($"{allyDataList[trainUnitID].jpName}の訓練回数：{allyDataList[trainUnitID].trainingCnt}");
 
+        // ！！！性格の付与が行われた場合通知、ステータスの変化を見せる
         PersonalityData.ChangePersona(allyDataList[trainUnitID]);
+
     }
 
     IEnumerator WaitForMessageDoneCoroutine()
